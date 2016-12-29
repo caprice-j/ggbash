@@ -27,13 +27,14 @@ ggbash <- function(){
     library(ggplot2)
 
     eval_as_variable <- function(varname_string) eval(as.symbol(varname_string))
+    add_comma <- function(...) paste0(', ', ...)
     dataset <- NULL
     dataset_string <- NULL
     while (TRUE) {
         raw_input <- show_prompt(dataset_string)
         # just for test
             argv <- c('use', 'iris')
-            argv <- c('point', '2', '3')
+            argv <- c('point', '2', '3', 'color=5')
         argv <- parse_user_input(raw_input)
 
         add_input_to_history(raw_input)
@@ -46,9 +47,14 @@ ggbash <- function(){
         } else if (argv[1] == 'point') {
             x <- colnames(dataset)[as.numeric(argv[2])]
             y <- colnames(dataset)[as.numeric(argv[3])]
-            if (length(argv) > 3)
-                color <- colnames(dataset)[as.numeric(argv[4])]
-            command <- paste0('ggplot(dataset) + geom_point(aes(',x,',',y,'))')
+            if (length(argv) > 3) {
+                aes_str <- gsub('[0-9]', '', argv[4])
+                col_num <- gsub('.*=', '', argv[4])
+                color <- add_comma(aes_str, colnames(dataset)[as.numeric(col_num)])
+            } else {
+                color <- ''
+            }
+            command <- paste0('ggplot(dataset) + geom_point(aes(',x,', ',y,'',color,'))')
             expr <- parse(text = command)
             print(eval(expr))
             message('executed: ', command)
