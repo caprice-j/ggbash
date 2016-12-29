@@ -1,9 +1,8 @@
-show_prompt <- function(dataset_string=' (iris)'){
+show_prompt <- function(dataset_string='iris'){
     username <- Sys.info()['user']
     hostname <- Sys.info()['nodename']
     working_dir <- basename(getwd())
-    # if dataset_string is NULL,
-    # paste0(dataset_string) is '' (empty string)
+    dataset_string <- ifelse(is.null(dataset_string),'', paste0(' (', dataset_string,')'))
     ggbash_prompt <- paste0(username, '@',
                             hostname, ' ',
                             working_dir, dataset_string, ' $')
@@ -104,42 +103,67 @@ ggbash <- function(){
             dataset <- tbl_df(eval_as_variable(argv[2]))
             message('attach ', argv[2])
             glimpse(dataset)
-            dataset$ggbash_datasetname <- paste0(' (', argv[2], ')')
+            attr(dataset, 'ggbash_datasetname') <- argv[2]
             # should I store the var name with parentheses?
 
         } else if (argv[1] == 'show') {
 
             print(tbl_df(eval_as_variable(argv[2])))
 
-        } else if (argv[1] == 'point') {
-            x <- colnames(dataset)[as.numeric(argv[2])]
-            y <- colnames(dataset)[as.numeric(argv[3])]
-            if (length(argv) > 3) {
-                aes_str <- gsub('[0-9]', '', argv[4])
-                col_num <- gsub('.*=', '', argv[4])
-                color <- add_comma(aes_str, colnames(dataset)[as.numeric(col_num)])
-            } else {
-                color <- ''
-            }
-            command <- paste0('ggplot(dataset) + geom_point(aes(',x,', ',y,'',color,'))')
-            expr <- parse(text = command)
-            print(eval(expr))
-            message('executed: ', command)
         }else if (argv[1] %in% geom_namev) {
-            x <- colnames(dataset)[as.numeric(argv[2])]
-            y <- colnames(dataset)[as.numeric(argv[3])]
-            if (length(argv) > 3) {
-                aes_str <- gsub('[0-9]', '', argv[4])
-                col_num <- gsub('.*=', '', argv[4])
-                color <- add_comma(aes_str, colnames(dataset)[as.numeric(col_num)])
-            } else {
-                color <- ''
-            }
-            command <- paste0('ggplot(dataset) + geom_point(aes(',x,', ',y,'',color,'))')
-            expr <- parse(text = command)
-            print(eval(expr))
-            message('executed: ', command)
+
+            build_ggplot_object(argv, dataset)
+
         }
     }
 }
 
+build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset){
+
+    if (is.null(dataset))
+        stop('dataset is not set')
+
+    # three cases:
+    # 1. no name just 1 2 3
+    # 2. color=3 size=4
+    # 3. c=4      (partial match)
+
+    # x
+    # y
+    # alpha
+    # colour
+    # fill
+    # shape
+    # size
+    # stroke
+
+    colnamev <- colnames(dataset)
+
+    add_comma <- function(i, ...) ifelse(i==1, paste0(...), paste0(', ', ...))
+
+    # if all required aesthetics are set
+    #
+    # TODO set non-aes elements
+    conf <- list(aes=list())
+    i <- 2
+    aesv <- argv[-1]
+    for ( i in seq_along(aesv) ) {
+        # TODO as.factor
+        # TODO as.character
+        # TODO cut
+        if (grepl('=', aesv[i])) {
+            before_equal <- gsub('[0-9]+', '', aesv[i])
+            after_equal  <- gsub('.*=',    '', aesv[i])
+
+            conf$aes[[i]] <- paste0(before_equal, colnamev[as.numeric(after_equal)])
+        } else {
+        }
+    }
+    command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
+                      ' + geom_', argv[1], '(',
+                      'aes(', paste0(conf$aes, collapse = ', '), '))')
+    expr <- parse(text = command)
+    print(eval(expr))
+    message('executed: ', command)
+
+}

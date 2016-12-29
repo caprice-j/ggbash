@@ -8,7 +8,7 @@ output:
 
 # ggbash
 
-ggbash is the bash-like environment for ggplot2.
+ggbash provides a bash-like REPL environment for ggplot2.
 
 ```{r, eval = FALSE}
 library(ggbash)
@@ -32,11 +32,12 @@ $ Species      (fctr) setosa, setosa, setosa, setosa, setosa, setosa, setosa, ..
 
 
 ```{r, eval = FALSE}
-user@host currentDir (iris) $ point 2 3 color=4
+user@host ggbash $point x=2 y=1 color=3 size=4
+
 ```
 
 ```{r, eval = FALSE}
-executed: ggplot(dataset) + geom_point(aes(Sepal.Width,Petal.Length))
+executed: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, color=Petal.Length, size=Petal.Width))
 ```
 
 
