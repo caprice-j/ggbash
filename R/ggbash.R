@@ -11,22 +11,28 @@ truncate_colnames <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt
         out[index] <- shortened_colnamev[index]
         i <- i + 1
     }
-    return(out)
+
+    short2colname <- list()
+
+    for (i in seq_along(colnamev)) {
+        short2colname[ out[i] ] <- colnamev[i]
+    }
+    return(short2colname)
 }
 
 show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
     nchar_longest <- max(sapply(colnames(dataset), nchar))
-    short_colnames <- truncate_colnames(colnames(dataset))
+    short_colnamel <- truncate_colnames(colnames(dataset))
     mod <- 5
     linev <- rep('', mod)
-    for ( i in seq_along(short_colnames) ) {
-        this <- short_colnames[i]
+    for ( i in seq_along(short_colnamel) ) {
+        this <- names(short_colnamel)[i]
         index <- ((i-1) %% mod) + 1
         linev[index] <- paste0(linev[index],
                                str_pad(i,
-                                       width=nchar(ncol(dataset))), ' : ',
+                                       width=nchar(ncol(dataset))), ': ',
                                str_pad(this,
                                        width=nchar_longest,
                                        side='right'), '\t')
@@ -39,8 +45,6 @@ show_dataset_column_indices <- function(dataset=NULL){
 }
 
 show_prompt <- function(dataset=NULL){
-
-    show_dataset_column_indices(dataset)
 
     ds_str <- attr(dataset, 'ggbash_datasetname')
 
@@ -67,18 +71,20 @@ add_input_to_history <- function(input='point 2 3'){
     unlink(history_file)
 }
 
-execute_builtins <- function(raw_input, argv, const){
-    if (argv[1] == c('pwd', 'getwd')) {
+execute_builtins <- function(raw_input, argv, const, dataset){
+    if (argv[1] %in% c('pwd', 'getwd')) {
         message(getwd())
-    } else if (argv[1] == c('ls', 'dir')) {
+    } else if (argv[1] %in% c('ls')) {
+        show_dataset_column_indices(dataset)
+    } else if (argv[1] %in% c('dir')) {
         message( paste(dir(getwd()), collapse='\t') )
         # TODO ls -l
-    } else if (argv[1] == c('cd', 'setwd')) {
+    } else if (argv[1] %in% c('cd', 'setwd')) {
         if (length(argv)<2)
             setwd(const$first_wd)
         else
             setwd(argv[2])
-    } else if (argv[1] == c('echo', 'print')) {
+    } else if (argv[1] %in% c('echo', 'print')) {
         message(raw_input)
     }
 }
@@ -155,16 +161,21 @@ ggbash <- function(dataset = NULL, partial_match=TRUE) {
             raw_input <- show_prompt(dataset)
             argv <- split_user_input(raw_input)
 
-            if (argv[1] %in% const$builtinv) {           execute_builtins(raw_input, argv, const)
-            } else if (argv[1] %in% c('exit', 'quit')) { break
-            } else if (argv[1] == 'use') {               dataset <- set_dataset(argv)
-            } else if (argv[1] == 'show') {              print(tbl_df(eval(as.symbol((argv[2])))))
-            } else if (argv[1] %in% const$geom_namev) {  build_ggplot_object(argv, dataset)
+            if (argv[1] %in% c('exit', 'quit')) {
+                break
+            } else if (argv[1] == 'use') {
+                dataset <- set_dataset(argv)
+            } else if (argv[1] == 'show') {
+                print(tbl_df(eval(as.symbol((argv[2])))))
+            } else if (argv[1] %in% const$geom_namev) {
+                build_ggplot_object(argv, dataset)
+            } else if (argv[1] %in% const$builtinv) {
+                execute_builtins(raw_input, argv, const, dataset)
             }
 
         },
         warning = function(wrn) {
-                                    message('i got warning')
+                                    message('I got warning', wrn)
                                 },
           error = function(err) { # stop() goes here
                                     message('ERROR: ', err)
@@ -206,6 +217,7 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
 
     add_comma <- function(i, ...) ifelse(i==1, paste0(...), paste0(', ', ...))
 
+    short2colname <- truncate_colnames(colnamev)
     # if all required aesthetics are set
     #
     # TODO set non-aes elements
@@ -218,24 +230,23 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
         # TODO cut
         # TODO substr
         if (grepl('=', aesv[i])) {
-
-            before_equal <- gsub('[0-9]+', '', aesv[i]) # include equal sign
-            after_equal  <- gsub('.*=',    '', aesv[i])
-
-            conf$aes[[i]] <- paste0(before_equal, colnamev[as.numeric(after_equal)])
-
+            before_equal <- gsub('=.*', '', aesv[i])
+            after_equal  <- gsub('.*=',     '', aesv[i])
         } else { # no aes specification like geom_point(aes(my_x, my_y))
-
-            before_equal <- paste0(required_aesv[i], '=') # include equal sign
+            before_equal <- required_aesv[i]
             after_equal  <- aesv[i]
-            if (i <= length(required_aesv)) {
-                conf$aes[[i]] <- paste0(before_equal, colnamev[as.numeric(after_equal)])
-            } else {
+
+            if (i > length(required_aesv))
                 stop('too many unspecified aesthetics. ',
                      'Required aesthetics (in order) are: ',
                      paste0(required_aesv, collapse=', '))
-            }
         }
+        if (grepl('[0-9]', after_equal))
+            after_equal <- colnamev[as.numeric(after_equal)]
+        else if (! after_equal %in% colnamev)
+            after_equal <- short2colname[[after_equal]]
+
+        conf$aes[[i]] <- paste0(before_equal, '=', after_equal)
     }
     print(conf$aes)
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
