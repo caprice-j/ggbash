@@ -11,18 +11,6 @@ In ggbash session, almost everything can be specified by partial match.
 Basic Usage
 -----------
 
-``` r
-ggplot(iris) +
-geom_point(aes(Sepal.Width,
-               Sepal.Length,
-               color=Species,
-               size=Petal.Width))
-```
-
-![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
-
-can be written as
-
 ``` bash
 library(ggbash)
 ggbash(iris) # use iris as main dataset
@@ -37,6 +25,8 @@ executed:
                    color=Species,
                    size=Petal.Width))
 ```
+
+![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 Features
 --------

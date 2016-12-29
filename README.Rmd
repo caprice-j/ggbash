@@ -20,16 +20,6 @@ library(ggplot2)
 
 ## Basic Usage
 
-```{r}
-ggplot(iris) +
-geom_point(aes(Sepal.Width,
-               Sepal.Length,
-               color=Species,
-               size=Petal.Width))
-```
-
-can be written as
-
 ```{bash, eval=FALSE}
 library(ggbash)
 ggbash(iris) # use iris as main dataset
@@ -44,6 +34,16 @@ executed:
                    color=Species,
                    size=Petal.Width))
 ```
+
+
+```{r, echo=FALSE}
+ggplot(iris) +
+geom_point(aes(Sepal.Width,
+               Sepal.Length,
+               color=Species,
+               size=Petal.Width))
+```
+
 
 ## Features
 
