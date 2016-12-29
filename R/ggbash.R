@@ -14,12 +14,12 @@ split_user_input <- function(input='point x=3 y=4 color=5'){
 }
 
 add_input_to_history <- function(input='point 2 3'){
-    file1 <- tempfile("Rrawhist")
-    savehistory(file1)
+    history_file <- tempfile("Rhistoryfile")
+    savehistory(history_file)
 
-    cat(input, '\n', file=file1, append = TRUE)
-    loadhistory(file1)
-    unlink(file1)
+    cat(input, '\n', file=history_file, append = TRUE)
+    loadhistory(history_file)
+    unlink(history_file)
 }
 
 execute_builtins <- function(raw_input, argv, const){
@@ -85,9 +85,8 @@ ggbash <- function(){
     const <- define_constant_list()
     dataset <- NULL
 
-    # main loop for command execution
     while (TRUE) { tryCatch(
-        {
+        {   # main loop for command execution
 
             raw_input <- show_prompt(attr(dataset, 'ggbash_datasetname'))
             argv <- split_user_input(raw_input)
