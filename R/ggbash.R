@@ -23,17 +23,17 @@ add_input_to_history <- function(input='point 2 3'){
 }
 
 execute_builtins <- function(raw_input, argv, const){
-    if (argv[1] == 'pwd') {
+    if (argv[1] == c('pwd', 'getwd')) {
         message(getwd())
-    } else if (argv[1] == 'ls') {
+    } else if (argv[1] == c('ls', 'dir')) {
         message( paste(dir(getwd()), collapse='\t') )
         # TODO ls -l
-    } else if (argv[1] == 'cd') {
+    } else if (argv[1] == c('cd', 'setwd')) {
         if (length(argv)<2)
             setwd(const$first_wd)
         else
             setwd(argv[2])
-    } else if (argv[1] == 'echo') {
+    } else if (argv[1] == c('echo', 'print')) {
         message(raw_input)
     }
 }
@@ -75,12 +75,34 @@ set_dataset <- function(argv){
     return(dataset)
 }
 
-ggbash <- function(){
+#' Enter into a ggbash session.
+#'
+#' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+#'
+#' ggbash provides concise aliases for ggplot2 functions.
+#' By calling ggbash(), your R session goes into a ggbash session,
+#' which only interprets predefined ggbash commands.
+#' Some basic commands like setwd() or pwd() works in ggbash session,
+#' but most of the usual R grammars are disabled.
+#' Instead, a variety of ggbash commands are enabled
+#' for writing ggplot2 script as faster as possible.
+#'
+#' @param dataset a dataframe to attach (default is NULL).
+#'                You can define the dataframe later
+#'                by 'use your_dataset' command in the ggbash session.
+#'                If a matrix object is given, It's automatically
+#'                converted into a tbl_df object.
+#' @return nothing
+#' @examples
+#' ggbash()
+#' ggbash(iris)
+ggbash <- function(dataset = NULL){
 
     # initialization
+    if (! is.null(dataset))
+        attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
     load_libraries()
     const <- define_constant_list()
-    dataset <- NULL
 
     while (TRUE) { tryCatch(
         {   # main loop for command execution
