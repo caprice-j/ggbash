@@ -1,11 +1,42 @@
-show_prompt <- function(dataset_string='iris'){
+truncate_colnames <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt')) {
+
+    nchar_longest <- max(sapply(colnamev, nchar))
+
+    out <- rep('', length(colnamev))
+    i <- 4
+    while (any(out == '')) {
+        shortened_colnamev <- sapply(colnamev, function(s) substr(s,1,i))
+        dup_namev <- names(table(shortened_colnamev))[table(shortened_colnamev) > 1]
+        index <- (! shortened_colnamev %in% dup_namev) & (out == '')
+        out[index] <- shortened_colnamev[index]
+        i <- i + 1
+    }
+    return(out)
+}
+
+show_dataset_column_indices <- function(dataset=NULL){
+    if (is.null(dataset))
+        return()
+    short_colnames <- truncate_colnames(colnames(dataset))
+    #width_for_special_chars <- 3 # \t and spaces
+    #width_per_column <- sapply(colnames(dataset), nchar) + width_for_special_chars
+
+    message(str_wrap(paste0(seq_along(dataset), ')  ', short_colnames, '\t', collapse='')))
+}
+
+show_prompt <- function(dataset=NULL){
+
+    show_dataset_column_indices(dataset)
+
+    ds_str <- attr(dataset, 'ggbash_datasetname')
+
     username <- Sys.info()['user']
     hostname <- Sys.info()['nodename']
     working_dir <- basename(getwd())
-    dataset_string <- ifelse(is.null(dataset_string),'', paste0(' (', dataset_string,')'))
+    ds_str <- ifelse(is.null(ds_str),'', paste0(' (', ds_str,')'))
     ggbash_prompt <- paste0(username, '@',
                             hostname, ' ',
-                            working_dir, dataset_string, ' $')
+                            working_dir, ds_str, ' $')
     return(readline(prompt=ggbash_prompt))
 }
 
@@ -96,7 +127,7 @@ set_dataset <- function(argv){
 #' @examples
 #' ggbash()
 #' ggbash(iris)
-ggbash <- function(dataset = NULL){
+ggbash <- function(dataset = NULL, partial_match=TRUE) {
 
     # initialization
     if (! is.null(dataset))
@@ -107,7 +138,7 @@ ggbash <- function(dataset = NULL){
     while (TRUE) { tryCatch(
         {   # main loop for command execution
 
-            raw_input <- show_prompt(attr(dataset, 'ggbash_datasetname'))
+            raw_input <- show_prompt(dataset)
             argv <- split_user_input(raw_input)
 
             if (argv[1] %in% const$builtinv) {           execute_builtins(raw_input, argv, const)
@@ -130,6 +161,12 @@ ggbash <- function(dataset = NULL){
     ) }
 }
 
+get_required_aes <- function(suffix='point') {
+    command <- paste0('geom_', suffix, '()')
+    expr <- parse(text = command)
+    return(eval(expr)$geom$required_aes)
+}
+
 build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset){
 
     if (is.null(dataset))
@@ -149,6 +186,8 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
     # size
     # stroke
 
+    required_aesv <- get_required_aes(argv[1])
+
     colnamev <- colnames(dataset)
 
     add_comma <- function(i, ...) ifelse(i==1, paste0(...), paste0(', ', ...))
@@ -165,13 +204,26 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
         # TODO cut
         # TODO substr
         if (grepl('=', aesv[i])) {
-            before_equal <- gsub('[0-9]+', '', aesv[i])
+
+            before_equal <- gsub('[0-9]+', '', aesv[i]) # include equal sign
             after_equal  <- gsub('.*=',    '', aesv[i])
 
             conf$aes[[i]] <- paste0(before_equal, colnamev[as.numeric(after_equal)])
-        } else {
+
+        } else { # no aes specification like geom_point(aes(my_x, my_y))
+
+            before_equal <- paste0(required_aesv[i], '=') # include equal sign
+            after_equal  <- aesv[i]
+            if (i <= length(required_aesv)) {
+                conf$aes[[i]] <- paste0(before_equal, colnamev[as.numeric(after_equal)])
+            } else {
+                stop('too many unspecified aesthetics. ',
+                     'Required aesthetics (in order) are: ',
+                     paste0(required_aesv, collapse=', '))
+            }
         }
     }
+    print(conf$aes)
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
                       ' + geom_', argv[1], '(',
                       'aes(', paste0(conf$aes, collapse = ', '), '))')
