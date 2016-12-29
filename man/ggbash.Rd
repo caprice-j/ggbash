@@ -4,17 +4,29 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(dataset = NULL)
+ggbash(dataset = NULL, partial_match = TRUE)
 }
 \arguments{
 \item{dataset}{a dataframe to attach (default is NULL).
-You can define later by 'use your_dataset' command in.}
+You can define the dataframe later
+by 'use your_dataset' command in the ggbash session.
+If a matrix object is given, It's automatically
+converted into a tbl_df object.}
 }
 \value{
 nothing
 }
 \description{
-\code{ggbash} executes a new ggbash session within the current R session.
+\code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+}
+\details{
+ggbash provides concise aliases for ggplot2 functions.
+By calling ggbash(), your R session goes into a ggbash session,
+which only interprets predefined ggbash commands.
+Some basic commands like setwd() or pwd() works in ggbash session,
+but most of the usual R grammars are disabled.
+Instead, a variety of ggbash commands are enabled
+for writing ggplot2 script as faster as possible.
 }
 \examples{
 ggbash()

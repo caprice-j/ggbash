@@ -2,32 +2,89 @@
 ggbash
 ======
 
-ggbash is the bash-like environment for ggplot2.
+ggbash provides a bash-like REPL environment for ggplot2.
+
+-   partial match
+
+In ggbash session, almost everything can be specified by partial match.
+
+Basic Usage
+-----------
 
 ``` r
+ggplot(iris) +
+geom_point(aes(Sepal.Width,
+               Sepal.Length,
+               color=Species,
+               size=Petal.Width))
+```
+
+![](README_files/figure-markdown_github/unnamed-chunk-2-1.png)
+
+can be written as
+
+``` bash
 library(ggbash)
-
-ggbash() # enter into ggbash session
+ggbash(iris) # use iris as main dataset
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W
 ```
 
 ``` r
-user@host currentDir $ use iris
+executed:
+    ggplot(iris) +
+    geom_point(aes(Sepal.Width,
+                   Sepal.Length,
+                   color=Species,
+                   size=Petal.Width))
 ```
 
-``` r
-Observations: 150
-Variables: 5
-$ Sepal.Length (dbl) 5.1, 4.9, 4.7, 4.6, 5.0, 5.4, 4.6, 5.0, 4.4, 4.9, 5.4, 4.8, ...
-$ Sepal.Width  (dbl) 3.5, 3.0, 3.2, 3.1, 3.6, 3.9, 3.4, 3.4, 2.9, 3.1, 3.7, 3.4, ..
-$ Petal.Length (dbl) 1.4, 1.4, 1.3, 1.5, 1.4, 1.7, 1.4, 1.5, 1.4, 1.5, 1.5, 1.6, ..
-$ Petal.Width  (dbl) 0.2, 0.2, 0.2, 0.2, 0.2, 0.4, 0.3, 0.2, 0.2, 0.1, 0.2, 0.2, ..
-$ Species      (fctr) setosa, setosa, setosa, setosa, setosa, setosa, setosa, ...
+Features
+--------
+
+### 1. Column Index Match
+
+``` bash
+# 'ls' checks column indices
+user@host currentDir (iris) $ ls
+
+    1: Sepal.L  (ength)
+    2: Sepal.W  (idth)
+    3: Petal.L  (ength)
+    4: Petal.W  (idth)      
+    5: Spec     (ies)
+
+# the same as the above 'p Sepal.W Sepal.L c=Sp si=Petal.W'
+user@host currentDir (iris) $ p 2 1 c=5 si=4
 ```
 
-``` r
-user@host currentDir (iris) $ point 2 3 color=4
-```
+### 2. Partial Match
+
+In the first example, ggbash performs partial matches seven times.
+
+-   **geom names**
+    -   `p` matches to `geom_point`.
+-   **column names**
+    -   `Sepal.W` matches to `iris$Sepal.Width`.
+
+    -   `Sepal.L` matches to `iris$Sepal.Length`.
+
+    -   `Sp` matches to `iris$Species`.
+
+    -   `Petal.W` matches to `iris$Petal.Width`.
+
+-   **aesthetics names**
+    -   `c` matches to `color`, which is the aesthetic of geom\_point.
+    -   `si` matches to `size` ('s' is ambiguous between 'shape' and 'size').
+
+### 3. Save results
 
 ``` r
-executed: ggplot(dataset) + geom_point(aes(Sepal.Width,Petal.Length))
+    user@host currentDir (iris) $ cd imageDir
+
+    user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
+    saved as 'iris-Sepal.W-Sepal.L-Sp.png' (1960 x 1440)
+    
+    user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf --name iris-for
+    saved as 'iris-for.pdf' (960 x 960)
+    # TBI
 ```

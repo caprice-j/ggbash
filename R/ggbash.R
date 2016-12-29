@@ -1,9 +1,8 @@
-truncate_colnames <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt')) {
+truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'), i=1) {
 
     nchar_longest <- max(sapply(colnamev, nchar))
 
     out <- rep('', length(colnamev))
-    i <- 4
     while (any(out == '')) {
         shortened_colnamev <- sapply(colnamev, function(s) substr(s,1,i))
         dup_namev <- names(table(shortened_colnamev))[table(shortened_colnamev) > 1]
@@ -24,7 +23,8 @@ show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
     nchar_longest <- max(sapply(colnames(dataset), nchar))
-    short_colnamel <- truncate_colnames(colnames(dataset))
+    short_colnamel <- truncate_strings(colnames(dataset), i=4)
+    # i = 4 because too short colnames are hard to read
     mod <- 5
     linev <- rep('', mod)
     for ( i in seq_along(short_colnamel) ) {
@@ -104,14 +104,21 @@ define_constant_list <- function(){
         # BUILTIN command Vectors
         builtinv = c('cd', 'echo', 'exit', 'ls', 'pwd', 'quit'),
         # all geom in ggplot2 documents
-        geom_namev = c('abline','hline', 'vline', 'bar', 'bin2d',
-                       'blank', 'boxplot', 'contour', 'count', 'crossbar',
-                       'errorbar', 'linerange', 'pointrange',
-                       'density', 'density_2d',
-                       'dotplot', 'errorbarh', 'freqpoly', 'hex', 'jitter',
-                       'label', 'map', 'path', 'line', 'point', 'polygon',
-                       'quantile', 'raster', 'ribbon', 'area', 'rug',
-                       'segment', 'curve', 'smooth', 'violin'
+        geom_namev = c('abline', 'area',
+                       'bar', 'bin2d', 'blank', 'boxplot',
+                       'curve', 'contour', 'count', 'crossbar',
+                       'density', 'density_2d', 'dotplot',
+                       'errorbar', 'errorbarh',
+                       'freqpoly',
+                       'hex', 'hline',
+                       'jitter',
+                       'label', 'line', 'linerange',
+                       'map',
+                       'path', 'point', 'polygon', # 'pointrange', # I believe no one use pointrange
+                       'quantile',
+                       'raster', 'ribbon', 'rug',
+                       'segment', 'smooth',
+                       'violin', 'vline'
         )
         # TODO implement stat like stat_smooth
     )
@@ -217,7 +224,7 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
 
     add_comma <- function(i, ...) ifelse(i==1, paste0(...), paste0(', ', ...))
 
-    short2colname <- truncate_colnames(colnamev)
+    short2colname <- truncate_strings(colnamev)
     # if all required aesthetics are set
     #
     # TODO set non-aes elements
