@@ -14,10 +14,6 @@ ggbash is the bash-like environment for ggplot2.
 library(ggbash)
 
 ggbash() # enter into ggbash session
-
-user@host currentDir $ use iris
-user@host currentDir (iris) $ point 2 3 color=4
-
 ```
 
 ```{r, eval = FALSE}
