@@ -17,11 +17,25 @@ truncate_colnames <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt
 show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
+    nchar_longest <- max(sapply(colnames(dataset), nchar))
     short_colnames <- truncate_colnames(colnames(dataset))
-    #width_for_special_chars <- 3 # \t and spaces
-    #width_per_column <- sapply(colnames(dataset), nchar) + width_for_special_chars
+    mod <- 5
+    linev <- rep('', mod)
+    for ( i in seq_along(short_colnames) ) {
+        this <- short_colnames[i]
+        index <- ((i-1) %% mod) + 1
+        linev[index] <- paste0(linev[index],
+                               str_pad(i,
+                                       width=nchar(ncol(dataset))), ' : ',
+                               str_pad(this,
+                                       width=nchar_longest,
+                                       side='right'), '\t')
+    }
 
-    message(str_wrap(paste0(seq_along(dataset), ')  ', short_colnames, '\t', collapse='')))
+    for (i in 1:mod ){
+        if (linev[i]!='')
+            message(linev[i])
+    }
 }
 
 show_prompt <- function(dataset=NULL){
