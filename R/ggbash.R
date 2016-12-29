@@ -40,13 +40,10 @@ execute_builtins <- function(raw_input, argv, const){
 
 load_libraries <- function(){
 
-    librariev <-
-        c('stringr', 'dplyr', 'ggplot2')
     lib <- 'stringr' # for test
-    for (lib in librariev) {
-        if (!suppressWarnings(require(lib, character.only=TRUE))) {
+    for (lib in c('stringr', 'dplyr', 'ggplot2')) {
+        if (!suppressWarnings(require(lib, character.only=TRUE)))
             stop('You need to install library(', lib, ') to execute ggbash.')
-        }
     }
 }
 
