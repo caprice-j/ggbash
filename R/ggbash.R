@@ -9,7 +9,7 @@ show_prompt <- function(dataset_string='iris'){
     return(readline(prompt=ggbash_prompt))
 }
 
-split_user_input <- function(input='point 3 4'){
+split_user_input <- function(input='point x=3 y=4 color=5'){
     return(str_split(input, ' ')[[1]])
 }
 
@@ -61,7 +61,7 @@ define_constant_list <- function(){
                        'errorbar', 'linerange', 'pointrange',
                        'density', 'density_2d',
                        'dotplot', 'errorbarh', 'freqpoly', 'hex', 'jitter',
-                       'label', 'map', 'path', 'point', 'polygon',
+                       'label', 'map', 'path', 'line', 'point', 'polygon',
                        'quantile', 'raster', 'ribbon', 'area', 'rug',
                        'segment', 'curve', 'smooth', 'violin'
         )
@@ -69,53 +69,47 @@ define_constant_list <- function(){
     )
 }
 
+set_dataset <- function(argv){
+    dataset <- tbl_df(eval(as.symbol(((argv[2])))))
+    message('attach ', argv[2])
+    glimpse(dataset)
+    attr(dataset, 'ggbash_datasetname') <- argv[2]
+    # should I store the var name with parentheses?
+    return(dataset)
+}
+
 ggbash <- function(){
 
+    # initialization
     load_libraries()
-
     const <- define_constant_list()
-
-    eval_as_variable <- function(var_string) eval(as.symbol(var_string))
-    add_comma <- function(...) paste0(', ', ...)
     dataset <- NULL
 
     # main loop for command execution
-    while (TRUE) {
+    while (TRUE) { tryCatch(
+        {
 
-        raw_input <- 'use iris' # just for test
-        raw_input <- show_prompt(dataset$ggbash_datasetname)
-        argv <- c('use', 'iris')
-        argv <- c('point', '2', '3', 'color=5')
-        argv <- split_user_input(raw_input)
+            raw_input <- show_prompt(attr(dataset, 'ggbash_datasetname'))
+            argv <- split_user_input(raw_input)
 
-        add_input_to_history(raw_input) # add to history even if failed
+            if (argv[1] %in% const$builtinv) {           execute_builtins(raw_input, argv, const)
+            } else if (argv[1] %in% c('exit', 'quit')) { break
+            } else if (argv[1] == 'use') {               dataset <- set_dataset(argv)
+            } else if (argv[1] == 'show') {              print(tbl_df(eval(as.symbol((argv[2])))))
+            } else if (argv[1] %in% const$geom_namev) {  build_ggplot_object(argv, dataset)
+            }
 
-        if (argv[1] %in% const$builtinv) {
-
-            execute_builtins(raw_input, argv, const)
-
-        } else if (argv[1] %in% c('exit', 'quit')) {
-
-            break
-
-        } else if (argv[1] == 'use') {
-
-            dataset <- tbl_df(eval_as_variable(argv[2]))
-            message('attach ', argv[2])
-            glimpse(dataset)
-            attr(dataset, 'ggbash_datasetname') <- argv[2]
-            # should I store the var name with parentheses?
-
-        } else if (argv[1] == 'show') {
-
-            print(tbl_df(eval_as_variable(argv[2])))
-
-        }else if (argv[1] %in% geom_namev) {
-
-            build_ggplot_object(argv, dataset)
-
+        },
+        warning = function(wrn) {
+                                    message('i got warning')
+                                },
+          error = function(err) { # stop() goes here
+                                    message('ERROR: ', err)
+                                },
+        finally = {
+                    add_input_to_history(raw_input) # add to history even if failed
         }
-    }
+    ) }
 }
 
 build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset){
@@ -151,6 +145,7 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
         # TODO as.factor
         # TODO as.character
         # TODO cut
+        # TODO substr
         if (grepl('=', aesv[i])) {
             before_equal <- gsub('[0-9]+', '', aesv[i])
             after_equal  <- gsub('.*=',    '', aesv[i])
