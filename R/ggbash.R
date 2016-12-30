@@ -335,6 +335,6 @@ build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), data
     #command <- paste0(command, ' + labs(subtitle="', command, '")')
     expr <- parse(text = command)
     print(eval(expr))
-    message('executed (', ncmd, ' characters) :\n ', command)
+    message('executed (', ncmd, ' characters) :\n', command)
     return(command)
 }
