@@ -4,14 +4,21 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(dataset = NULL, partial_match = TRUE)
+ggbash(dataset = NULL, ambiguous_match = TRUE)
 }
 \arguments{
-\item{dataset}{a dataframe to attach (default is NULL).
+\item{dataset}{a dataframe to attach. Default is NULL.
 You can define the dataframe later
-by 'use your_dataset' command in the ggbash session.
+by 'use your_dataset' command in your ggbash session.
 If a matrix object is given, It's automatically
 converted into a tbl_df object.}
+
+\item{ambiguous_match}{A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
+\describe{
+    \item{Geom name:}{the geom most frequently used (based on my experiences)}
+    \item{Column name:}{the column with the smallest column index}
+    \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
+}}
 }
 \value{
 nothing

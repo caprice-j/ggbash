@@ -145,7 +145,6 @@ set_dataset <- function(argv){
 }
 
 copy_to_clipboard <- function(string){
-
     os <- Sys.info()['sysname']
     if (os == 'Darwin') {
         cat(string, file=(con <- pipe('pbcopy', 'w')))
@@ -174,17 +173,23 @@ save_ggplot <- function(ggplot_command, argv=c('save', 'big') ){
 #' Instead, a variety of ggbash commands are enabled
 #' for writing ggplot2 script as faster as possible.
 #'
-#' @param dataset a dataframe to attach (default is NULL).
+#' @param dataset a dataframe to attach. Default is NULL.
 #'                You can define the dataframe later
-#'                by 'use your_dataset' command in the ggbash session.
+#'                by 'use your_dataset' command in your ggbash session.
 #'                If a matrix object is given, It's automatically
 #'                converted into a tbl_df object.
+#' @param ambiguous_match A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
+#' \describe{
+#'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
+#'     \item{Column name:}{the column with the smallest column index}
+#'     \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
+#' }
 #' @return nothing
 #' @examples
 #' ggbash()
 #' ggbash(iris)
 #' @export
-ggbash <- function(dataset = NULL, partial_match=TRUE) {
+ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
 
     # initialization
     if (! is.null(dataset))
