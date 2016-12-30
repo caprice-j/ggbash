@@ -331,9 +331,10 @@ build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), data
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
                       ' + geom_', geom_sth, '(',
                       'aes(', paste0(conf$aes, collapse = ', '), '))')
-    command <- paste0(command, ' + labs(subtitle="', command, '")')
+    ncmd <- nchar(command) # it's unfair to include labs() characters.
+    #command <- paste0(command, ' + labs(subtitle="', command, '")')
     expr <- parse(text = command)
     print(eval(expr))
-    message('executed: ', command)
+    message('executed (', ncmd, ' characters) :\n ', command)
     return(command)
 }
