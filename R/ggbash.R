@@ -115,14 +115,6 @@ execute_builtins <- function(raw_input, argv, const, dataset){
     }
 }
 
-# load_libraries <- function(){
-#     lib <- 'stringr' # for test
-#     for (lib in c('stringr', 'dplyr', 'ggplot2')) {
-#         if (!suppressWarnings(require(lib, character.only=TRUE)))
-#             stop('You need to install library(', lib, ') to execute ggbash.')
-#     }
-# }
-
 define_constant_list <- function(){
     list(
         first_wd = getwd(),
@@ -175,10 +167,23 @@ copy_to_clipboard <- function(string){
     }
 }
 
-save_ggplot <- function(ggplot_command, argv=c('save', 'big') ){
-    # TODO
-    #confl <- build_conf(argv)
-    #png(filename=, height = confl$h, confl$w)
+save_ggplot <- function(exe_statl = list(cmd = 'ggplot(mtcars)+geom_point(aes(cyl,mpg))',
+                                         conf= list() ),
+                        argv=c('png', 'big')){
+    filename <- paste0('tmp.', argv[1])
+
+    # Note: list has builtin partial match.
+    # Then size$m calls size$medium.
+    size <- list( small = list(w =  480, h =  480),
+                 medium = list(w =  960, h =  960),
+                    big = list(w = 1960, h = 1440))[[ argv[2] ]]
+
+    if (argv[1] == 'png')
+        png(filename, width=size$w, height=size$h)
+    else
+        pdf(filename)
+
+    dev.off()
 }
 
 #' Enter into a ggbash session.
@@ -238,13 +243,13 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                 } else if (argv[1] %in% const$builtinv) {
                     execute_builtins(raw_input, argv, const, dataset)
                 } else if (argv[1] %in% c('copy', 'cp')) {
-                    copy_to_clipboard(executed_command)
+                    copy_to_clipboard(exe_statl$cmd)
                 } else if (argv[1] %in% const$savev) {
-                    save_ggplot(executed_command, argv)
+                    save_ggplot(exe_statl, argv)
                 } else { # if 'point' or 'p' is passed
-                    executed_command <- build_ggplot_object(argv,
-                                                            dataset,
-                                                            const)
+                    exe_statl <- build_ggplot_object(argv,
+                                                     dataset,
+                                                     const)
                 }
 
             }
@@ -283,7 +288,8 @@ find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
     return(! c(is.na(stringr::str_match(string=stringv, pattern=paste0('^',pattern)))))
 }
 
-build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), dataset, const){
+build_ggplot_object <- function(argv=c('p','x=2','y=3','colour=4','size=5'),
+                                dataset, const){
 
     if (is.null(dataset))
         stop('dataset is not set')
@@ -355,5 +361,6 @@ build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), data
     expr <- parse(text = command)
     print(eval(expr))
     message('executed (', ncmd, ' characters) :\n', command)
-    return(command)
+    out <- list(cmd = command, conf = conf)
+    return(out)
 }

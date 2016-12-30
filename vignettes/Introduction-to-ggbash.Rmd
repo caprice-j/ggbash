@@ -122,7 +122,7 @@ ggbash(mtcars)
 ```{bash, eval=FALSE}
 user@host currentDir (mtcars) $ mkdir my_images
 user@host currentDir (mtcars) $ cd my_images
-user@host my_images (mtcars) $ for (var in columns) h var | png small
+user@host my_images (mtcars) $ for (var in df) h var | png small
 ```
 
 Here, `h` partially matches `geom_histogram`.

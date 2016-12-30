@@ -1,7 +1,7 @@
 Package: ggbash
 Type: Package
 Title: A Faster Way to Use ggplot2
-Version: 2016.12.29
+Version: 0.1.2016.12.29
 Authors@R: c(person('Yasutaka', 'Tanaka', email = 'tnk.yasutaka@gmail.com', role='cre'))
 Description: ggbash provides a faster way to build ggplot2 objects,
     thorugh a bash-like REPL environment.
@@ -14,7 +14,8 @@ Imports:
     stringr
 Suggests: 
     tidyverse,
-    knitr
+    knitr,
+    testthat
 URL: https://github.com/caprice-j/ggbash
 BugReports: https://github.com/caprice-j/ggbash/issues
 Encoding: UTF-8
