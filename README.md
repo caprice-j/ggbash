@@ -1,12 +1,8 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ggbash
-======
+ggbash: the faster way to write ggplot2
+=======================================
 
 ggbash provides a bash-like REPL environment for ggplot2.
-
--   partial match
-
-In ggbash session, almost everything can be specified by partial match.
 
 Basic Usage
 -----------
@@ -64,7 +60,7 @@ In the first example, ggbash performs partial matches seven times.
 
 -   **aesthetics names**
     -   `c` matches to `color`, which is the aesthetic of geom\_point.
-    -   `si` matches to `size` ('s' is ambiguous between 'shape' and 'size').
+    -   `si` matches to `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
 ### 3. Copy/save results
 
@@ -73,17 +69,9 @@ In the first example, ggbash performs partial matches seven times.
 
     user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
     saved as 'iris-Sepal.W-Sepal.L-Sp.png' (1960 x 1440)
-
+    
     user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf --name iris-for
     saved as 'iris-for.pdf' (960 x 960)
-    # TBI
-
-    user@host imageDir (iris) $ p 1 2 c=Spec size=4 | copy
-    copied to clipboard:
-        ggplot(iris) +
-        geom_point(aes(x=Sepal.Width,
-                       y=Sepal.Length,
-                       color=Species,
-                       size=Petal.Width))
-
+    
+    p 1 2 c=spec size=4 | copy
 ```
