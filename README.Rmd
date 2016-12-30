@@ -90,10 +90,10 @@ In the first example, ggbash performs partial matches seven times.
     user@host currentDir (iris) $ cd imageDir
 
     user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
-    saved as 'iris-Sepal.W-Sepal.L-Sp.png' (1960 x 1440)
+    saved as 'iris-Sepal.W-Sepal.L-Sp.png' (big: 1960 x 1440)
     
-    user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf --name iris-for
-    saved as 'iris-for.pdf' (960 x 960)
+    user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf 'iris-for'
+    saved as 'iris-for.pdf' (default: 960 x 960)
     
     user@host imageDir (iris) $ p 1 2 c=spec size=4 | copy
     copied to clipboard:
@@ -115,13 +115,13 @@ ggbash has two main goals:
 
 2. Make it less stressful to finalize your plots.
 
-    + adjusting colors
+    + adjust colors
     
     + rotate axis labels
 
     + decide tick label intervals
 
-    + generating line-wrapped titles
+    + generate line-wrapped titles
 
 ```{r, echo = FALSE}
 # knitr::opts_chunk$set(

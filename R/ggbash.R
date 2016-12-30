@@ -55,7 +55,7 @@ show_prompt <- function(dataset=NULL){
     ds_str <- ifelse(is.null(ds_str),'', paste0(' (', ds_str,')'))
     ggbash_prompt <- paste0(username, '@',
                             hostname, ' ',
-                            working_dir, ds_str, ' $')
+                            working_dir, ds_str, ' $ ')
     return(readline(prompt=ggbash_prompt))
 }
 
@@ -81,7 +81,26 @@ add_input_to_history <- function(input='point 2 3'){
 execute_builtins <- function(raw_input, argv, const, dataset){
     if (argv[1] %in% c('pwd', 'getwd')) {
         message(getwd())
-    } else if (argv[1] %in% c('ls')) {
+    } else if (argv[1] %in% c('mkdir', 'dir.create')) {
+        dir.create(argv[2], recursive=TRUE)
+    } else if (argv[1] %in% c('rm')) {
+        if (dir.exists(argv[2]))
+            stop('this is a directory')
+        ans <- readline(paste0('Do you really remove ', argv[2], '?',
+                               'This cannot be undone. [y/N]'))
+        if (ans %in% c('y', 'Y', 'yes', 'Yes'))
+            unlink(argv[2])
+    } else if (argv[1] %in% c('rmdir')) {
+        if (!dir.exists(argv[2]))
+            stop('this is not a directory')
+        if (length(dir(argv[2])) > 0)
+        ans <- readline(paste0(
+                'The directory is not empty.',
+                'Do you really remove ', argv[2], ' RECURSIVELY?',
+                'This cannot be undone. [y/N]'))
+        if (ans %in% c('y', 'Y', 'yes', 'Yes'))
+            unlink(argv[2], recursive=TRUE)
+    } else if (argv[1] %in% c('ls', 'str')) {
         show_dataset_column_indices(dataset)
     } else if (argv[1] %in% c('dir')) {
         message( paste(dir(getwd()), collapse='\t') )
@@ -108,7 +127,8 @@ define_constant_list <- function(){
     list(
         first_wd = getwd(),
         # BUILTIN command Vectors
-        builtinv = c('cd', 'echo', 'exit', 'ls', 'pwd', 'quit'),
+        builtinv = c('cd', 'dir', 'dir.create', 'echo', 'exit', 'ls',
+                     'mkdir', 'print', 'pwd', 'quit', 'rm', 'rmdir', 'setwd'),
         # all geom in ggplot2 documents
         # the order in geom_namev is important
         # because build_ggplot_object() uses the first element after partial matching
