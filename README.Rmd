@@ -18,9 +18,13 @@ library(ggplot2)
 
 ```{bash, eval=FALSE}
 library(ggbash)
-ggbash(iris) # use iris as main dataset
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W
+ggbash(iris) # start a ggbash session (using iris as main dataset)
 ```
+
+```{bash, eval=FALSE}
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=5
+```
+
 
 ```{r, eval = FALSE}
 executed:
@@ -92,6 +96,12 @@ In the first example, ggbash performs partial matches seven times.
     saved as 'iris-for.pdf' (960 x 960)
     
     p 1 2 c=spec size=4 | copy
+    copied to clipboard:
+    ggplot(iris) + geom_point(aes(x=Sepal.Length,
+                                  y=Sepal.Width,
+                                  colour=Species,
+                                  size=Petal.Width)) +
+        labs(subtitle="...")
 ```
 
 

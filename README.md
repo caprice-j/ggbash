@@ -9,8 +9,11 @@ Basic Usage
 
 ``` bash
 library(ggbash)
-ggbash(iris) # use iris as main dataset
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W
+ggbash(iris) # start a ggbash session (using iris as main dataset)
+```
+
+``` bash
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=5
 ```
 
 ``` r
@@ -22,7 +25,7 @@ executed:
                    size=Petal.Width))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
 Features
 --------
@@ -74,4 +77,10 @@ In the first example, ggbash performs partial matches seven times.
     saved as 'iris-for.pdf' (960 x 960)
     
     p 1 2 c=spec size=4 | copy
+    copied to clipboard:
+    ggplot(iris) + geom_point(aes(x=Sepal.Length,
+                                  y=Sepal.Width,
+                                  colour=Species,
+                                  size=Petal.Width)) +
+        labs(subtitle="...")
 ```
