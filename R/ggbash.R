@@ -139,7 +139,7 @@ define_constant_list <- function(){
                        'density', 'density_2d', 'dotplot',
                        'errorbar', 'errorbarh',
                        'freqpoly',
-                       'hline','hex',
+                       'histogram', 'hline','hex',
                        'jitter',
                        # 'l' matches to 'line' (the first element starting by 'l')
                        'line', 'label', 'linerange',
@@ -214,7 +214,6 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
     # initialization
     if (! is.null(dataset))
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
-    load_libraries()
     const <- define_constant_list()
     exit <- FALSE
 

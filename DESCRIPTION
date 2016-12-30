@@ -8,14 +8,16 @@ Description: ggbash provides a faster way to build ggplot2 objects,
     It could potentially reduce your typing by more than 80%.
 License: MIT
 Depends: R (>= 3.2.4)
-Imports:
+Imports: 
     dplyr,
     ggplot2,
     stringr
-Suggests:
-    tidyverse
+Suggests: 
+    tidyverse,
+    knitr
 URL: https://github.com/caprice-j/ggbash
 BugReports: https://github.com/caprice-j/ggbash/issues
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
+VignetteBuilder: knitr
