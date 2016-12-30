@@ -89,6 +89,18 @@ Goals
 
 ggbash has two main goals:
 
--   Provide blazingly fast way to do Exploratory Data Analysis.
+1.  Provide blazingly fast way to do Exploratory Data Analysis.
 
--   Make it less stressful to finalize your plots such as generating line-wrapped titles, adjusting colors, label ticks, or axis label rotations, ...)
+    -   less typing by partial and fuzzy match
+
+    -   save plots with auto-generated file names
+
+2.  Make it less stressful to finalize your plots.
+
+    -   adjusting colors
+
+    -   rotate axis labels
+
+    -   decide tick label intervals
+
+    -   generating line-wrapped titles
