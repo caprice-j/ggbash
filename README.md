@@ -13,7 +13,7 @@ ggbash(iris) # start a ggbash session (using iris as main dataset)
 ```
 
 ``` bash
-user@host currentDir (iris) $ p Sepal.W Sepal.L colour=Species si=Petal.W
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=5
 ```
 
 ``` r
@@ -21,18 +21,11 @@ executed:
     ggplot(iris) +
     geom_point(aes(Sepal.Width,
                    Sepal.Length,
-                   colour=Species,
+                   color=Species,
                    size=Petal.Width))
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
-
-If you like least possible typing,
-the following 10 characters generate the same plot.
-
-``` bash
-user@host currentDir (iris) $ p 2 1 c=5 si=4
-```
 
 Features
 --------
@@ -69,10 +62,10 @@ In the first example, ggbash performs partial matches seven times.
     -   `Petal.W` matches `iris$Petal.Width`.
 
 -   **aesthetics names**
-    -   `c` matches `color`, which is an aesthetic of geom\_point.
+    -   `c` matches `color`, which is the aesthetic of geom\_point.
     -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
-### 3. Piping to copy/save plots
+### 3. Piping to copy/save results
 
 ``` r
     user@host currentDir (iris) $ cd imageDir
@@ -83,11 +76,19 @@ In the first example, ggbash performs partial matches seven times.
     user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf --name iris-for
     saved as 'iris-for.pdf' (960 x 960)
     
-    p 1 2 c=spec size=4 | copy
+    user@host imageDir (iris) $ p 1 2 c=spec size=4 | copy
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
                                   y=Sepal.Width,
                                   colour=Species,
-                                  size=Petal.Width)) +
-        labs(subtitle="...")
+                                  size=Petal.Width))
 ```
+
+Goals
+-----
+
+ggbash has two main goals:
+
+-   Provide blazingly fast way to do Exploratory Data Analysis.
+
+-   Make it less stressful to finalize your plots such as generating line-wrapped titles, adjusting colors, label ticks, or axis label rotations, ...)
