@@ -1,3 +1,6 @@
+#' @import ggplot2
+NULL
+
 truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'), i=1) {
 
     nchar_longest <- max(sapply(colnamev, nchar))
@@ -31,9 +34,9 @@ show_dataset_column_indices <- function(dataset=NULL){
         this <- names(short_colnamel)[i]
         index <- ((i-1) %% mod) + 1
         linev[index] <- paste0(linev[index],
-                               str_pad(i,
+                               stringr::str_pad(i,
                                        width=nchar(ncol(dataset))), ': ',
-                               str_pad(this,
+                               stringr::str_pad(this,
                                        width=nchar_longest,
                                        side='right'), '\t')
     }
@@ -57,12 +60,12 @@ show_prompt <- function(dataset=NULL){
 }
 
 splib_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
-    return(str_split(input, '\\|')[[1]])
+    return(stringr::str_split(input, '\\|')[[1]])
 }
 
 split_by_space <- function(input='    point x=3 y=4 color=5 '){
     # remove preceding/trailing spaces
-    argv <- str_split(input, ' ')[[1]]
+    argv <- stringr::str_split(input, ' ')[[1]]
     return(argv[nchar(argv)>0])
 }
 
@@ -93,13 +96,13 @@ execute_builtins <- function(raw_input, argv, const, dataset){
     }
 }
 
-load_libraries <- function(){
-    lib <- 'stringr' # for test
-    for (lib in c('stringr', 'dplyr', 'ggplot2')) {
-        if (!suppressWarnings(require(lib, character.only=TRUE)))
-            stop('You need to install library(', lib, ') to execute ggbash.')
-    }
-}
+# load_libraries <- function(){
+#     lib <- 'stringr' # for test
+#     for (lib in c('stringr', 'dplyr', 'ggplot2')) {
+#         if (!suppressWarnings(require(lib, character.only=TRUE)))
+#             stop('You need to install library(', lib, ') to execute ggbash.')
+#     }
+# }
 
 define_constant_list <- function(){
     list(
@@ -133,9 +136,9 @@ define_constant_list <- function(){
 }
 
 set_dataset <- function(argv){
-    dataset <- tbl_df(eval(as.symbol(((argv[2])))))
+    dataset <- dplyr::tbl_df(eval(as.symbol(((argv[2])))))
     message('attach ', argv[2])
-    glimpse(dataset)
+    dplyr::glimpse(dataset)
     attr(dataset, 'ggbash_datasetname') <- argv[2]
     # should I store the var name with parentheses?
     return(dataset)
@@ -180,6 +183,7 @@ save_ggplot <- function(ggplot_command, argv=c('save', 'big') ){
 #' @examples
 #' ggbash()
 #' ggbash(iris)
+#' @export
 ggbash <- function(dataset = NULL, partial_match=TRUE) {
 
     # initialization
@@ -206,7 +210,7 @@ ggbash <- function(dataset = NULL, partial_match=TRUE) {
                 } else if (argv[1] == 'use') {
                     dataset <- set_dataset(argv)
                 } else if (argv[1] == 'show') {
-                    print(tbl_df(eval(as.symbol((argv[2])))))
+                    print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
                 } else if (argv[1] %in% const$builtinv) {
                     execute_builtins(raw_input, argv, const, dataset)
                 } else if (argv[1] %in% c('copy', 'cp')) {
@@ -252,7 +256,7 @@ get_possible_aes <- function(suffix='point') {
 }
 
 find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
-    return(! c(is.na(str_match(string=stringv, pattern=paste0('^',pattern)))))
+    return(! c(is.na(stringr::str_match(string=stringv, pattern=paste0('^',pattern)))))
 }
 
 build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), dataset, const){

@@ -13,7 +13,7 @@ ggbash(iris) # start a ggbash session (using iris as main dataset)
 ```
 
 ``` bash
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=5
+user@host currentDir (iris) $ p Sepal.W Sepal.L colour=Species si=Petal.W
 ```
 
 ``` r
@@ -21,11 +21,18 @@ executed:
     ggplot(iris) +
     geom_point(aes(Sepal.Width,
                    Sepal.Length,
-                   color=Species,
+                   colour=Species,
                    size=Petal.Width))
 ```
 
 ![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+
+If you like least possible typing,
+the following 10 characters generate the same plot.
+
+``` bash
+user@host currentDir (iris) $ p 2 1 c=5 si=4
+```
 
 Features
 --------
@@ -51,21 +58,21 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 In the first example, ggbash performs partial matches seven times.
 
 -   **geom names**
-    -   `p` matches to `geom_point`.
+    -   `p` matches `geom_point`.
 -   **column names**
-    -   `Sepal.W` matches to `iris$Sepal.Width`.
+    -   `Sepal.W` matches `iris$Sepal.Width`.
 
-    -   `Sepal.L` matches to `iris$Sepal.Length`.
+    -   `Sepal.L` matches `iris$Sepal.Length`.
 
-    -   `Sp` matches to `iris$Species`.
+    -   `Sp` matches `iris$Species`.
 
-    -   `Petal.W` matches to `iris$Petal.Width`.
+    -   `Petal.W` matches `iris$Petal.Width`.
 
 -   **aesthetics names**
-    -   `c` matches to `color`, which is the aesthetic of geom\_point.
-    -   `si` matches to `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
+    -   `c` matches `color`, which is an aesthetic of geom\_point.
+    -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
-### 3. Copy/save results
+### 3. Piping to copy/save plots
 
 ``` r
     user@host currentDir (iris) $ cd imageDir

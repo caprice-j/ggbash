@@ -69,22 +69,22 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 In the first example, ggbash performs partial matches seven times.
 
 * __geom names__
-    + `p` matches to `geom_point`.
+    + `p` matches `geom_point`.
 
 * __column names__
-    + `Sepal.W` matches to `iris$Sepal.Width`.
+    + `Sepal.W` matches `iris$Sepal.Width`.
   
-    + `Sepal.L` matches to `iris$Sepal.Length`.
+    + `Sepal.L` matches `iris$Sepal.Length`.
   
-    + `Sp` matches to `iris$Species`.
+    + `Sp` matches `iris$Species`.
     
-    + `Petal.W` matches to `iris$Petal.Width`.
+    + `Petal.W` matches `iris$Petal.Width`.
 
 * __aesthetics names__
-    + `c` matches to  `color`, which is the aesthetic of geom_point.
-    + `si` matches to  `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
+    + `c` matches `color`, which is the aesthetic of geom_point.
+    + `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
-### 3. Copy/save results
+### 3. Piping to copy/save results
 
 ```{r, eval=FALSE}
     user@host currentDir (iris) $ cd imageDir
@@ -104,6 +104,13 @@ In the first example, ggbash performs partial matches seven times.
         labs(subtitle="...")
 ```
 
+## Goals
+
+ggbash has two main goals:
+
+* Provide blazingly fast way to do Exploratory Data Analysis.
+
+* Make it less stressful to finalize your plots such as generating line-wrapped titles, adjusting colors, label ticks, or axis label rotations, ...)
 
 ```{r, echo = FALSE}
 # knitr::opts_chunk$set(
