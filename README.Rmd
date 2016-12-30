@@ -82,7 +82,7 @@ In the first example, ggbash performs partial matches seven times.
 
 * __aesthetics names__
     + `c` matches to  `color`, which is the aesthetic of geom_point.
-    + `si` matches to  `size` ('s' is ambiguous between 'shape' and 'size').
+    + `si` matches to  `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
 ### 3. Save results
 

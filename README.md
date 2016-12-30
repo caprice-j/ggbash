@@ -78,7 +78,7 @@ In the first example, ggbash performs partial matches seven times.
     saved as 'iris-for.pdf' (960 x 960)
     # TBI
 
-    user@host imageDir (iris) $ p 2 1 c=5 si=4 | copy
+    user@host imageDir (iris) $ p 1 2 c=Spec size=4 | copy
     copied to clipboard:
         ggplot(iris) +
         geom_point(aes(x=Sepal.Width,

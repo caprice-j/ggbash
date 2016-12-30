@@ -45,9 +45,7 @@ show_dataset_column_indices <- function(dataset=NULL){
 }
 
 show_prompt <- function(dataset=NULL){
-
     ds_str <- attr(dataset, 'ggbash_datasetname')
-
     username <- Sys.info()['user']
     hostname <- Sys.info()['nodename']
     working_dir <- basename(getwd())
@@ -96,7 +94,6 @@ execute_builtins <- function(raw_input, argv, const, dataset){
 }
 
 load_libraries <- function(){
-
     lib <- 'stringr' # for test
     for (lib in c('stringr', 'dplyr', 'ggplot2')) {
         if (!suppressWarnings(require(lib, character.only=TRUE)))
@@ -110,21 +107,26 @@ define_constant_list <- function(){
         # BUILTIN command Vectors
         builtinv = c('cd', 'echo', 'exit', 'ls', 'pwd', 'quit'),
         # all geom in ggplot2 documents
+        # the order in geom_namev is important
+        # because build_ggplot_object() uses the first element after partial matching
+        # i.e. the preferable (frequently-used) geom should appear first
         geom_namev = c('abline', 'area',
                        'bar', 'bin2d', 'blank', 'boxplot',
-                       'curve', 'contour', 'count', 'crossbar',
+                       'count', 'curve', 'contour', 'crossbar',
                        'density', 'density_2d', 'dotplot',
                        'errorbar', 'errorbarh',
                        'freqpoly',
-                       'hex', 'hline',
+                       'hline','hex',
                        'jitter',
-                       'label', 'line', 'linerange',
+                       # 'l' matches to 'line' (the first element starting by 'l')
+                       'line', 'label', 'linerange',
                        'map',
-                       'path', 'point', 'polygon', # 'pointrange', # I believe no one use pointrange
+                       # 'p' matches to 'point'
+                       'point', 'path', 'polygon', 'pointrange',
                        'quantile',
-                       'raster', 'ribbon', 'rug',
+                       'rug', 'raster', 'ribbon',
                        'segment', 'smooth',
-                       'violin', 'vline'
+                       'vline', 'violin'
         )
         # TODO implement stat like stat_smooth
     )
@@ -205,14 +207,16 @@ ggbash <- function(dataset = NULL, partial_match=TRUE) {
                     dataset <- set_dataset(argv)
                 } else if (argv[1] == 'show') {
                     print(tbl_df(eval(as.symbol((argv[2])))))
-                } else if (argv[1] %in% const$geom_namev) {
-                    executed_command <- build_ggplot_object(argv, dataset)
                 } else if (argv[1] %in% const$builtinv) {
                     execute_builtins(raw_input, argv, const, dataset)
                 } else if (argv[1] %in% c('copy', 'cp')) {
                     copy_to_clipboard(executed_command)
                 } else if (argv[1] %in% const$savev) {
                     save_ggplot(executed_command, argv)
+                } else { # if 'point' or 'p' is passed
+                    executed_command <- build_ggplot_object(argv,
+                                                            dataset,
+                                                            const)
                 }
 
             }
@@ -237,16 +241,35 @@ get_required_aes <- function(suffix='point') {
     return(eval(expr)$geom$required_aes)
 }
 
-build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset, copy=FALSE){
+get_possible_aes <- function(suffix='point') {
+    command <- paste0('geom_', suffix, '()')
+    expr <- parse(text = command)
+    geom <- eval(expr)$geom
+    possible_aesv <- unique(c(geom$required_aes,
+                              geom$non_missing_aes,
+                              names(geom$default_aes)))
+    return(truncate_strings(possible_aesv))
+}
+
+find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
+    return(! c(is.na(str_match(string=stringv, pattern=paste0('^',pattern)))))
+}
+
+build_ggplot_object <- function(argv=c('p','x=2','y=3','color=4','size=5'), dataset, const){
 
     if (is.null(dataset))
         stop('dataset is not set')
 
-    required_aesv <- get_required_aes(argv[1])
+    # p -> 'point'
+    geom_sth <- const$geom_namev[ find_index(pattern=argv[1], stringv=const$geom_namev) ][1]
+    message('selected geom: ', geom_sth)
+
+    required_aesv <- get_required_aes(geom_sth)
+    all_aesl <- get_possible_aes(geom_sth)
+    message('all_aesl: ', paste0(all_aesl, collapse=' '))
 
     colnamev <- colnames(dataset)
 
-    add_comma <- function(i, ...) ifelse(i==1, paste0(...), paste0(', ', ...))
 
     short2colname <- truncate_strings(colnamev)
     # if all required aesthetics are set
@@ -272,16 +295,32 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
                      'Required aesthetics (in order) are: ',
                      paste0(required_aesv, collapse=', '))
         }
+
+        if (! before_equal %in% all_aesl) {
+            index = find_index(pattern=before_equal, stringv=unlist(all_aesl))
+            selected <- unlist(all_aesl)[index][1]
+            if (sum(index)>1)
+                message('[ !!! CAUTION !!! ] ambiguous aes. use "', selected,
+                        '" among ', paste0(unlist(all_aesl)[index], collapse=', '))
+            before_equal <- selected # FIXME refactor
+        }
+
         if (grepl('[0-9]', after_equal))
             after_equal <- colnamev[as.numeric(after_equal)]
-        else if (! after_equal %in% colnamev)
-            after_equal <- short2colname[[after_equal]]
+        else if (! after_equal %in% colnamev) {
+            index = find_index(pattern=after_equal, stringv=colnamev)
+            selected = unlist(short2colname)[index][1]
+            if (sum(index)>1)
+                message('[ !!! CAUTION !!! ] ambiguous aes. use "', selected,
+                        '" among ', paste0(unlist(short2colname)[index], collapse=', '))
+
+            after_equal <- selected
+        }
 
         conf$aes[[i]] <- paste0(before_equal, '=', after_equal)
     }
-    print(conf$aes)
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
-                      ' + geom_', argv[1], '(',
+                      ' + geom_', geom_sth, '(',
                       'aes(', paste0(conf$aes, collapse = ', '), '))')
     command <- paste0(command, ' + labs(subtitle="', command, '")')
     expr <- parse(text = command)
