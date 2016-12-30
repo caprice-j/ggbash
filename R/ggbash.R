@@ -58,8 +58,14 @@ show_prompt <- function(dataset=NULL){
     return(readline(prompt=ggbash_prompt))
 }
 
-split_user_input <- function(input='point x=3 y=4 color=5'){
-    return(str_split(input, ' ')[[1]])
+splib_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
+    return(str_split(input, '\\|')[[1]])
+}
+
+split_by_space <- function(input='    point x=3 y=4 color=5 '){
+    # remove preceding/trailing spaces
+    argv <- str_split(input, ' ')[[1]]
+    return(argv[nchar(argv)>0])
 }
 
 add_input_to_history <- function(input='point 2 3'){
@@ -133,6 +139,24 @@ set_dataset <- function(argv){
     return(dataset)
 }
 
+copy_to_clipboard <- function(string){
+
+    os <- Sys.info()['sysname']
+    if (os == 'Darwin') {
+        cat(string, file=(con <- pipe('pbcopy', 'w')))
+        message('copied to clipboard:\n', string)
+        close(con)
+    } else {
+        stop('copy in Windows / Linux is to be implemented')
+    }
+}
+
+save_ggplot <- function(ggplot_command, argv=c('save', 'big') ){
+    # TODO
+    #confl <- build_conf(argv)
+    #png(filename=, height = confl$h, confl$w)
+}
+
 #' Enter into a ggbash session.
 #'
 #' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
@@ -161,25 +185,39 @@ ggbash <- function(dataset = NULL, partial_match=TRUE) {
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
     load_libraries()
     const <- define_constant_list()
+    exit <- FALSE
 
     while (TRUE) { tryCatch(
         {   # main loop for command execution
 
             raw_input <- show_prompt(dataset)
-            argv <- split_user_input(raw_input)
+            commandv <- splib_by_pipe(raw_input)
+            print('commandv ')
+            print(commandv)
+            for (cmd in commandv) {
+                argv <- split_by_space(cmd)
+                print('argv: ')
+                print(argv)
+                if (argv[1] %in% c('exit', 'quit')) {
+                    exit <- TRUE
+                    break
+                } else if (argv[1] == 'use') {
+                    dataset <- set_dataset(argv)
+                } else if (argv[1] == 'show') {
+                    print(tbl_df(eval(as.symbol((argv[2])))))
+                } else if (argv[1] %in% const$geom_namev) {
+                    executed_command <- build_ggplot_object(argv, dataset)
+                } else if (argv[1] %in% const$builtinv) {
+                    execute_builtins(raw_input, argv, const, dataset)
+                } else if (argv[1] %in% c('copy', 'cp')) {
+                    copy_to_clipboard(executed_command)
+                } else if (argv[1] %in% const$savev) {
+                    save_ggplot(executed_command, argv)
+                }
 
-            if (argv[1] %in% c('exit', 'quit')) {
-                break
-            } else if (argv[1] == 'use') {
-                dataset <- set_dataset(argv)
-            } else if (argv[1] == 'show') {
-                print(tbl_df(eval(as.symbol((argv[2])))))
-            } else if (argv[1] %in% const$geom_namev) {
-                build_ggplot_object(argv, dataset)
-            } else if (argv[1] %in% const$builtinv) {
-                execute_builtins(raw_input, argv, const, dataset)
             }
-
+            if (exit)
+                break # FIXME an ugly way to avoid returning NULL
         },
         warning = function(wrn) {
                                     message('I got warning', wrn)
@@ -199,24 +237,10 @@ get_required_aes <- function(suffix='point') {
     return(eval(expr)$geom$required_aes)
 }
 
-build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset){
+build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), dataset, copy=FALSE){
 
     if (is.null(dataset))
         stop('dataset is not set')
-
-    # three cases:
-    # 1. no name just 1 2 3
-    # 2. color=3 size=4
-    # 3. c=4      (partial match)
-
-    # x
-    # y
-    # alpha
-    # colour
-    # fill
-    # shape
-    # size
-    # stroke
 
     required_aesv <- get_required_aes(argv[1])
 
@@ -259,8 +283,9 @@ build_ggplot_object <- function(argv=c('point','x=2','y=3','color=4','size=5'), 
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
                       ' + geom_', argv[1], '(',
                       'aes(', paste0(conf$aes, collapse = ', '), '))')
+    command <- paste0(command, ' + labs(subtitle="', command, '")')
     expr <- parse(text = command)
     print(eval(expr))
     message('executed: ', command)
-
+    return(command)
 }

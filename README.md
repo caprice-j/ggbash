@@ -66,15 +66,24 @@ In the first example, ggbash performs partial matches seven times.
     -   `c` matches to `color`, which is the aesthetic of geom\_point.
     -   `si` matches to `size` ('s' is ambiguous between 'shape' and 'size').
 
-### 3. Save results
+### 3. Copy/save results
 
 ``` r
     user@host currentDir (iris) $ cd imageDir
 
     user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
     saved as 'iris-Sepal.W-Sepal.L-Sp.png' (1960 x 1440)
-    
+
     user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf --name iris-for
     saved as 'iris-for.pdf' (960 x 960)
     # TBI
+
+    user@host imageDir (iris) $ p 2 1 c=5 si=4 | copy
+    copied to clipboard:
+        ggplot(iris) +
+        geom_point(aes(x=Sepal.Width,
+                       y=Sepal.Length,
+                       color=Species,
+                       size=Petal.Width))
+
 ```
