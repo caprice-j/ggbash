@@ -195,9 +195,9 @@ execute_ggbash_builtins <- function(raw_input, argv, const, dataset){
                 'This cannot be undone. [y/N]'))
         if (ans %in% c('y', 'Y', 'yes', 'Yes'))
             unlink(argv[2], recursive=TRUE)
-    } else if (argv[1] %in% c('ls', 'str')) {
+    } else if (argv[1] %in% c('list', 'str')) {
         show_dataset_column_indices(dataset)
-    } else if (argv[1] %in% c('dir')) {
+    } else if (argv[1] %in% c('ls', 'dir')) {
         message( paste(dir(getwd()), collapse='\t') )
         # TODO ls -l
     } else if (argv[1] %in% c('cd', 'setwd')) {
@@ -234,7 +234,7 @@ define_constant_list <- function(){
     list(
         first_wd = getwd(),
         # BUILTIN command Vectors
-        builtinv = c('cd', 'dir', 'dir.create', 'echo', 'exit', 'ls',
+        builtinv = c('cd', 'dir', 'dir.create', 'echo', 'exit', 'ls', 'list',
                      'mkdir', 'print', 'pwd', 'quit', 'rm', 'rmdir', 'setwd'),
         # all geom in ggplot2 documents
         # the order in geom_namev is important
@@ -543,6 +543,9 @@ drawgg <- function(dataset,
     if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
                                       quietly=TRUE)
+    if (grepl(' ', argv))
+        argv <- split_by_space(argv)
+        # calling directly often forgets split_by_space ... syntax sugar
 
     const <- define_constant_list()
     # 'p' is resolved into 'point'

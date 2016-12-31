@@ -50,8 +50,8 @@ Features
 ### 1. Column Index Match
 
 ``` bash
-# 'ls' checks column indices
-user@host currentDir (iris) $ ls
+# 'list' displays column indices
+user@host currentDir (iris) $ list
 
     1: Sepal.L  (ength)
     2: Sepal.W  (idth)
@@ -66,7 +66,11 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
 ```
 
-### 2. Partial Match
+Column Index Match is perhaps the fastest way to build a ggplot object. In the above case, while the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), `p 2 1 c=5 si=4` is just **10 characters -- more than 80% keystroke reduction**.
+
+With more elaborated plots, the differences become much larger.
+
+### 2. Partial Prefix Match
 
 In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs partial matches seven times.
 
@@ -85,12 +89,14 @@ In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs part
     -   `c` matches `color`, which is the aesthetic of geom\_point.
     -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
-### 3. Implicit Precedence
+Note: Approximate String Match is not supported in the current version.
 
-If unique identification is not possible, `ggbash` tries to guess what is specified instead of returning an error, hoping to achieve least expected keystrokes.
+### 3. Predefined Precedence
+
+Even if unique identification is not possible, `ggbash` tries to guess what is specified instead of bluntly returning an error, hoping to achieve least expected keystrokes.
 
 For example, for the input of `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matched four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
-`ggbash` determines which geom to use by the predefined order of precedence. `point` is selected in this case.
+`ggbash` determines which geom to use by the above predefined order of precedence (`point` is selected in this case).
 
 Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is interpreted as `size` aesthetic.
 
@@ -122,16 +128,16 @@ ggbash has two main goals:
 
 1.  Provide blazingly fast way to do Exploratory Data Analysis.
 
-    -   less typing by partial and fuzzy match
+    -   less typing by Column Index Match, Partial Prefix Match, and Predefined Precedence.
 
-    -   save plots with auto-generated file names
+    -   casualy save plots with auto-generated unique file names
 
 2.  Make it less stressful to finalize your plots.
 
-    -   adjust colors
+    -   adjust colors or lineweights
 
     -   rotate axis labels
 
-    -   decide tick label intervals
+    -   decide tick label intervals and limits
 
-    -   generate line-wrapped titles
+    -   generate line-wrapped titles or legends
