@@ -1,6 +1,6 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ggbash: the faster way to write ggplot2
-=======================================
+ggbash: a faster way to write ggplot2
+=====================================
 
 ggbash provides a bash-like REPL environment for ggplot2.
 
