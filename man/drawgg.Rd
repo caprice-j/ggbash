@@ -4,13 +4,16 @@
 \alias{drawgg}
 \title{build a ggplot2 plot and draw it}
 \usage{
-drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"))
+drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"),
+  showWarning = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe with attr('ggbash_datasetname').}
 
 \item{argv}{A character vector containing ggplot2 geom and aesthetics specifications.
 Typically the return value of \code{\link{split_by_space}}.}
+
+\item{showWarning}{whether to show warning when ambiguously matched. Default is TRUE.}
 }
 \value{
 A list with the following two fields:

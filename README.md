@@ -13,7 +13,7 @@ ggbash(iris) # start a ggbash session (using iris as main dataset)
 ```
 
 ``` bash
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=5
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=Petal.W
 ```
 
 ``` r
@@ -44,6 +44,9 @@ user@host currentDir (iris) $ ls
 
 # the same as the above 'p Sepal.W Sepal.L c=Sp si=Petal.W'
 user@host currentDir (iris) $ p 2 1 c=5 si=4
+
+# you can mix both notations
+user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
 ```
 
 ### 2. Partial Match

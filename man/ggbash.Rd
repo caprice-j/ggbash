@@ -4,7 +4,7 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(dataset = NULL, ambiguous_match = TRUE)
+ggbash(dataset = NULL, ambiguous_match = TRUE, showWarning = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe to attach. Default is NULL.
@@ -14,8 +14,11 @@ If a matrix object is given, It's automatically
 converted into a tbl_df object.}
 
 \item{ambiguous_match}{A boolean whether to do ambiguous match when a
-                       ggbash command ambiguously matches several commands.
-                       Default is TRUE. The matching rules are as follows:
+ggbash command ambiguously matches several commands.
+Default is TRUE. The matching rules are as follows:}
+
+\item{showWarning}{Whether to show a warning message
+                   when ambiguously matched. Default is TRUE.
 \describe{
     \item{Geom name:}{the geom most frequently used (based on my experiences)}
     \item{Column name:}{the column with the smallest column index}
