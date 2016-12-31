@@ -10,5 +10,8 @@ env:
 
 notifications:
   email:
-    on_success: change
-    on_failure: change
+    on_success: tnk.yasutaka@gmail.com
+    on_failure: tnk.yasutaka@gmail.com
+
+# r_github_packages for development version dependencies
+# r_binary_packages for faster build by precompiled Ubuntu packages

@@ -140,7 +140,7 @@ show_prompt <- function(dataset=NULL){
 #'
 #' @export
 split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
-    return(stringr::str_split(input, '\\|')[[1]])
+    return(strsplit(input, '\\|')[[1]])
 }
 
 #' split a given string by spaces
@@ -151,7 +151,7 @@ split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
 #' @export
 split_by_space <- function(input='    point x=3 y=4 color=5 '){
     # remove preceding/trailing spaces
-    argv <- stringr::str_split(input, ' ')[[1]]
+    argv <- strsplit(input, ' ')[[1]]
     return(argv[nchar(argv)>0])
 }
 
