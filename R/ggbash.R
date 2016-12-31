@@ -96,6 +96,11 @@ find_first <- function(prefix='si',
 show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
+
+    pad <- function(i, width=4, side='') {
+        gsub('#',' ', sprintf(paste0('%',side,'#',width,'s'), i))
+    }
+
     nchar_longest <- max(sapply(colnames(dataset), nchar))
     short_colnamel <- partial_unique(colnames(dataset), i=4)
     # i = 4 because too short colnames are hard to read
@@ -105,11 +110,8 @@ show_dataset_column_indices <- function(dataset=NULL){
         this <- names(short_colnamel)[i]
         index <- ((i-1) %% mod) + 1
         linev[index] <- paste0(linev[index],
-                               stringr::str_pad(i,
-                                       width=nchar(ncol(dataset))), ': ',
-                               stringr::str_pad(this,
-                                       width=nchar_longest,
-                                       side='right'), '\t')
+                               pad(i, width=nchar(ncol(dataset))), ': ',
+                               pad(this, width=nchar_longest, side='-'), '\t')
     }
 
     for (i in 1:mod ){
