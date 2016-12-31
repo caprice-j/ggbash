@@ -17,4 +17,10 @@ notifications:
     on_failure: tnk.yasutaka@gmail.com
 
 # r_github_packages for development version dependencies
+r_github_packages:
+  - jimhester/covr
+
+after_success:
+  - Rscript -e 'covr::codecov()'
+
 # r_binary_packages for faster build by precompiled Ubuntu packages
