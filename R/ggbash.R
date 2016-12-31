@@ -60,8 +60,13 @@ find_first <- function(prefix='si',
                        table=c('x', 'y', 'size', 'shape'),
                        showWarning=TRUE){
     indices <- grep(paste0('^', prefix), table)
-    if (length(indices)<1 && showWarning)
-        stop('no such prefix')
+    if (length(indices)<1 && showWarning) {
+        # FIXME refactor (colour and color)
+        if (grepl('colo', prefix))
+            indices <- grep(paste0('^colour'), table)
+        else
+            stop('no such prefix')
+    }
     if (length(indices)>1 && showWarning)
         message('[ !!! CAUTION !!! ] ambiguous match.',
                 ' use "', table[indices][1],
@@ -250,6 +255,7 @@ define_constant_list <- function(){
 #' for future reference in \code{\link{drawgg}}.
 #'
 #' @param dataset_name a character representing a data frame
+#' @param quietly Default is FALSE. Useful for testthat tests
 #'
 #' @return a tbl_df object with attr('ggbash_datasetname')
 #'
@@ -261,10 +267,12 @@ define_constant_list <- function(){
 #' attr(newdf, 'ggbash_datasetname'  # 'iris'
 #'
 #' @export
-set_ggbash_dataset <- function(dataset_name){
+set_ggbash_dataset <- function(dataset_name, quietly=FALSE){
     dataset <- dplyr::tbl_df(eval(as.symbol(dataset_name)))
-    message('attach ', dataset_name)
-    dplyr::glimpse(dataset)
+    if (! quietly) {
+        message('attach ', dataset_name)
+        dplyr::glimpse(dataset)
+    }
     attr(dataset, 'ggbash_datasetname') <- dataset_name
     return(dataset)
 }
@@ -419,7 +427,7 @@ get_possible_aes <- function(suffix='point') {
 #' convert given ggbash strings into ggplot2 aesthetic specifications
 #'
 #' @seealso used in \code{\link{drawgg}}.
-parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
+parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev, showWarning){
     # TODO as.factor as.character cut substr
     if (grepl('=', aesv[i])) {
         before_equal <- gsub('=.*', '', aesv[i])
@@ -457,6 +465,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
 #'             Typically the return value of \code{\link{split_by_space}}.
 #' @param dataset A dataframe with attr('ggbash_datasetname').
 #' @param showWarning whether to show warning when ambiguously matched. Default is TRUE.
+#' @param doEval print the built ggplot object. Default is TRUE. Useful for testthat tests.
 #' @return A list with the following two fields:
 #' \describe{
 #'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
@@ -475,11 +484,13 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
 #' @export
 drawgg <- function(dataset,
                    argv=c('p','x=2','y=3','colour=4','size=5'),
-                   showWarning=TRUE){
+                   showWarning=TRUE,
+                   doEval=TRUE){
     if (is.null(dataset))
         stop('dataset is not set')
     if (is.null(attr(iris, 'ggbash_datasetname'))) # called directly
-        dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
+        dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
+                                      quietly=TRUE)
 
     const <- define_constant_list()
     # 'p' is resolved into 'point'
@@ -494,12 +505,14 @@ drawgg <- function(dataset,
     conf <- list(aes=list())
     aesv <- argv[-1]
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
-        conf$aes[[i]] <- parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev)
+        conf$aes[[i]] <- parse_ggbash_aes(i, aesv, must_aesv,
+                                          all_aesv, colnamev, showWarning)
     }
     command <- paste0('ggplot2::ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
                       '+ ggplot2::geom_', geom_sth, '(',
                       'ggplot2::aes(', paste0(conf$aes, collapse = ', '), '))')
-    print(eval(parse(text = command)))
+    if (doEval)
+        print(eval(parse(text = command)))
     command <- gsub('ggplot2::','', command)
     ncmd <- nchar(command) # it's unfair to include labs() characters.
     #command <- paste0(command, ' + labs(subtitle="', command, '")')
