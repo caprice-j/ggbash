@@ -158,6 +158,9 @@ split_by_space <- function(input='    point x=3 y=4 color=5 '){
 #' add ggbash executed commands in R history
 #'
 #' @param input raw input given to the current ggbash session
+#'
+#' @importFrom utils savehistory
+#' @importFrom utils loadhistory
 add_input_to_history <- function(input='point 2 3'){
     history_file <- tempfile("Rhistoryfile")
     savehistory(history_file)
@@ -316,6 +319,14 @@ copy_to_clipboard <- function(string){
     }
 }
 
+#' save a ggplot object into a file
+#'
+#' @param exe_statl A list resulted from \code{\link{drawgg}}
+#' @param argv A character vector
+#'
+#' @importFrom grDevices dev.off
+#' @importFrom grDevices png
+#' @importFrom grDevices pdf
 save_ggplot <- function(exe_statl =
                             list(cmd  = 'ggplot(mtcars) + geom_point(aes(cyl,mpg))',
                                  conf = list('x=cyl', 'y=mpg') ),

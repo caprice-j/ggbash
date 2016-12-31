@@ -4,6 +4,9 @@ language: r
 warnings_are_errors: true
 sudo: required
 
+before_install:
+  - "sudo apt-get install xclip --no-install-recommends --yes"
+
 env:
  global:
    - CRAN: http://cran.rstudio.com
