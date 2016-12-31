@@ -2,7 +2,7 @@
 ggbash: a faster way to write ggplot2
 =====================================
 
-[![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash)
+[![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
@@ -29,6 +29,12 @@ executed:
 
 ![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
 
+Or if you just draw one figure,
+
+``` r
+drawgg(iris, 'p Sepal.W Sepal.L c=Sp siz=Petal.W')
+```
+
 Features
 --------
 
@@ -51,7 +57,7 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
 ```
 
-### 2. Partial Match
+### 2. Partial Match & Implicit Precedence
 
 In the first example, ggbash performs partial matches seven times.
 
@@ -69,6 +75,8 @@ In the first example, ggbash performs partial matches seven times.
 -   **aesthetics names**
     -   `c` matches `color`, which is the aesthetic of geom\_point.
     -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
+
+Actually, `p` ambiguously matched four geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`. `ggbash` determines which geom to use by the predefined order of precedence, for least expected typing.
 
 ### 3. Piping to copy/save results
 
