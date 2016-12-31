@@ -4,6 +4,8 @@ ggbash: a faster way to write ggplot2
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash)
 
+[![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash)
+
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
 Usage
