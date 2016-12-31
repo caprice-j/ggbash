@@ -5,3 +5,4 @@
 ^README_files$
 ^album$
 ^\.travis\.yml$
+^appveyor.yml$
