@@ -304,8 +304,15 @@ copy_to_clipboard <- function(string){
         cat(string, file=(con <- pipe('pbcopy', 'w')))
         message('copied to clipboard:\n', string)
         close(con)
+    } else if (os == 'Linux') {
+        if (! file.exists(Sys.which("xclip")[1]))
+	    stop("No xclip found")
+	cat(string,
+            file=(con <- pipe(paste0('xclip -i -selection ', 'clipboard'), "w")))
+        message('copied to clipboard:\n', string)
+	close(con)
     } else {
-        stop('copy in Windows / Linux is to be implemented')
+        stop('copy in Windows is to be implemented')
     }
 }
 
@@ -517,7 +524,7 @@ drawgg <- function(dataset,
                    doEval=TRUE){
     if (is.null(dataset))
         stop('dataset is not set')
-    if (is.null(attr(iris, 'ggbash_datasetname'))) # called directly
+    if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
                                       quietly=TRUE)
 
