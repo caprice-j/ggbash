@@ -543,7 +543,7 @@ drawgg <- function(dataset,
     if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
                                       quietly=TRUE)
-    if (grepl(' ', argv))
+    if (grepl(' ', argv)[1])
         argv <- split_by_space(argv)
         # calling directly often forgets split_by_space ... syntax sugar
 

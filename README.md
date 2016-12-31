@@ -137,13 +137,13 @@ Goals
 
 ggbash has two main goals:
 
-1.  *Better EDA experience:* Provide blazingly fast way to do Exploratory Data Analysis.
+1.  *Better EDA experience.* Provide blazingly fast way to do Exploratory Data Analysis.
 
     -   less typing by Column Index Match, Partial Prefix Match, and Predefined Precedence.
 
     -   casualy save plots with auto-generated unique file names
 
-2.  *Better tweaking experience:* Make it less stressful to finalize your plots.
+2.  *Faster tweaking.* Make it less stressful to finalize your plots.
 
     -   adjust colors or lineweights
 

@@ -161,7 +161,7 @@ adding one or two characters might be faster in most cases.
                                   size=Petal.Width))
 ```
 
-### 5. ggplot ID
+### 5. Auto-assigned Filenames
 
 # TODO write me
 iris-p-Sepal.W-Sepal.L-col=Sp-sz=Petal.W.png
@@ -176,14 +176,14 @@ Themes are abstracted away and not encoded in file names.
 
 ggbash has two main goals:
 
-1. *Better EDA experience:* Provide blazingly fast way to do Exploratory Data Analysis.
+1. *Better EDA experience.* Provide blazingly fast way to do Exploratory Data Analysis.
 
     + less typing by Column Index Match,
       Partial Prefix Match, and Predefined Precedence.
 
     + casualy save plots with auto-generated unique file names
 
-2. *Better tweaking experience:* Make it less stressful to finalize your plots.
+2. *Faster tweaking.* Make it less stressful to finalize your plots.
 
     + adjust colors or lineweights
 
