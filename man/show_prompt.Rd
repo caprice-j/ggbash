@@ -6,6 +6,9 @@
 \usage{
 show_prompt(dataset = NULL)
 }
+\arguments{
+\item{dataset}{a data frame}
+}
 \description{
 show ggbash prompt
 }

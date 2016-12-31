@@ -2,10 +2,12 @@
 ggbash: a faster way to write ggplot2
 =====================================
 
-ggbash provides a bash-like REPL environment for ggplot2.
+[![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash)
 
-Basic Usage
------------
+ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
+
+Usage
+-----
 
 ``` bash
 library(ggbash)
@@ -85,6 +87,13 @@ In the first example, ggbash performs partial matches seven times.
                                   y=Sepal.Width,
                                   colour=Species,
                                   size=Petal.Width))
+```
+
+Installation
+------------
+
+``` r
+devtools::install_github("caprice-j/ggbash")
 ```
 
 Goals

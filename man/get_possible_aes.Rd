@@ -6,6 +6,9 @@
 \usage{
 get_possible_aes(suffix = "point")
 }
+\arguments{
+\item{suffix}{geom suffix}
+}
 \description{
 retrieve all aesthetic names for a given geom
 }

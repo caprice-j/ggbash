@@ -3,10 +3,9 @@ Type: Package
 Title: A Faster Way to Use ggplot2
 Version: 0.1.2016.12.30
 Authors@R: c(person('Yasutaka', 'Tanaka', email = 'tnk.yasutaka@gmail.com', role='cre'))
-Description: ggbash provides a faster way to build ggplot2 objects,
-    thorugh a bash-like REPL environment.
-    It could potentially reduce your typing by more than 80%.
-License: MIT
+Description: ggbash provides a bash-like REPL environment,
+    potentially reducing your typing by more than 80%.
+License: MIT + file LICENSE
 Depends: R (>= 3.2.4)
 Imports: 
     dplyr,

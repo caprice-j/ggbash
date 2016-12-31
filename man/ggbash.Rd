@@ -41,8 +41,9 @@ Instead, a variety of ggbash commands are enabled
 for writing ggplot2 script as faster as possible.
 }
 \examples{
-ggbash()
+\dontrun{ ggbash()
 ggbash(iris)
+}
 
 }
 \seealso{

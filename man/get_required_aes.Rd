@@ -6,6 +6,9 @@
 \usage{
 get_required_aes(suffix = "point")
 }
+\arguments{
+\item{suffix}{geom suffix}
+}
 \description{
 retrieve required aesthetic names for a given geom
 }

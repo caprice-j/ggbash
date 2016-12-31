@@ -78,13 +78,14 @@ find_first <- function(prefix='si',
 #'
 #' This function lists all dataset column indices.
 #'
+#' @param dataset a data frame
+#'
 #' @seealso \code{partial_unique}, \code{drawgg}
 #'
 #' @examples
 #'
 #' # without column indices: explicit
 #' drawgg(iris, split_by_space("line x=Sepal.W y=Sepal.L colour=Species"))
-#'
 #'
 #' show_dataset_column_indices(iris)
 #'
@@ -118,6 +119,9 @@ show_dataset_column_indices <- function(dataset=NULL){
 }
 
 #' show ggbash prompt
+#'
+#' @param dataset a data frame
+#'
 show_prompt <- function(dataset=NULL){
     ds_str <- attr(dataset, 'ggbash_datasetname')
     username <- Sys.info()['user']
@@ -131,7 +135,11 @@ show_prompt <- function(dataset=NULL){
 }
 
 #' split a given character by a pipe ("|")
-splib_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
+#'
+#' @param input A character
+#'
+#' @export
+split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
     return(stringr::str_split(input, '\\|')[[1]])
 }
 
@@ -148,6 +156,8 @@ split_by_space <- function(input='    point x=3 y=4 color=5 '){
 }
 
 #' add ggbash executed commands in R history
+#'
+#' @param input raw input given to the current ggbash session
 add_input_to_history <- function(input='point 2 3'){
     history_file <- tempfile("Rhistoryfile")
     savehistory(history_file)
@@ -264,7 +274,7 @@ define_constant_list <- function(){
 #' @examples
 #'
 #' newdf <- set_ggbash_dataset('iris')
-#' attr(newdf, 'ggbash_datasetname'  # 'iris'
+#' attr(newdf, 'ggbash_datasetname')  # 'iris'
 #'
 #' @export
 set_ggbash_dataset <- function(dataset_name, quietly=FALSE){
@@ -349,8 +359,9 @@ save_ggplot <- function(exe_statl =
 #' @return nothing
 #'
 #' @examples
-#' ggbash()
+#' \dontrun{ ggbash()
 #' ggbash(iris)
+#' }
 #'
 #' @seealso For a oneliner, \code{\link{drawgg}} might be more convenient.
 #'
@@ -366,7 +377,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
         {   # main loop for command execution
 
             raw_input <- show_prompt(dataset)
-            commandv <- splib_by_pipe(raw_input)
+            commandv <- split_by_pipe(raw_input)
             message('commandv: ', paste0(commandv, collapse='-'))
             for (cmd in commandv) {
                 argv <- split_by_space(cmd)
@@ -403,6 +414,9 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
 }
 
 #' retrieve required aesthetic names for a given geom
+#'
+#' @param suffix geom suffix
+#'
 #' @seealso used in \code{\link{drawgg}}.
 #' @export
 get_required_aes <- function(suffix='point') {
@@ -412,6 +426,9 @@ get_required_aes <- function(suffix='point') {
 }
 
 #' retrieve all aesthetic names for a given geom
+#'
+#' @param suffix geom suffix
+#'
 #' @seealso used in \code{\link{drawgg}}.
 #' @export
 get_possible_aes <- function(suffix='point') {
@@ -426,8 +443,21 @@ get_possible_aes <- function(suffix='point') {
 
 #' convert given ggbash strings into ggplot2 aesthetic specifications
 #'
+#' @param i An integer of index
+#' @param aesv A vector of aesthetics
+#' @param must_aesv A vector of required aesthetics
+#' @param all_aesv A vector of possible aesthetics.
+#' @param colnamev A vector of column names of a dataframe.
+#' @param showWarning a flag for printing warning when ambiguous match.
+#'                    Default is TRUE.
+#'
 #' @seealso used in \code{\link{drawgg}}.
-parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev, showWarning){
+#' must_aesv and all_aesv are built by
+#' \code{\link{get_required_aes}} and
+#' \code{\link{get_possible_aes}}, respectively.
+#'
+parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
+                             colnamev, showWarning=TRUE){
     # TODO as.factor as.character cut substr
     if (grepl('=', aesv[i])) {
         before_equal <- gsub('=.*', '', aesv[i])
@@ -473,8 +503,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev, showWarning
 #' }
 #'
 #' @examples
-#' out <- drawgg(dataset = iris,
-#'                    argv = split_by_space("line x=Sepal.W y='Sepal.L"))
+#' out <- drawgg(dataset = iris, argv = split_by_space("line x=Sepal.W y=Sepal.L"))
 #'
 #' # copy the built ggplot2 object (Mac OS X)
 #' copy_to_clipboard(out$cmd)

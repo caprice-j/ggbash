@@ -5,7 +5,7 @@
 \title{build a ggplot2 plot and draw it}
 \usage{
 drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"),
-  showWarning = TRUE)
+  showWarning = TRUE, doEval = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe with attr('ggbash_datasetname').}
@@ -14,6 +14,8 @@ drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"),
 Typically the return value of \code{\link{split_by_space}}.}
 
 \item{showWarning}{whether to show warning when ambiguously matched. Default is TRUE.}
+
+\item{doEval}{print the built ggplot object. Default is TRUE. Useful for testthat tests.}
 }
 \value{
 A list with the following two fields:
@@ -33,8 +35,7 @@ and construct a complete ggplot2 object as a character.
 This can be used as a function to write one
 }
 \examples{
-out <- drawgg(dataset = iris,
-                   argv = split_by_space("line x=Sepal.W y='Sepal.L"))
+out <- drawgg(dataset = iris, argv = split_by_space("line x=Sepal.W y=Sepal.L"))
 
 # copy the built ggplot2 object (Mac OS X)
 copy_to_clipboard(out$cmd)

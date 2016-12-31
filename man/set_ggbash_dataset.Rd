@@ -4,10 +4,12 @@
 \alias{set_ggbash_dataset}
 \title{build a data frame from a data frame name}
 \usage{
-set_ggbash_dataset(dataset_name)
+set_ggbash_dataset(dataset_name, quietly = FALSE)
 }
 \arguments{
 \item{dataset_name}{a character representing a data frame}
+
+\item{quietly}{Default is FALSE. Useful for testthat tests}
 }
 \value{
 a tbl_df object with attr('ggbash_datasetname')
@@ -21,7 +23,7 @@ for future reference in \code{\link{drawgg}}.
 \examples{
 
 newdf <- set_ggbash_dataset('iris')
-attr(newdf, 'ggbash_datasetname'  # 'iris'
+attr(newdf, 'ggbash_datasetname')  # 'iris'
 
 }
 \seealso{

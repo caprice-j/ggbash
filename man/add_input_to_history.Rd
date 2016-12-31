@@ -6,6 +6,9 @@
 \usage{
 add_input_to_history(input = "point 2 3")
 }
+\arguments{
+\item{input}{raw input given to the current ggbash session}
+}
 \description{
 add ggbash executed commands in R history
 }

@@ -4,12 +4,29 @@
 \alias{parse_ggbash_aes}
 \title{convert given ggbash strings into ggplot2 aesthetic specifications}
 \usage{
-parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev)
+parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev, showWarning = TRUE)
+}
+\arguments{
+\item{i}{An integer of index}
+
+\item{aesv}{A vector of aesthetics}
+
+\item{must_aesv}{A vector of required aesthetics}
+
+\item{all_aesv}{A vector of possible aesthetics.}
+
+\item{colnamev}{A vector of column names of a dataframe.}
+
+\item{showWarning}{a flag for printing warning when ambiguous match.
+Default is TRUE.}
 }
 \description{
 convert given ggbash strings into ggplot2 aesthetic specifications
 }
 \seealso{
 used in \code{\link{drawgg}}.
+must_aesv and all_aesv are built by
+\code{\link{get_required_aes}} and
+\code{\link{get_possible_aes}}, respectively.
 }
 

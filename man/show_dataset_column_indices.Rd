@@ -6,6 +6,9 @@
 \usage{
 show_dataset_column_indices(dataset = NULL)
 }
+\arguments{
+\item{dataset}{a data frame}
+}
 \description{
 This function lists all dataset column indices.
 }
@@ -13,7 +16,6 @@ This function lists all dataset column indices.
 
 # without column indices: explicit
 drawgg(iris, split_by_space("line x=Sepal.W y=Sepal.L colour=Species"))
-
 
 show_dataset_column_indices(iris)
 
