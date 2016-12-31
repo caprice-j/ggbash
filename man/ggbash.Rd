@@ -13,7 +13,9 @@ by 'use your_dataset' command in your ggbash session.
 If a matrix object is given, It's automatically
 converted into a tbl_df object.}
 
-\item{ambiguous_match}{A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
+\item{ambiguous_match}{A boolean whether to do ambiguous match when a
+                       ggbash command ambiguously matches several commands.
+                       Default is TRUE. The matching rules are as follows:
 \describe{
     \item{Geom name:}{the geom most frequently used (based on my experiences)}
     \item{Column name:}{the column with the smallest column index}
@@ -38,5 +40,9 @@ for writing ggplot2 script as faster as possible.
 \examples{
 ggbash()
 ggbash(iris)
+
+}
+\seealso{
+For a oneliner, \code{\link{drawgg}} might be more convenient.
 }
 

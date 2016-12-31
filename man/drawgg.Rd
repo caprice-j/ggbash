@@ -34,7 +34,10 @@ out <- drawgg(dataset = iris,
                    argv = split_by_space("line x=Sepal.W y='Sepal.L"))
 
 # copy the built ggplot2 object (Mac OS X)
-cat(out$cmd, file=(con <- pipe("pbcopy", "w")))
+copy_to_clipboard(out$cmd)
 
+}
+\seealso{
+\code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
 }
 

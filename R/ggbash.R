@@ -157,6 +157,26 @@ execute_builtins <- function(raw_input, argv, const, dataset){
     }
 }
 
+#' define constant values used in ggbash
+#'
+#' \code{define_constant_list} has no side effect.
+#' It is similar with the 'const' modifier in C or C++.
+#'
+#' One thing to note is \code{define_constant_list} set implicitly
+#' the preference order of geom_name in ggplot2.
+#' For example, 'p' ambiguously matches to \code{\link[ggplot2]{geom_point}}
+#' and \code{\link[ggplot2]{geom_pointrange}},
+#' but ggbash automatically uses \code{\link[ggplot2]{geom_point}}
+#' with a warning message about the ambiguity.
+#' This is a design choice based on the observation that
+#' \code{\link[ggplot2]{geom_point}} is often used
+#' more frequently than \code{\link[ggplot2]{geom_pointrange}}.
+#' In order to use \code{\link[ggplot2]{geom_pointrange}},
+#' at least 6 characters ('pointr') is needed.
+#'
+#' @seealso The preference order is used
+#'          when doing partial match in \code{\link{drawgg}}.
+#'
 define_constant_list <- function(){
     list(
         first_wd = getwd(),
@@ -189,15 +209,44 @@ define_constant_list <- function(){
     )
 }
 
-set_dataset <- function(argv){
-    dataset <- dplyr::tbl_df(eval(as.symbol(((argv[2])))))
-    message('attach ', argv[2])
+#' build a data frame from a data frame name
+#'
+#' \code{set_ggbash_dataset} receives a character (a data frame name),
+#' evaluate it as a symbol, and construct a corresponding tbl_df object.
+#' The given character argument is stored in attr('ggbash_datasetname')
+#' for future reference in \code{\link{drawgg}}.
+#'
+#' @param dataset_name a character representing a data frame
+#'
+#' @return a tbl_df object with attr('ggbash_datasetname')
+#'
+#' @seealso \code{\link{drawgg}}
+#'
+#' @examples
+#'
+#' newdf <- set_ggbash_dataset('iris')
+#' attr(newdf, 'ggbash_datasetname'  # 'iris'
+#'
+#' @export
+set_ggbash_dataset <- function(dataset_name){
+    dataset <- dplyr::tbl_df(eval(as.symbol(((dataset_name)))))
+    message('attach ', dataset_name)
     dplyr::glimpse(dataset)
-    attr(dataset, 'ggbash_datasetname') <- argv[2]
-    # should I store the var name with parentheses?
+    attr(dataset, 'ggbash_datasetname') <- dataset_name
     return(dataset)
 }
 
+#' copy a given string to clipboard
+#'
+#' \code{copy_to_clipboard} invokes OS-specific routine to copy a character to clipboard.
+#'
+#' @param string a character to be copied
+#'
+#' @return nothing
+#'
+#' @seealso \code{\link{drawgg}}
+#'
+#' @export
 copy_to_clipboard <- function(string){
     os <- Sys.info()['sysname']
     if (os == 'Darwin') {
@@ -209,13 +258,14 @@ copy_to_clipboard <- function(string){
     }
 }
 
-save_ggplot <- function(exe_statl = list(cmd = 'ggplot(mtcars)+geom_point(aes(cyl,mpg))',
-                                         conf= list() ),
+save_ggplot <- function(exe_statl =
+                            list(cmd  = 'ggplot(mtcars) + geom_point(aes(cyl,mpg))',
+                                 conf = list('x=cyl', 'y=mpg') ),
                         argv=c('png', 'big')){
     filename <- paste0('tmp.', argv[1])
 
-    # Note: list has builtin partial match.
-    # Then size$m calls size$medium.
+    # Note: list has builtin partial match for $ (dollar) accessor.
+    # size$m calls size$medium.
     size <- list( small = list(w =  480, h =  480),
                  medium = list(w =  960, h =  960),
                     big = list(w = 1960, h = 1440))[[ argv[2] ]]
@@ -224,7 +274,7 @@ save_ggplot <- function(exe_statl = list(cmd = 'ggplot(mtcars)+geom_point(aes(cy
         png(filename, width=size$w, height=size$h)
     else
         pdf(filename)
-
+    #exe_statl$cmd
     dev.off()
 }
 
@@ -245,19 +295,24 @@ save_ggplot <- function(exe_statl = list(cmd = 'ggplot(mtcars)+geom_point(aes(cy
 #'                by 'use your_dataset' command in your ggbash session.
 #'                If a matrix object is given, It's automatically
 #'                converted into a tbl_df object.
-#' @param ambiguous_match A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
+#' @param ambiguous_match A boolean whether to do ambiguous match when a
+#'                        ggbash command ambiguously matches several commands.
+#'                        Default is TRUE. The matching rules are as follows:
 #' \describe{
 #'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
 #'     \item{Column name:}{the column with the smallest column index}
 #'     \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
 #' }
 #' @return nothing
+#'
 #' @examples
 #' ggbash()
 #' ggbash(iris)
+#'
+#' @seealso For a oneliner, \code{\link{drawgg}} might be more convenient.
+#'
 #' @export
 ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
-
     # initialization
     if (! is.null(dataset))
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
@@ -279,7 +334,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                     exit <- TRUE
                     break
                 } else if (argv[1] == 'use') {
-                    dataset <- set_dataset(argv)
+                    dataset <- set_ggbash_dataset(argv[2])
                 } else if (argv[1] == 'show') {
                     print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
                 } else if (argv[1] %in% const$builtinv) {
@@ -296,14 +351,12 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
             if (exit)
                 break # FIXME an ugly way to avoid returning NULL
         },
-        warning = function(wrn) {
-                                    message('I got warning', wrn)
+        warning = function(wrn) { message('I got warning', wrn) },
+          error = function(err) { # stop() comes here
+                                  message('ERROR: ', err)
                                 },
-          error = function(err) { # stop() goes here
-                                    message('ERROR: ', err)
-                                },
-        finally = {
-                    add_input_to_history(raw_input) # add to history even if failed
+        finally = { # add to history even if failed for user's next modification
+                    add_input_to_history(raw_input)
         }
     ) }
 }
@@ -322,10 +375,6 @@ get_possible_aes <- function(suffix='point') {
                               geom$non_missing_aes,
                               names(geom$default_aes)))
     return(possible_aesv)
-}
-
-find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
-    return(! c(is.na(stringr::str_match(string=stringv, pattern=paste0('^',pattern)))))
 }
 
 parse_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
@@ -376,7 +425,9 @@ parse_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
 #'                    argv = split_by_space("line x=Sepal.W y='Sepal.L"))
 #'
 #' # copy the built ggplot2 object (Mac OS X)
-#' cat(out$cmd, file=(con <- pipe("pbcopy", "w")))
+#' copy_to_clipboard(out$cmd)
+#'
+#' @seealso \code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
 #'
 #' @export
 drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
