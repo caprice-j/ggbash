@@ -141,3 +141,12 @@ ggbash has two main goals:
     -   decide tick label intervals and limits
 
     -   generate line-wrapped titles or legends
+
+Learning ggbash
+---------------
+
+`ggbash` follows ggplot2 notations as much as possible for reducing learning costs of current ggplot2 users.
+
+Therefore, these [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) are good ways to get the hang of ggplot2.
+
+The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd) of ggbash is still a draft.
