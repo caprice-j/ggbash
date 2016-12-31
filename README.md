@@ -6,6 +6,13 @@ ggbash: a faster way to write ggplot2
 
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
+Installation
+------------
+
+``` r
+devtools::install_github("caprice-j/ggbash")
+```
+
 Usage
 -----
 
@@ -27,12 +34,14 @@ executed:
                    size=Petal.Width))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
 
-Or if you just draw one figure,
+Or if you just need one figure,
 
 ``` r
-drawgg(iris, 'p Sepal.W Sepal.L c=Sp siz=Petal.W')
+executed <- ggbash::drawgg(iris, split_by_space('p Sepal.W Sepal.L c=Sp siz=Petal.W'))
+copy_to_clipboard(executed$cmd)
+# copied: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 ```
 
 Features
@@ -95,13 +104,6 @@ Actually, `p` ambiguously matched four geoms, `geom_point`, `geom_path`, `geom_p
                                   y=Sepal.Width,
                                   colour=Species,
                                   size=Petal.Width))
-```
-
-Installation
-------------
-
-``` r
-devtools::install_github("caprice-j/ggbash")
 ```
 
 Goals
