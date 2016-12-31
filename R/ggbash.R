@@ -41,8 +41,8 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
     }
 
     short2colname <- list()
-    for (i in seq_along(colnamev)) {
-        short2colname[ out[i] ] <- colnamev[i]
+    for (i in seq_along(originalv)) {
+        short2colname[ out[i] ] <- originalv[i]
     }
     return(short2colname)
 }
@@ -51,12 +51,18 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
 #'
 #' find_first does a prefix partial matching.
 #'
+#' @param prefix A prefix to be searched
+#' @param table A character vector (typically aesthetic name list)
+#' @param showWarning Show warning if matched ambiguously. Default is TRUE.
+#'
 #' @export
-find_first <- function(prefix='si', table=c('x', 'y', 'size', 'shape')){
+find_first <- function(prefix='si',
+                       table=c('x', 'y', 'size', 'shape'),
+                       showWarning=TRUE){
     indices <- grep(paste0('^', prefix), table)
-    if (length(indices)<1)
+    if (length(indices)<1 && showWarning)
         stop('no such prefix')
-    if (length(indices)>1)
+    if (length(indices)>1 && showWarning)
         message('[ !!! CAUTION !!! ] ambiguous match.',
                 ' use "', table[indices][1],
                 '" among ', paste0(table[indices], collapse=', '))
@@ -325,6 +331,8 @@ save_ggplot <- function(exe_statl =
 #' @param ambiguous_match A boolean whether to do ambiguous match when a
 #'                        ggbash command ambiguously matches several commands.
 #'                        Default is TRUE. The matching rules are as follows:
+#' @param showWarning Whether to show a warning message
+#'                    when ambiguously matched. Default is TRUE.
 #' \describe{
 #'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
 #'     \item{Column name:}{the column with the smallest column index}
@@ -339,7 +347,7 @@ save_ggplot <- function(exe_statl =
 #' @seealso For a oneliner, \code{\link{drawgg}} might be more convenient.
 #'
 #' @export
-ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
+ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
     # initialization
     if (! is.null(dataset))
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
@@ -351,12 +359,10 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
 
             raw_input <- show_prompt(dataset)
             commandv <- splib_by_pipe(raw_input)
-            print('commandv ')
-            print(commandv)
+            message('commandv: ', paste0(commandv, collapse='-'))
             for (cmd in commandv) {
                 argv <- split_by_space(cmd)
-                print('argv: ')
-                print(argv)
+                message('argv: ', paste0(argv, collapse='-'))
                 if (argv[1] %in% c('exit', 'quit')) {
                     exit <- TRUE
                     break
@@ -371,7 +377,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                 } else if (argv[1] %in% const$savev) {
                     save_ggplot(exe_statl, argv)
                 } else { # if 'point' or 'p' is passed
-                    exe_statl <- drawgg(dataset, argv)
+                    exe_statl <- drawgg(dataset, argv, showWarning)
                 }
 
             }
@@ -428,12 +434,12 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
     after_equal  <- gsub('.*=',     '', aesv[i])
 
     if (! before_equal %in% all_aesv)
-        before_equal <- all_aesv[find_first(before_equal, all_aesv)] # FIXME refactor
+        before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarning)]
 
     if (grepl('[0-9]', after_equal))
         after_equal <- colnamev[as.numeric(after_equal)]
     else if (! after_equal %in% colnamev)
-        after_equal <- colnamev[find_first(after_equal, colnamev)]
+        after_equal <- colnamev[find_first(after_equal, colnamev, showWarning)]
     return(paste0(before_equal, '=', after_equal))
 }
 
@@ -450,6 +456,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
 #' @param argv A character vector containing ggplot2 geom and aesthetics specifications.
 #'             Typically the return value of \code{\link{split_by_space}}.
 #' @param dataset A dataframe with attr('ggbash_datasetname').
+#' @param showWarning whether to show warning when ambiguously matched. Default is TRUE.
 #' @return A list with the following two fields:
 #' \describe{
 #'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
@@ -466,13 +473,15 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
 #' @seealso \code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
 #'
 #' @export
-drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
+drawgg <- function(dataset,
+                   argv=c('p','x=2','y=3','colour=4','size=5'),
+                   showWarning=TRUE){
     if (is.null(dataset))
         stop('dataset is not set')
 
     const <- define_constant_list()
     # 'p' is resolved into 'point'
-    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev)]
+    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev, showWarning)]
     message('selected geom: ', geom_sth)
 
     must_aesv <- get_required_aes(geom_sth)
@@ -485,12 +494,13 @@ drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
         conf$aes[[i]] <- parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev)
     }
-    command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
-                      '+ geom_', geom_sth, '(',
-                      'aes(', paste0(conf$aes, collapse = ', '), '))')
+    command <- paste0('ggplot2::ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
+                      '+ ggplot2::geom_', geom_sth, '(',
+                      'ggplot2::aes(', paste0(conf$aes, collapse = ', '), '))')
+    print(eval(parse(text = command)))
+    command <- gsub('ggplot2::','', command)
     ncmd <- nchar(command) # it's unfair to include labs() characters.
     #command <- paste0(command, ' + labs(subtitle="', command, '")')
-    print(eval(parse(text = command)))
     message('executed (', ncmd, ' characters) :\n', command)
     return(list(cmd = command, conf = conf))
 }
