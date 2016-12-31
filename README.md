@@ -1,5 +1,5 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ggbash: a faster way to write ggplot2
+ggbash: A Faster Way to Write ggplot2
 =====================================
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
@@ -22,7 +22,7 @@ ggbash(iris) # start a ggbash session (using iris as main dataset)
 ```
 
 ``` bash
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp siz=Petal.W
+user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W
 ```
 
 ``` r
@@ -39,7 +39,7 @@ executed:
 Or if you just need one figure,
 
 ``` r
-executed <- ggbash::drawgg(iris, split_by_space('p Sepal.W Sepal.L c=Sp siz=Petal.W'))
+executed <- drawgg(iris, split_by_space('p Sepal.W Sepal.L c=Sp siz=Petal.W'))
 copy_to_clipboard(executed$cmd)
 # copied: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 ```
@@ -66,9 +66,9 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
 ```
 
-### 2. Partial Match & Implicit Precedence
+### 2. Partial Match
 
-In the first example, ggbash performs partial matches seven times.
+In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs partial matches seven times.
 
 -   **geom names**
     -   `p` matches `geom_point`.
@@ -85,9 +85,18 @@ In the first example, ggbash performs partial matches seven times.
     -   `c` matches `color`, which is the aesthetic of geom\_point.
     -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
 
-Actually, `p` ambiguously matched four geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`. `ggbash` determines which geom to use by the predefined order of precedence, for least expected typing.
+### 3. Implicit Precedence
 
-### 3. Piping to copy/save results
+If unique identification is not possible, `ggbash` tries to guess what is specified instead of returning an error, hoping to achieve least expected keystrokes.
+
+For example, for the input of `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matched four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+`ggbash` determines which geom to use by the predefined order of precedence. `point` is selected in this case.
+
+Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is interpreted as `size` aesthetic.
+
+While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters might be faster in most cases.
+
+### 4. Piping to copy/save results
 
 ``` r
     user@host currentDir (iris) $ cd imageDir
@@ -98,7 +107,7 @@ Actually, `p` ambiguously matched four geoms, `geom_point`, `geom_path`, `geom_p
     user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf 'iris-for'
     saved as 'iris-for.pdf' (default: 960 x 960)
     
-    user@host imageDir (iris) $ p 1 2 c=spec size=4 | copy
+    user@host imageDir (iris) $ p 1 2 col=Sp siz=4 | copy
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
                                   y=Sepal.Width,
