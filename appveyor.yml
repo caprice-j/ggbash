@@ -13,3 +13,5 @@ environment:
 branches:
   only:
     - master
+
+build: off
