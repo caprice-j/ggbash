@@ -2,8 +2,12 @@
 
 export(copy_to_clipboard)
 export(drawgg)
+export(find_first)
+export(get_possible_aes)
+export(get_required_aes)
 export(ggbash)
 export(partial_unique)
 export(set_ggbash_dataset)
+export(show_dataset_column_indices)
 export(split_by_space)
 import(ggplot2)

@@ -47,6 +47,11 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
     return(short2colname)
 }
 
+#' return the first index which contains a given prefix
+#'
+#' find_first does a prefix partial matching.
+#'
+#' @export
 find_first <- function(prefix='si', table=c('x', 'y', 'size', 'shape')){
     indices <- grep(paste0('^', prefix), table)
     if (length(indices)<1)
@@ -58,6 +63,24 @@ find_first <- function(prefix='si', table=c('x', 'y', 'size', 'shape')){
     return(indices[1])
 }
 
+#' show column index list
+#'
+#' This function lists all dataset column indices.
+#'
+#' @seealso \code{partial_unique}, \code{drawgg}
+#'
+#' @examples
+#'
+#' # without column indices: explicit
+#' drawgg(iris, split_by_space("line x=Sepal.W y=Sepal.L colour=Species"))
+#'
+#'
+#' show_dataset_column_indices(iris)
+#'
+#' # with column indices: shorter
+#' drawgg(iris, split_by_space('l x=2 y=1 c=5'))
+#'
+#' @export
 show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
@@ -83,6 +106,7 @@ show_dataset_column_indices <- function(dataset=NULL){
     }
 }
 
+#' show ggbash prompt
 show_prompt <- function(dataset=NULL){
     ds_str <- attr(dataset, 'ggbash_datasetname')
     username <- Sys.info()['user']
@@ -95,6 +119,7 @@ show_prompt <- function(dataset=NULL){
     return(readline(prompt=ggbash_prompt))
 }
 
+#' split a given character by a pipe ("|")
 splib_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
     return(stringr::str_split(input, '\\|')[[1]])
 }
@@ -111,6 +136,7 @@ split_by_space <- function(input='    point x=3 y=4 color=5 '){
     return(argv[nchar(argv)>0])
 }
 
+#' add ggbash executed commands in R history
 add_input_to_history <- function(input='point 2 3'){
     history_file <- tempfile("Rhistoryfile")
     savehistory(history_file)
@@ -120,7 +146,8 @@ add_input_to_history <- function(input='point 2 3'){
     unlink(history_file)
 }
 
-execute_builtins <- function(raw_input, argv, const, dataset){
+# execute ggbash builtins
+execute_ggbash_builtins <- function(raw_input, argv, const, dataset){
     if (argv[1] %in% c('pwd', 'getwd')) {
         message(getwd())
     } else if (argv[1] %in% c('mkdir', 'dir.create')) {
@@ -338,7 +365,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                 } else if (argv[1] == 'show') {
                     print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
                 } else if (argv[1] %in% const$builtinv) {
-                    execute_builtins(raw_input, argv, const, dataset)
+                    execute_ggbash_builtins(raw_input, argv, const, dataset)
                 } else if (argv[1] %in% c('copy', 'cp')) {
                     copy_to_clipboard(exe_statl$cmd)
                 } else if (argv[1] %in% const$savev) {
@@ -361,12 +388,18 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
     ) }
 }
 
+#' retrieve required aesthetic names for a given geom
+#' @seealso used in \code{\link{drawgg}}.
+#' @export
 get_required_aes <- function(suffix='point') {
     command <- paste0('ggplot2::geom_', suffix, '()')
     expr <- parse(text = command)
     return(eval(expr)$geom$required_aes)
 }
 
+#' retrieve all aesthetic names for a given geom
+#' @seealso used in \code{\link{drawgg}}.
+#' @export
 get_possible_aes <- function(suffix='point') {
     command <- paste0('ggplot2::geom_', suffix, '()')
     expr <- parse(text = command)
@@ -377,7 +410,10 @@ get_possible_aes <- function(suffix='point') {
     return(possible_aesv)
 }
 
-parse_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
+#' convert given ggbash strings into ggplot2 aesthetic specifications
+#'
+#' @seealso used in \code{\link{drawgg}}.
+parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
     # TODO as.factor as.character cut substr
     if (grepl('=', aesv[i])) {
         before_equal <- gsub('=.*', '', aesv[i])
@@ -447,7 +483,7 @@ drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
     conf <- list(aes=list())
     aesv <- argv[-1]
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
-        conf$aes[[i]] <- parse_aes(i, aesv, must_aesv, all_aesv, colnamev)
+        conf$aes[[i]] <- parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev)
     }
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
                       '+ geom_', geom_sth, '(',
