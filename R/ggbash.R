@@ -262,7 +262,7 @@ define_constant_list <- function(){
 #'
 #' @export
 set_ggbash_dataset <- function(dataset_name){
-    dataset <- dplyr::tbl_df(eval(as.symbol(((dataset_name)))))
+    dataset <- dplyr::tbl_df(eval(as.symbol(dataset_name)))
     message('attach ', dataset_name)
     dplyr::glimpse(dataset)
     attr(dataset, 'ggbash_datasetname') <- dataset_name
@@ -478,6 +478,8 @@ drawgg <- function(dataset,
                    showWarning=TRUE){
     if (is.null(dataset))
         stop('dataset is not set')
+    if (is.null(attr(iris, 'ggbash_datasetname'))) # called directly
+        dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
 
     const <- define_constant_list()
     # 'p' is resolved into 'point'
