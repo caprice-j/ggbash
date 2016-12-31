@@ -7,7 +7,7 @@
 ggbash(dataset = NULL, ambiguous_match = TRUE)
 }
 \arguments{
-\item{dataset}{a dataframe to attach. Default is NULL.
+\item{dataset}{A dataframe to attach. Default is NULL.
 You can define the dataframe later
 by 'use your_dataset' command in your ggbash session.
 If a matrix object is given, It's automatically

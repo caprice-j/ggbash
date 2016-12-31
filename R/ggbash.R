@@ -1,41 +1,39 @@
 #' @import ggplot2
 NULL
 
-#' Enter into a ggbash session.
+#' Construct partially unique string list
 #'
-#' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+#' \code{partial_unique} makes given characters as short as posssible while preserving uniqueness.
 #'
-#' ggbash provides concise aliases for ggplot2 functions.
-#' By calling ggbash(), your R session goes into a ggbash session,
-#' which only interprets predefined ggbash commands.
-#' Some basic commands like setwd() or pwd() works in ggbash session,
-#' but most of the usual R grammars are disabled.
-#' Instead, a variety of ggbash commands are enabled
-#' for writing ggplot2 script as faster as possible.
+#' \code{partial_unique} is a variant of R's builtin \code{\link[base]{unique}} function.
+#' While \code{link[base]{unique}} returns the non-duplicated set of elements,
+#' \code{partial_unique} returns a list whose element names are partially unique shortest strings,
+#' and its element values are original strings.
+#' This function can display how many characters
+#' are needed to uniquely identify each given character element.
 #'
-#' @param dataset a dataframe to attach. Default is NULL.
-#'                You can define the dataframe later
-#'                by 'use your_dataset' command in your ggbash session.
-#'                If a matrix object is given, It's automatically
-#'                converted into a tbl_df object.
-#' @param ambiguous_match A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
-#' \describe{
-#'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
-#'     \item{Column name:}{the column with the smallest column index}
-#'     \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
-#' }
-#' @return nothing
+#' @param originalv a character vector to construct partial strings.
+#' @param i The smallest character of the resulted partial strings.
+#'          Sometimes too small i loses readability
+#'          such as in \code{\link{show_dataset_column_indices}}
+#'
+#' @return a list whose element names are partial strings and element values are original strings.
+#'
 #' @examples
-#' ggbash()
-#' ggbash(iris)
+#' partial_unique(c("Sepal.Width", "Sepal.Length", "Species", "Petal.Width"))
+#' # returns list(Sepal.W = "Sepal.Width", Sepal.L = "Sepal.Length",
+#' #              Sp = "Species", P = "Petal.Width")
+#'
+#' @seealso \code{\link[base]{unique}}, \code{\link{show_dataset_column_indices}}
+#'
 #' @export
-truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'), i=1) {
+partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1) {
 
-    nchar_longest <- max(sapply(colnamev, nchar))
+    nchar_longest <- max(sapply(originalv, nchar))
 
-    out <- rep('', length(colnamev))
+    out <- rep('', length(originalv))
     while (any(out == '')) {
-        shortened_colnamev <- sapply(colnamev, function(s) substr(s,1,i))
+        shortened_colnamev <- sapply(originalv, function(s) substr(s,1,i))
         dup_namev <- names(table(shortened_colnamev))[table(shortened_colnamev) > 1]
         index <- (! shortened_colnamev %in% dup_namev) & (out == '')
         out[index] <- shortened_colnamev[index]
@@ -43,7 +41,6 @@ truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'
     }
 
     short2colname <- list()
-
     for (i in seq_along(colnamev)) {
         short2colname[ out[i] ] <- colnamev[i]
     }
@@ -65,7 +62,7 @@ show_dataset_column_indices <- function(dataset=NULL){
     if (is.null(dataset))
         return()
     nchar_longest <- max(sapply(colnames(dataset), nchar))
-    short_colnamel <- truncate_strings(colnames(dataset), i=4)
+    short_colnamel <- partial_unique(colnames(dataset), i=4)
     # i = 4 because too short colnames are hard to read
     mod <- 5
     linev <- rep('', mod)
@@ -102,6 +99,12 @@ splib_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
     return(stringr::str_split(input, '\\|')[[1]])
 }
 
+#' split a given string by spaces
+#'
+#' @param input A character. Typically one of the elements returned by \code{\link{split_by_pipe}}.
+#' @return A character vector
+#'
+#' @export
 split_by_space <- function(input='    point x=3 y=4 color=5 '){
     # remove preceding/trailing spaces
     argv <- stringr::str_split(input, ' ')[[1]]
@@ -237,7 +240,7 @@ save_ggplot <- function(exe_statl = list(cmd = 'ggplot(mtcars)+geom_point(aes(cy
 #' Instead, a variety of ggbash commands are enabled
 #' for writing ggplot2 script as faster as possible.
 #'
-#' @param dataset a dataframe to attach. Default is NULL.
+#' @param dataset A dataframe to attach. Default is NULL.
 #'                You can define the dataframe later
 #'                by 'use your_dataset' command in your ggbash session.
 #'                If a matrix object is given, It's automatically
@@ -286,7 +289,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                 } else if (argv[1] %in% const$savev) {
                     save_ggplot(exe_statl, argv)
                 } else { # if 'point' or 'p' is passed
-                    exe_statl <- drawgg(argv, dataset, const)
+                    exe_statl <- drawgg(dataset, argv)
                 }
 
             }
@@ -325,7 +328,7 @@ find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
     return(! c(is.na(stringr::str_match(string=stringv, pattern=paste0('^',pattern)))))
 }
 
-parse_aes <- function(aesv, must_aesv, all_aesv, colnamev){
+parse_aes <- function(i, aesv, must_aesv, all_aesv, colnamev){
     # TODO as.factor as.character cut substr
     if (grepl('=', aesv[i])) {
         before_equal <- gsub('=.*', '', aesv[i])
@@ -359,10 +362,10 @@ parse_aes <- function(aesv, must_aesv, all_aesv, colnamev){
 #' and construct a complete ggplot2 object as a character.
 #' This can be used as a function to write one
 #'
-#' @param argv a character vector containing ggplot2 geom and aesthetics specifications.
+#' @param argv A character vector containing ggplot2 geom and aesthetics specifications.
 #'             Typically the return value of \code{\link{split_by_space}}.
-#' @param dataset a dataframe with attr('ggbash_datasetname').
-#' @return a list with the following two fields:
+#' @param dataset A dataframe with attr('ggbash_datasetname').
+#' @return A list with the following two fields:
 #' \describe{
 #'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
 #'     \item{conf: }{the parsed aes specifications.}
@@ -393,7 +396,7 @@ drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
     conf <- list(aes=list())
     aesv <- argv[-1]
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
-        conf$aes[[i]] <- parse_aes(aesv, must_aesv, all_aesv, colnamev)
+        conf$aes[[i]] <- parse_aes(i, aesv, must_aesv, all_aesv, colnamev)
     }
     command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
                       '+ geom_', geom_sth, '(',
