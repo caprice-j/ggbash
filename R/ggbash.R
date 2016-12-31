@@ -1,6 +1,34 @@
 #' @import ggplot2
 NULL
 
+#' Enter into a ggbash session.
+#'
+#' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+#'
+#' ggbash provides concise aliases for ggplot2 functions.
+#' By calling ggbash(), your R session goes into a ggbash session,
+#' which only interprets predefined ggbash commands.
+#' Some basic commands like setwd() or pwd() works in ggbash session,
+#' but most of the usual R grammars are disabled.
+#' Instead, a variety of ggbash commands are enabled
+#' for writing ggplot2 script as faster as possible.
+#'
+#' @param dataset a dataframe to attach. Default is NULL.
+#'                You can define the dataframe later
+#'                by 'use your_dataset' command in your ggbash session.
+#'                If a matrix object is given, It's automatically
+#'                converted into a tbl_df object.
+#' @param ambiguous_match A boolean whether to do ambiguous match when a ggbash command ambiguously matches several commands. Default is TRUE. The matching rules are as follows:
+#' \describe{
+#'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
+#'     \item{Column name:}{the column with the smallest column index}
+#'     \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
+#' }
+#' @return nothing
+#' @examples
+#' ggbash()
+#' ggbash(iris)
+#' @export
 truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'), i=1) {
 
     nchar_longest <- max(sapply(colnamev, nchar))
@@ -20,6 +48,17 @@ truncate_strings <- function(colnamev=c('mpg', 'cyl', 'disp', 'hp', 'drat', 'wt'
         short2colname[ out[i] ] <- colnamev[i]
     }
     return(short2colname)
+}
+
+find_first <- function(prefix='si', table=c('x', 'y', 'size', 'shape')){
+    indices <- grep(paste0('^', prefix), table)
+    if (length(indices)<1)
+        stop('no such prefix')
+    if (length(indices)>1)
+        message('[ !!! CAUTION !!! ] ambiguous match.',
+                ' use "', table[indices][1],
+                '" among ', paste0(table[indices], collapse=', '))
+    return(indices[1])
 }
 
 show_dataset_column_indices <- function(dataset=NULL){
@@ -247,9 +286,7 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
                 } else if (argv[1] %in% const$savev) {
                     save_ggplot(exe_statl, argv)
                 } else { # if 'point' or 'p' is passed
-                    exe_statl <- build_ggplot_object(argv,
-                                                     dataset,
-                                                     const)
+                    exe_statl <- drawgg(argv, dataset, const)
                 }
 
             }
@@ -269,98 +306,101 @@ ggbash <- function(dataset = NULL, ambiguous_match=TRUE) {
 }
 
 get_required_aes <- function(suffix='point') {
-    command <- paste0('geom_', suffix, '()')
+    command <- paste0('ggplot2::geom_', suffix, '()')
     expr <- parse(text = command)
     return(eval(expr)$geom$required_aes)
 }
 
 get_possible_aes <- function(suffix='point') {
-    command <- paste0('geom_', suffix, '()')
+    command <- paste0('ggplot2::geom_', suffix, '()')
     expr <- parse(text = command)
     geom <- eval(expr)$geom
     possible_aesv <- unique(c(geom$required_aes,
                               geom$non_missing_aes,
                               names(geom$default_aes)))
-    return(truncate_strings(possible_aesv))
+    return(possible_aesv)
 }
 
 find_index <- function(pattern='siz', stringv=c('x', 'y', 'si', 'sh')){
     return(! c(is.na(stringr::str_match(string=stringv, pattern=paste0('^',pattern)))))
 }
 
-build_ggplot_object <- function(argv=c('p','x=2','y=3','colour=4','size=5'),
-                                dataset, const){
+parse_aes <- function(aesv, must_aesv, all_aesv, colnamev){
+    # TODO as.factor as.character cut substr
+    if (grepl('=', aesv[i])) {
+        before_equal <- gsub('=.*', '', aesv[i])
+    } else { # no aes specification like geom_point(aes(my_x, my_y))
+        before_equal <- must_aesv[i]
 
+        if (i > length(must_aesv))
+            stop('too many unspecified aesthetics. ',
+                 'Required aesthetics (in order) are: ',
+                 paste0(must_aesv, collapse=', '))
+    }
+    after_equal  <- gsub('.*=',     '', aesv[i])
+
+    if (! before_equal %in% all_aesv)
+        before_equal <- all_aesv[find_first(before_equal, all_aesv)] # FIXME refactor
+
+    if (grepl('[0-9]', after_equal))
+        after_equal <- colnamev[as.numeric(after_equal)]
+    else if (! after_equal %in% colnamev)
+        after_equal <- colnamev[find_first(after_equal, colnamev)]
+    return(paste0(before_equal, '=', after_equal))
+}
+
+#' build a ggplot2 plot and draw it
+#'
+#' \code{drawgg} interprets given a ggbash character vector
+#' and build a complete ggplot2 object.
+#'
+#' \code{drawgg} is a core function in ggbash library.
+#' It performs partial matches against geom name, column names, and aesthetics
+#' and construct a complete ggplot2 object as a character.
+#' This can be used as a function to write one
+#'
+#' @param argv a character vector containing ggplot2 geom and aesthetics specifications.
+#'             Typically the return value of \code{\link{split_by_space}}.
+#' @param dataset a dataframe with attr('ggbash_datasetname').
+#' @return a list with the following two fields:
+#' \describe{
+#'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
+#'     \item{conf: }{the parsed aes specifications.}
+#' }
+#'
+#' @examples
+#' out <- drawgg(dataset = iris,
+#'                    argv = split_by_space("line x=Sepal.W y='Sepal.L"))
+#'
+#' # copy the built ggplot2 object (Mac OS X)
+#' cat(out$cmd, file=(con <- pipe("pbcopy", "w")))
+#'
+#' @export
+drawgg <- function(dataset, argv=c('p','x=2','y=3','colour=4','size=5')){
     if (is.null(dataset))
         stop('dataset is not set')
 
-    # p -> 'point'
-    geom_sth <- const$geom_namev[ find_index(pattern=argv[1], stringv=const$geom_namev) ][1]
+    const <- define_constant_list()
+    # 'p' is resolved into 'point'
+    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev)]
     message('selected geom: ', geom_sth)
 
-    required_aesv <- get_required_aes(geom_sth)
-    all_aesl <- get_possible_aes(geom_sth)
-    message('all_aesl: ', paste0(all_aesl, collapse=' '))
-
+    must_aesv <- get_required_aes(geom_sth)
+    all_aesv <- get_possible_aes(geom_sth)
     colnamev <- colnames(dataset)
+    message('all_aesv: ', paste0(all_aesv, collapse=' '))
 
-
-    short2colname <- truncate_strings(colnamev)
-    # if all required aesthetics are set
-    #
-    # TODO set non-aes elements
     conf <- list(aes=list())
-    i <- 2
     aesv <- argv[-1]
-    for ( i in seq_along(aesv) ) {
-        # TODO as.factor
-        # TODO as.character
-        # TODO cut
-        # TODO substr
-        if (grepl('=', aesv[i])) {
-            before_equal <- gsub('=.*', '', aesv[i])
-            after_equal  <- gsub('.*=',     '', aesv[i])
-        } else { # no aes specification like geom_point(aes(my_x, my_y))
-            before_equal <- required_aesv[i]
-            after_equal  <- aesv[i]
-
-            if (i > length(required_aesv))
-                stop('too many unspecified aesthetics. ',
-                     'Required aesthetics (in order) are: ',
-                     paste0(required_aesv, collapse=', '))
-        }
-
-        if (! before_equal %in% all_aesl) {
-            index = find_index(pattern=before_equal, stringv=unlist(all_aesl))
-            selected <- unlist(all_aesl)[index][1]
-            if (sum(index)>1)
-                message('[ !!! CAUTION !!! ] ambiguous aes. use "', selected,
-                        '" among ', paste0(unlist(all_aesl)[index], collapse=', '))
-            before_equal <- selected # FIXME refactor
-        }
-
-        if (grepl('[0-9]', after_equal))
-            after_equal <- colnamev[as.numeric(after_equal)]
-        else if (! after_equal %in% colnamev) {
-            index = find_index(pattern=after_equal, stringv=colnamev)
-            selected = unlist(short2colname)[index][1]
-            if (sum(index)>1)
-                message('[ !!! CAUTION !!! ] ambiguous aes. use "', selected,
-                        '" among ', paste0(unlist(short2colname)[index], collapse=', '))
-
-            after_equal <- selected
-        }
-
-        conf$aes[[i]] <- paste0(before_equal, '=', after_equal)
+    for ( i in seq_along(aesv) ) { # TODO set non-aes elements
+        conf$aes[[i]] <- parse_aes(aesv, must_aesv, all_aesv, colnamev)
     }
-    command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),')',
-                      ' + geom_', geom_sth, '(',
+    command <- paste0('ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
+                      '+ geom_', geom_sth, '(',
                       'aes(', paste0(conf$aes, collapse = ', '), '))')
     ncmd <- nchar(command) # it's unfair to include labs() characters.
     #command <- paste0(command, ' + labs(subtitle="', command, '")')
-    expr <- parse(text = command)
-    print(eval(expr))
+    print(eval(parse(text = command)))
     message('executed (', ncmd, ' characters) :\n', command)
-    out <- list(cmd = command, conf = conf)
-    return(out)
+    return(list(cmd = command, conf = conf))
 }
