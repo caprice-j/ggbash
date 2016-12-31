@@ -39,7 +39,7 @@ executed:
 Or if you just need one figure,
 
 ``` r
-executed <- drawgg(iris, split_by_space('p Sepal.W Sepal.L c=Sp siz=Petal.W'))
+executed <- drawgg(iris, 'p Sepal.W Sepal.L c=Sp siz=Petal.W')
 copy_to_clipboard(executed$cmd)
 # copied: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 ```
@@ -75,7 +75,8 @@ With more elaborated plots, the differences become much larger.
 In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs partial matches seven times.
 
 -   **geom names**
-    -   `p` matches `geom_point`.
+    -   `p` matches `geom_point`
+        -   Note: the common prefix geom\_ is removed beforehand.
 -   **column names**
     -   `Sepal.W` matches `iris$Sepal.Width`.
 
@@ -87,18 +88,18 @@ In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs part
 
 -   **aesthetics names**
     -   `c` matches `color`, which is the aesthetic of geom\_point.
-    -   `si` matches `size` ('s' is ambiguous within 'shape', 'size', and 'stroke').
+    -   `si` matches `size` ('s' cannot identify which one of `shape`, `size`, and `stroke`).
 
-Note: Approximate String Match is not supported in the current version.
+Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
 
 ### 3. Predefined Precedence
 
 Even if unique identification is not possible, `ggbash` tries to guess what is specified instead of bluntly returning an error, hoping to achieve least expected keystrokes.
 
-For example, for the input of `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matched four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
-`ggbash` determines which geom to use by the above predefined order of precedence (`point` is selected in this case).
+For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+`ggbash` determines which geom to use by the above predefined order of precedence (the first geom, `point`, is selected in this example).
 
-Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is interpreted as `size` aesthetic.
+Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is interpreted as the `size` aesthetic.
 
 While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters might be faster in most cases.
 
@@ -107,10 +108,13 @@ While it's possible to define your own precedence order through `define_constant
 ``` r
     user@host currentDir (iris) $ cd imageDir
 
+    user@host currentDir (iris) $ ls
+    /Users/myname/currentDir/imageDir
+    
     user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
     saved as 'iris-Sepal.W-Sepal.L-Sp.png' (big: 1960 x 1440)
     
-    user@host imageDir (iris) $ for (i in 2:5) p 1 i | pdf 'iris-for'
+    user@host imageDir (iris) $ for i in 2:5 p 1 i | pdf 'iris-for'
     saved as 'iris-for.pdf' (default: 960 x 960)
     
     user@host imageDir (iris) $ p 1 2 col=Sp siz=4 | copy
@@ -121,18 +125,25 @@ While it's possible to define your own precedence order through `define_constant
                                   size=Petal.Width))
 ```
 
+### 5. ggplot ID
+
+TODO write me
+=============
+
+iris-p-Sepal.W-Sepal.L-col=Sp-sz=Petal.W.png \# TODO how can we encode scales/facets/themes differences? Scales are ... Facets are ... for is by pdf extension and i values Themes are abstracted away and not encoded in file names.
+
 Goals
 -----
 
 ggbash has two main goals:
 
-1.  Provide blazingly fast way to do Exploratory Data Analysis.
+1.  *Better EDA experience:* Provide blazingly fast way to do Exploratory Data Analysis.
 
     -   less typing by Column Index Match, Partial Prefix Match, and Predefined Precedence.
 
     -   casualy save plots with auto-generated unique file names
 
-2.  Make it less stressful to finalize your plots.
+2.  *Better tweaking experience:* Make it less stressful to finalize your plots.
 
     -   adjust colors or lineweights
 
