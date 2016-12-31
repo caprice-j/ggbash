@@ -301,22 +301,25 @@ set_ggbash_dataset <- function(dataset_name, quietly=FALSE){
 #' @seealso \code{\link{drawgg}}
 #'
 #' @export
-copy_to_clipboard <- function(string){
+copy_to_clipboard <- function(
+    string='ggplot(mtcars) + geom_point(aes(mpg,cyl))'
+){
     os <- Sys.info()['sysname']
     if (os == 'Darwin') {
         cat(string, file=(con <- pipe('pbcopy', 'w')))
-        message('copied to clipboard:\n', string)
         close(con)
     } else if (os == 'Linux') {
         if (! file.exists(Sys.which("xclip")[1]))
-	    stop("No xclip found")
-	cat(string,
-            file=(con <- pipe(paste0('xclip -i -selection ', 'clipboard'), "w")))
-        message('copied to clipboard:\n', string)
-	close(con)
-    } else {
-        stop('copy in Windows is to be implemented')
+            stop("No xclip found")
+
+        cat(string,
+            file=(con <- pipe(paste0('xclip -i -selection ', 'clipboard'),
+                              "w")))
+        close(con)
+    } else { # Windows
+        cat(string, file='clipboard')
     }
+    message('copied to clipboard:\n', string)
 }
 
 #' save a ggplot object into a file
