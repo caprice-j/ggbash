@@ -3,11 +3,15 @@
 language: r
 warnings_are_errors: true
 cache: packages
-sudo: required
-# sudo: false
+sudo: false
+addons:
+  apt:
+    packages:
+      - xclip
 
-before_install:
-  - "sudo apt-get install xclip --no-install-recommends --yes"
+#sudo: required
+#before_install:
+#  - "sudo apt-get install xclip --no-install-recommends --yes"
 
 env:
  global:
