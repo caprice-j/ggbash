@@ -127,8 +127,8 @@ hoping to achieve least expected keystrokes.
 For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`,
 `p` ambiguously matches four different geoms,
 `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.  
-`ggbash` determines which geom to use
-by the above predefined order of precedence 
+Among these geoms, `ggbash` determines the geom to use
+according to the above predefined order of precedence
 (the first geom, `point`, is selected in this example).
 
 Similarly, `s` matches three aesthetics,
@@ -150,9 +150,6 @@ adding one or two characters might be faster in most cases.
     user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
     saved as 'iris-Sepal.W-Sepal.L-Sp.png' (big: 1960 x 1440)
     
-    user@host imageDir (iris) $ for i in 2:5 p 1 i | pdf 'iris-for'
-    saved as 'iris-for.pdf' (default: 960 x 960)
-    
     user@host imageDir (iris) $ p 1 2 col=Sp siz=4 | copy
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
@@ -161,11 +158,70 @@ adding one or two characters might be faster in most cases.
                                   size=Petal.Width))
 ```
 
+`png` can receive three arguments: plot size, file name, and resolution (pixels per inch). If none specified, the default values are used.
+
+`png` command interprets a single- or double-quoted token as file name ("iris-for"),
+a single number as resolution, and otherwise plot size.
+`png` is order-agnostic. In other words, any one of the following notations generates the same png file.
+
+`p 1 2 | png "my-iris-plot" big 50`
+`p 1 2 | png big 50 "my-iris-plot"`
+`p 1 2 | png big "my-iris-plot" 50`
+
 ### 5. Auto-assigned Filenames
 
-# TODO write me
-iris-p-Sepal.W-Sepal.L-col=Sp-sz=Petal.W.png
-# TODO how can we encode scales/facets/themes differences?
+The `png` function in R saves a plot in `Rplot001.png` if no file name is specified.
+That function can easily overwrite the previous plot, and users often set file names manually.
+
+The `png` command in `ggbash` tries to generate a file name based on the given dataset and aesthetic names if no file name is specified.
+
+For example, when you are using the `iris` dataset which has 150 rows,
+the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.72.png` (72 is the default pixels per inch in R).
+
+If you happen to have the different `iris` dataset
+which has a different number of rows (say 33),
+the same command result is saved in `iris-33/` directory.
+
+### 6. Type-specific For Loop (To Be Implemented)
+
+```{r, eval=FALSE}
+# to be implemented
+
+> str(iris)
+'data.frame':	150 obs. of  5 variables:
+ $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+ $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+ $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+ $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+ $ Species     : Factor w/ 3 levels "setosa","versicolor",..: 1 1 1 1 1 1 1 1 1 1 ...
+
+# a : use all five variables (numeric and factor)
+user@host imageDir (iris) $ for a in 2:5 point 1 a | pdf
+saved as 'iris-150/x-Sepal.Width_y-fora.pdf' (960 x 960)
+
+# a : for loop on four numeric (integer) variables
+user@host imageDir (iris) $ for i in 2:5 point 1 i | pdf
+saved as 'iris-150/x-Sepal.Width_y-fori.pdf' (960 x 960)
+
+```
+
+You might have met `non-numeric argument to 'pairs()'` error.
+When you try to generate tens or hundreds of plots, usually
+a type-specific error occurs and users are required to subset
+dataset columns by types.
+
+In `ggbash`, the for-loop variable expresses its type as follows:
+
++  `for a in 1:5` : **A**ll five variables will be iterated.
++  `for c in 1:5` : Among five columns, only **c**haracter variables will be iterated.
++  `for f in 1:5` : Among five columns, only **f**actor variables will be iterated.
++  `for i in 1:5` : Among five columns, only **i**nteger variables will be iterated.
++  `for n in 1:5` : Among five columns, only **n**umeric variables will be iterated.
+
+(Note: boolean variables will also be iterated in `i` and `n` cases.)
+
+#### TODO how can we encode scales/facets/themes differences?
+
 Scales are ...
 Facets are ...
 for is by pdf extension and i values

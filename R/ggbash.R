@@ -341,7 +341,7 @@ copy_to_clipboard <- function(
 #' @param conf A list of aesthetic assignments
 parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
     out <- list(filename = NA, w = 960, h = 960, res = 72)
-    # 72 pixels to an inch is R's default
+    # 72 pixels per inch is R's default
     single_quote <- "'"
     double_quote <- '"'
     for (a in argv[-1]) {
