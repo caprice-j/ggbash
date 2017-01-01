@@ -363,6 +363,45 @@ save_ggplot <- function(exe_statl =
     dev.off()
 }
 
+#' execute raw ggbash commands
+#'
+#' @param dataset A dataframe
+#' @param raw_input A ggbash command chain (might contain pipes)
+#' @param showWarning Whether to show a warning message
+#'                    when ambiguously matched. Default is TRUE.
+#' @export
+exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
+                        showWarning=TRUE){
+    # FIXME initialization should be done just once
+    # temporarily moved to here for test coverage improvement
+    if (! is.null(dataset))
+        attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
+    const <- define_constant_list()
+
+    commandv <- split_by_pipe(raw_input)
+    message('commandv: ', paste0(commandv, collapse='-'))
+    for (cmd in commandv) {
+        argv <- split_by_space(cmd)
+        message('argv: ', paste0(argv, collapse='-'))
+        if (argv[1] %in% c('exit', 'quit')) {
+            return(TRUE)
+        } else if (argv[1] == 'use') {
+            dataset <- set_ggbash_dataset(argv[2])
+        } else if (argv[1] == 'show') {
+            print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
+        } else if (argv[1] %in% const$builtinv) {
+            execute_ggbash_builtins(raw_input, argv, const, dataset)
+        } else if (argv[1] %in% c('copy', 'cp')) {
+            copy_to_clipboard(exe_statl$cmd)
+        } else if (argv[1] %in% const$savev) {
+            save_ggplot(exe_statl, argv)
+        } else { # if 'point' or 'p' is passed
+            exe_statl <- drawgg(dataset, argv, showWarning)
+        }
+    }
+    return(FALSE)
+}
+
 #' Enter into a ggbash session.
 #'
 #' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
@@ -401,50 +440,15 @@ save_ggplot <- function(exe_statl =
 #'
 #' @export
 ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
-    # initialization
-    if (! is.null(dataset))
-        attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
-    const <- define_constant_list()
-    exit <- FALSE
-
     while (TRUE) { tryCatch(
-        {   # main loop for command execution
-
-            raw_input <- show_prompt(dataset)
-            commandv <- split_by_pipe(raw_input)
-            message('commandv: ', paste0(commandv, collapse='-'))
-            for (cmd in commandv) {
-                argv <- split_by_space(cmd)
-                message('argv: ', paste0(argv, collapse='-'))
-                if (argv[1] %in% c('exit', 'quit')) {
-                    exit <- TRUE
-                    break
-                } else if (argv[1] == 'use') {
-                    dataset <- set_ggbash_dataset(argv[2])
-                } else if (argv[1] == 'show') {
-                    print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
-                } else if (argv[1] %in% const$builtinv) {
-                    execute_ggbash_builtins(raw_input, argv, const, dataset)
-                } else if (argv[1] %in% c('copy', 'cp')) {
-                    copy_to_clipboard(exe_statl$cmd)
-                } else if (argv[1] %in% const$savev) {
-                    save_ggplot(exe_statl, argv)
-                } else { # if 'point' or 'p' is passed
-                    exe_statl <- drawgg(dataset, argv, showWarning)
-                }
-
-            }
-            if (exit)
-                break # FIXME an ugly way to avoid returning NULL
+        {   raw_input <- show_prompt(dataset)
+            if (exec_ggbash(dataset, raw_input, showWarning))
+                break
         },
         warning = function(wrn) { message('I got warning', wrn) },
-          error = function(err) { # stop() comes here
-                                  message('ERROR: ', err)
-                                },
-        finally = { # add to history even if failed for user's next modification
-                    add_input_to_history(raw_input)
-        }
-    ) }
+          error = function(err) { message('ERROR: ', err) }, # stop() to here
+        finally = { add_input_to_history(raw_input) } # add even if failed
+    )}
 }
 
 #' retrieve required aesthetic names for a given geom

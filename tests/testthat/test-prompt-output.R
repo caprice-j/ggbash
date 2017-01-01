@@ -18,4 +18,6 @@ test_that('output', {
 
     expect_match(build_prompt(NULL), '.*@.* .* $')
     expect_match(build_prompt(set_ggbash_dataset('iris', quietly=TRUE)), 'iris')
+
+    expect_output(set_ggbash_dataset('iris'))
 })
