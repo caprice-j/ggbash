@@ -4,7 +4,7 @@
 \alias{copy_to_clipboard}
 \title{copy a given string to clipboard}
 \usage{
-copy_to_clipboard(string)
+copy_to_clipboard(string = "ggplot(mtcars) + geom_point(aes(mpg,cyl))")
 }
 \arguments{
 \item{string}{a character to be copied}

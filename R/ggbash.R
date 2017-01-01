@@ -335,32 +335,77 @@ copy_to_clipboard <- function(
     message('copied to clipboard:\n', string)
 }
 
+#' parse given plot settings
+#'
+#' @param argv A character vector
+#' @param conf A list of aesthetic assignments
+parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
+    out <- list(filename = NA, w = 960, h = 960, res = 72)
+    # 72 pixels to an inch is R's default
+    single_quote <- "'"
+    double_quote <- '"'
+    for (a in argv[-1]) {
+        if (grepl(single_quote, a) ||
+            grepl(double_quote, a)) { # filename
+            out$filename <-
+                paste0(gsub(paste0(single_quote, '|', double_quote), '', a),
+                       '.', argv[1])
+        } else if (grepl('[0-9]', a) && grepl('x', a)) { # size (numeric)
+            size <- as.numeric(strsplit(a, 'x')[[1]])
+            out$w <- size[1]
+            out$h <- size[2]
+        } else if (grepl('[0-9]', a)) { # size (numeric)
+            out$res <- as.numeric(a)
+        } else {
+            index <- find_first(a, c('small', 'big'))
+            selected <-
+                list(small   = list(w =  480, h =  480),
+                     big     = list(w = 1960, h = 1440))[[ index ]]
+            out$w <- selected$w
+            out$h <- selected$h
+
+        }
+    }
+
+    if (is.na(out$filename)) { # auto-assign
+        out$filename <- paste0(paste0(gsub('=', '-', conf),
+                                      collapse='_'),
+                               '.', out$w, 'x', out$h,
+                               '.', out$res, '.', argv[1])
+    }
+    return(out)
+}
+
 #' save a ggplot object into a file
 #'
+#' @param dataset_string A character. Used as a directory.
 #' @param exe_statl A list resulted from \code{\link{drawgg}}
 #' @param argv A character vector
 #'
 #' @importFrom grDevices dev.off
 #' @importFrom grDevices png
 #' @importFrom grDevices pdf
-save_ggplot <- function(exe_statl =
-                            list(cmd  = 'ggplot(mtcars) + geom_point(aes(cyl,mpg))',
-                                 conf = list('x=cyl', 'y=mpg') ),
-                        argv=c('png', 'big')){
-    filename <- paste0('tmp.', argv[1])
-
-    # Note: list has builtin partial match for $ (dollar) accessor.
-    # size$m calls size$medium.
-    size <- list( small = list(w =  480, h =  480),
-                 medium = list(w =  960, h =  960),
-                    big = list(w = 1960, h = 1440))[[ argv[2] ]]
+save_ggplot <- function(
+    dataset_string = 'mtcars-32',
+    exe_statl =
+        list(cmd  = 'ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))',
+             conf = list('x=cyl', 'y=mpg') ),
+    argv=c('png')
+){
+    dir.create(dataset_string, showWarnings = FALSE)
+    oldwd <- setwd(dataset_string)
+    attrl <- parse_plot_attributes(argv, exe_statl$conf)
 
     if (argv[1] == 'png')
-        png(filename, width=size$w, height=size$h)
+        png(attrl$filename, width=attrl$w, height=attrl$h, res=attrl$res)
     else
-        pdf(filename)
-    #exe_statl$cmd
+        pdf(attrl$filename) # FIXME size
+
+    print(eval(parse(text=exe_statl$cmd)))
+
     dev.off()
+    setwd(oldwd)
+    message('saved: ', paste0(dataset_string, '/', attrl$filename))
 }
 
 #' execute raw ggbash commands
@@ -394,7 +439,9 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
         } else if (argv[1] %in% c('copy', 'cp')) {
             copy_to_clipboard(exe_statl$cmd)
         } else if (argv[1] %in% const$savev) {
-            save_ggplot(exe_statl, argv)
+            dataset_str <- paste0(attr(dataset, 'ggbash_datasetname'),
+                                  '-', nrow(dataset))
+            save_ggplot(dataset_str, exe_statl, argv)
         } else { # if 'point' or 'p' is passed
             exe_statl <- drawgg(dataset, argv, showWarning)
         }
@@ -583,9 +630,9 @@ drawgg <- function(dataset,
                       'ggplot2::aes(', paste0(conf$aes, collapse = ', '), '))')
     if (doEval)
         print(eval(parse(text = command)))
-    command <- gsub('ggplot2::','', command)
-    ncmd <- nchar(command) # it's unfair to include labs() characters.
+    short_cmd <- gsub('ggplot2::','', command)
+    ncmd <- nchar(short_cmd) # it's unfair to include labs() characters.
     #command <- paste0(command, ' + labs(subtitle="', command, '")')
-    message('executed (', ncmd, ' characters) :\n', command)
+    message('executed (', ncmd, ' characters) :\n', short_cmd)
     return(list(cmd = command, conf = conf))
 }
