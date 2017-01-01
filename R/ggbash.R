@@ -216,8 +216,6 @@ execute_ggbash_builtins <- function(raw_input, argv, const, dataset){
             setwd(const$first_wd)
         else
             setwd(argv[2])
-    } else if (argv[1] %in% c('echo', 'print')) {
-        message(raw_input)
     }
 }
 
@@ -245,8 +243,9 @@ define_constant_list <- function(){
     list(
         first_wd = getwd(),
         # BUILTIN command Vectors
-        builtinv = c('cd', 'dir', 'dir.create', 'echo', 'exit', 'ls', 'list',
-                     'mkdir', 'print', 'pwd', 'quit', 'rm', 'rmdir', 'setwd'),
+        # Note: echo and print are not included -- see exec_ggbash
+        builtinv = c('cd', 'dir', 'dir.create', 'exit', 'ls', 'list',
+                     'mkdir', 'pwd', 'quit', 'rm', 'rmdir', 'setwd'),
         # all geom in ggplot2 documents
         # the order in geom_namev is important
         # because build_ggplot_object() uses the first element after partial matching
@@ -434,6 +433,8 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
             dataset <- set_ggbash_dataset(argv[2])
         } else if (argv[1] == 'show') {
             print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
+        } else if (argv[1] %in% c('echo', 'print')) {
+            message(ifelse(exists('exe_statl'), exe_statl$cmd, raw_input))
         } else if (argv[1] %in% const$builtinv) {
             execute_ggbash_builtins(raw_input, argv, const, dataset)
         } else if (argv[1] %in% c('copy', 'cp')) {
@@ -584,6 +585,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #' @return A list with the following two fields:
 #' \describe{
 #'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
+#'     \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
 #'     \item{conf: }{the parsed aes specifications.}
 #' }
 #'
@@ -631,8 +633,6 @@ drawgg <- function(dataset,
     if (doEval)
         print(eval(parse(text = command)))
     short_cmd <- gsub('ggplot2::','', command)
-    ncmd <- nchar(short_cmd) # it's unfair to include labs() characters.
-    #command <- paste0(command, ' + labs(subtitle="', command, '")')
-    message('executed (', ncmd, ' characters) :\n', short_cmd)
-    return(list(cmd = command, conf = conf))
+    command <- paste0(command, ' + ggplot2::labs(subtitle="', command, '")')
+    return(list(cmd = short_cmd, cmd_verbose = command, conf = conf))
 }

@@ -11,6 +11,7 @@ test_that('builtins', {
     expect_message(e('getwd', 'getwd', const, iris))
 
     gibberish <- 'badcfeghzfumfduqkm'
+    unlink(gibberish)
     expect_error(e(paste0('mkdir ', gibberish),
                    c('mkdir', gibberish), const, iris), regexp=NA)
     rmdir(gibberish)
@@ -34,7 +35,4 @@ test_that('builtins', {
     expect_error(e('setwd', 'setwd', const, iris), regexp=NA)
     expect_error(e('cd ..', c('cd', '..'), const, iris), regexp=NA) # expect no error
     setwd(oldwd)
-
-    expect_message(e('echo hello', c('echo', 'hello'), const, iris), 'hello')
-    expect_message(e('print hero', c('echo', 'hero'),  const, iris), 'hero')
 })

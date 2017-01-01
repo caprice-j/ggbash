@@ -21,6 +21,7 @@ Typically the return value of \code{\link{split_by_space}}.}
 A list with the following two fields:
 \describe{
     \item{cmd: }{the \code{eval}uated ggplot2 character.}
+    \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
     \item{conf: }{the parsed aes specifications.}
 }
 }
