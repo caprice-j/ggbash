@@ -56,3 +56,13 @@ test_that("drawgg test by mtcars", {
 
     expect_error(d(mtcars, s('xyz  1 2')), 'no such prefix: xyz')
 })
+
+test_that("drawgg non-aes test", {
+    non_aes1 <- d(mtcars, 'point  1 2 color="blue"')
+    ee(non_aes1$cmd, 'ggplot(mtcars) + geom_point(aes(x=mpg, y=cyl), colour="blue")')
+    # MAYBE-LATER write tests of non_aes1$cmd_verbose after deciding its format
+
+    non_aes2 <- d(mtcars, 'point  1 2 size=carb color="blue" shape="18"')
+    ee(non_aes2$cmd,
+       'ggplot(mtcars) + geom_point(aes(x=mpg, y=cyl, size=carb), colour="blue", shape=18)')
+})

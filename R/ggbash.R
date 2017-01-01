@@ -53,21 +53,21 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
 #'
 #' @param prefix A prefix to be searched
 #' @param table A character vector (typically aesthetic name list)
-#' @param showWarning Show warning if matched ambiguously. Default is TRUE.
+#' @param showWarn Show warning if matched ambiguously. Default is TRUE.
 #'
 #' @export
 find_first <- function(prefix='si',
                        table=c('x', 'y', 'size', 'shape'),
-                       showWarning=TRUE){
+                       showWarn=TRUE){
     indices <- grep(paste0('^', prefix), table)
-    if (length(indices)<1 && showWarning) {
+    if (length(indices)<1 && showWarn) {
         # FIXME refactor (colour and color)
         if (grepl('colo', prefix))
             indices <- grep(paste0('^colour'), table)
         else
             stop('no such prefix: ', prefix)
     }
-    if (length(indices)>1 && showWarning &&
+    if (length(indices)>1 && showWarn &&
         (! prefix %in% c(sapply(1:5, function(i) substr('point',1,i)),
                          sapply(1:4, function(i) substr('line', 1,i))))) {
         warning('Ambiguous match. Use "', table[indices][1],
@@ -390,7 +390,7 @@ save_ggplot <- function(
              conf = list('x=cyl', 'y=mpg') ),
     argv=c('png', '200x500', '"my-file-name"')
 ){
-    dir.create(dataset_string, showWarnings = FALSE)
+    dir.create(dataset_string, showWarnings=FALSE)
     oldwd <- setwd(dataset_string)
     attrl <- parse_plot_attributes(argv, exe_statl$conf)
 
@@ -404,11 +404,11 @@ save_ggplot <- function(
 #'
 #' @param dataset A dataframe
 #' @param raw_input A ggbash command chain (might contain pipes)
-#' @param showWarning Whether to show a warning message
+#' @param showWarn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
 #' @export
 exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
-                        showWarning=TRUE){
+                        showWarn=TRUE){
     # FIXME initialization should be done just once
     # temporarily moved to here for test coverage improvement
     if (! is.null(dataset))
@@ -437,7 +437,7 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
                                   '-', nrow(dataset))
             save_ggplot(dataset_str, exe_statl, argv)
         } else { # if 'point' or 'p' is passed
-            exe_statl <- drawgg(dataset, argv, showWarning)
+            exe_statl <- drawgg(dataset, argv, showWarn)
         }
     }
     return(FALSE)
@@ -463,7 +463,7 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
 #' @param ambiguous_match A boolean whether to do ambiguous match when a
 #'                        ggbash command ambiguously matches several commands.
 #'                        Default is TRUE. The matching rules are as follows:
-#' @param showWarning Whether to show a warning message
+#' @param showWarn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
 #' \describe{
 #'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
@@ -480,12 +480,12 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
 #' @seealso For a oneliner, \code{\link{drawgg}} might be more convenient.
 #'
 #' @export
-ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
+ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarn=TRUE) {
     if (! is.null(dataset))
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt(dataset)
-            if (exec_ggbash(dataset, raw_input, showWarning))
+            if (exec_ggbash(dataset, raw_input, showWarn))
                 break
         },
         warning = function(wrn) { message('I got warning', wrn) },
@@ -529,7 +529,7 @@ get_possible_aes <- function(suffix='point') {
 #' @param must_aesv A vector of required aesthetics
 #' @param all_aesv A vector of possible aesthetics.
 #' @param colnamev A vector of column names of a dataframe.
-#' @param showWarning a flag for printing warning when ambiguous match.
+#' @param showWarn a flag for printing warning when ambiguous match.
 #'                    Default is TRUE.
 #'
 #' @seealso used in \code{\link{drawgg}}.
@@ -538,7 +538,7 @@ get_possible_aes <- function(suffix='point') {
 #' \code{\link{get_possible_aes}}, respectively.
 #'
 parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
-                             colnamev, showWarning=TRUE){
+                             colnamev, showWarn=TRUE){
     # TODO as.factor as.character cut substr
     if (grepl('=', aesv[i])) {
         before_equal <- gsub('=.*', '', aesv[i])
@@ -553,12 +553,40 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
     after_equal  <- gsub('.*=',     '', aesv[i])
 
     if (! before_equal %in% all_aesv)
-        before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarning)]
+        before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarn)]
 
     if (grepl('[0-9]', after_equal))
         after_equal <- colnamev[as.numeric(after_equal)]
     else if (! after_equal %in% colnamev)
-        after_equal <- colnamev[find_first(after_equal, colnamev, showWarning)]
+        after_equal <- colnamev[find_first(after_equal, colnamev, showWarn)]
+    return(paste0(before_equal, '=', after_equal))
+}
+
+#'  convert given ggbash strings into ggplot2 non-aesthetic (constant) specifications
+#'
+#' @param non_aes A character of a non-aesthetic key and value pair
+#' @param all_aesv A vector of possible aesthetics.
+#' @param showWarn a flag for printing warning when ambiguous match.
+#'                    Default is TRUE.
+#'
+#' @seealso used in \code{\link{drawgg}}.
+#' all_aesv are built by \code{\link{get_possible_aes}}.
+#' \code{\link{parse_ggbash_aes}}
+#'
+parse_ggbash_non_aes <- function(non_aes='shape="1"', all_aesv,
+                                 showWarn=TRUE){
+    single_quote <- "'"
+    double_quote <- '"'
+    before_equal <- gsub('=.*', '', non_aes)
+    after_equal  <- gsub('.*=',     '', non_aes)
+
+    if (! before_equal %in% all_aesv) # partial match
+        before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarn)]
+
+    if (! grepl('[a-zA-Z]', after_equal))
+        after_equal <- as.numeric(gsub(paste0(single_quote, '|', double_quote),
+                                       '', after_equal))
+
     return(paste0(before_equal, '=', after_equal))
 }
 
@@ -575,7 +603,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #' @param argv A character vector containing ggplot2 geom and aesthetics specifications.
 #'             Typically the return value of \code{\link{split_by_space}}.
 #' @param dataset A dataframe with attr('ggbash_datasetname').
-#' @param showWarning whether to show warning when ambiguously matched. Default is TRUE.
+#' @param showWarn whether to show warning when ambiguously matched. Default is TRUE.
 #' @param doEval print the built ggplot object. Default is TRUE. Useful for testthat tests.
 #' @return A list with the following two fields:
 #' \describe{
@@ -594,8 +622,8 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #'
 #' @export
 drawgg <- function(dataset,
-                   argv=c('p','x=2','y=3','colour=4','size=5'),
-                   showWarning=TRUE,
+                   argv=c('p','x=2','y=3','colour=4','size=5', 'shape="18"'),
+                   showWarn=TRUE,
                    doEval=TRUE){
     if (is.null(dataset))
         stop('Your dataset is not set. Please execute "use <dataset name>" first.')
@@ -607,8 +635,10 @@ drawgg <- function(dataset,
         # calling directly often forgets split_by_space ... syntax sugar
 
     const <- define_constant_list()
+    single_quote <- "'"
+    double_quote <- '"'
     # 'p' is resolved into 'point'
-    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev, showWarning)]
+    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev, showWarn)]
     message('selected geom: ', geom_sth)
 
     must_aesv <- get_required_aes(geom_sth)
@@ -616,15 +646,21 @@ drawgg <- function(dataset,
     colnamev <- colnames(dataset)
     message('all_aesv: ', paste0(all_aesv, collapse=' '))
 
-    conf <- list(aes=list())
-    aesv <- argv[-1]
+    conf <- list(aes=list(), non_aes=list())
+        aesv <- argv[!grepl(paste0(single_quote, '|', double_quote), argv)][-1]
+    non_aesv <- argv[ grepl(paste0(single_quote, '|', double_quote), argv)]
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
         conf$aes[[i]] <- parse_ggbash_aes(i, aesv, must_aesv,
-                                          all_aesv, colnamev, showWarning)
+                                          all_aesv, colnamev, showWarn)
+    }
+    for ( i in seq_along(non_aesv) ) { # TODO set non-aes elements
+        conf$non_aes[[i]] <- parse_ggbash_non_aes(non_aesv[i], all_aesv, showWarn)
     }
     command <- paste0('ggplot2::ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
                       '+ ggplot2::geom_', geom_sth, '(',
-                      'ggplot2::aes(', paste0(conf$aes, collapse = ', '), '))')
+                      'ggplot2::aes(', paste0(conf$aes,     collapse = ', '), ')',
+                      ifelse(length(conf$non_aes),', ',''),
+                      paste0(conf$non_aes, collapse = ', '),')')
     if (doEval)
         print(eval(parse(text = command)))
     short_cmd <- gsub('ggplot2::','', command)

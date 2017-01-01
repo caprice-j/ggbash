@@ -4,7 +4,7 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(dataset = NULL, ambiguous_match = TRUE, showWarning = TRUE)
+ggbash(dataset = NULL, ambiguous_match = TRUE, showWarn = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe to attach. Default is NULL.
@@ -17,7 +17,7 @@ converted into a tbl_df object.}
 ggbash command ambiguously matches several commands.
 Default is TRUE. The matching rules are as follows:}
 
-\item{showWarning}{Whether to show a warning message
+\item{showWarn}{Whether to show a warning message
                    when ambiguously matched. Default is TRUE.
 \describe{
     \item{Geom name:}{the geom most frequently used (based on my experiences)}

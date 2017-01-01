@@ -4,8 +4,8 @@
 \alias{drawgg}
 \title{build a ggplot2 plot and draw it}
 \usage{
-drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"),
-  showWarning = TRUE, doEval = TRUE)
+drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5",
+  "shape=\\"18\\""), showWarn = TRUE, doEval = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe with attr('ggbash_datasetname').}
@@ -13,7 +13,7 @@ drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5"),
 \item{argv}{A character vector containing ggplot2 geom and aesthetics specifications.
 Typically the return value of \code{\link{split_by_space}}.}
 
-\item{showWarning}{whether to show warning when ambiguously matched. Default is TRUE.}
+\item{showWarn}{whether to show warning when ambiguously matched. Default is TRUE.}
 
 \item{doEval}{print the built ggplot object. Default is TRUE. Useful for testthat tests.}
 }

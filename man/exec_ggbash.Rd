@@ -4,14 +4,14 @@
 \alias{exec_ggbash}
 \title{execute raw ggbash commands}
 \usage{
-exec_ggbash(dataset, raw_input = "point 1 2 | copy", showWarning = TRUE)
+exec_ggbash(dataset, raw_input = "point 1 2 | copy", showWarn = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe}
 
 \item{raw_input}{A ggbash command chain (might contain pipes)}
 
-\item{showWarning}{Whether to show a warning message
+\item{showWarn}{Whether to show a warning message
 when ambiguously matched. Default is TRUE.}
 }
 \description{
