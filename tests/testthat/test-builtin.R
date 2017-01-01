@@ -24,6 +24,7 @@ test_that('builtins', {
     file.create(gibberish)
     expect_error(e(paste0('rmdir ',gibberish),
                    c('rmdir', gibberish), const, iris), 'this is not a directory')
+    unlink(gibberish)
 
     expect_message(e('list', 'list', const, iris))
     expect_message(e( 'str',  'str', const, iris))

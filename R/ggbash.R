@@ -96,8 +96,10 @@ find_first <- function(prefix='si',
 #'
 #' @export
 show_dataset_column_indices <- function(dataset=NULL){
-    if (is.null(dataset))
+    if (is.null(dataset)) {
+        message('dataset is not set')
         return()
+    }
 
     pad <- function(i, width=4, side='') {
         gsub('#',' ', sprintf(paste0('%',side,'#',width,'s'), i))
@@ -339,7 +341,8 @@ copy_to_clipboard <- function(
 #' @param argv A character vector
 #' @param conf A list of aesthetic assignments
 parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
-    out <- list(filename = NA, w = 960, h = 960, res = 72)
+    dpi <- 72
+    out <- list(filename = NA, w = 960/dpi, h = 960/dpi, dpi=dpi)
     # 72 pixels per inch is R's default
     single_quote <- "'"
     double_quote <- '"'
@@ -351,26 +354,22 @@ parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
                        '.', argv[1])
         } else if (grepl('[0-9]', a) && grepl('x', a)) { # size (numeric)
             size <- as.numeric(strsplit(a, 'x')[[1]])
-            out$w <- size[1]
-            out$h <- size[2]
-        } else if (grepl('[0-9]', a)) { # size (numeric)
-            out$res <- as.numeric(a)
+            out$w <- ifelse(size[1] > 50, size[1]/dpi, size[1])
+            out$h <- ifelse(size[2] > 50, size[2]/dpi, size[2])
         } else {
             index <- find_first(a, c('small', 'big'))
             selected <-
                 list(small   = list(w =  480, h =  480),
                      big     = list(w = 1960, h = 1440))[[ index ]]
-            out$w <- selected$w
-            out$h <- selected$h
-
+            out$w <- selected$w / dpi
+            out$h <- selected$h / dpi
         }
     }
 
     if (is.na(out$filename)) { # auto-assign
         out$filename <- paste0(paste0(gsub('=', '-', conf),
                                       collapse='_'),
-                               '.', out$w, 'x', out$h,
-                               '.', out$res, '.', argv[1])
+                               '.', out$w*dpi, 'x', out$h*dpi, '.', argv[1])
     }
     return(out)
 }
@@ -395,14 +394,8 @@ save_ggplot <- function(
     oldwd <- setwd(dataset_string)
     attrl <- parse_plot_attributes(argv, exe_statl$conf)
 
-    if (argv[1] == 'png')
-        png(attrl$filename, width=attrl$w, height=attrl$h, res=attrl$res)
-    else
-        pdf(attrl$filename) # FIXME size
-
-    print(eval(parse(text=exe_statl$cmd)))
-
-    dev.off()
+    ggplot2::ggsave(attrl$filename, plot=eval(parse(text=exe_statl$cmd)),
+                    width=attrl$w, height=attrl$h, units='in', dpi=attrl$dpi)
     setwd(oldwd)
     message('saved: ', paste0(dataset_string, '/', attrl$filename))
 }
@@ -488,6 +481,8 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
 #'
 #' @export
 ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarning=TRUE) {
+    if (! is.null(dataset))
+        attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt(dataset)
             if (exec_ggbash(dataset, raw_input, showWarning))
@@ -603,7 +598,7 @@ drawgg <- function(dataset,
                    showWarning=TRUE,
                    doEval=TRUE){
     if (is.null(dataset))
-        stop('dataset is not set')
+        stop('Your dataset is not set. Please execute "use <dataset name>" first.')
     if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
                                       quietly=TRUE)
