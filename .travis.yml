@@ -7,7 +7,7 @@ cache: packages
 sudo: false
 
 before_install:
-  - "sudo apt-get install xclip --no-install-recommends --yes"
+  - "apt-get install xclip --no-install-recommends --yes"
 
 env:
  global:
