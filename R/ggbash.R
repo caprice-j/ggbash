@@ -65,12 +65,14 @@ find_first <- function(prefix='si',
         if (grepl('colo', prefix))
             indices <- grep(paste0('^colour'), table)
         else
-            stop('no such prefix')
+            stop('no such prefix: ', prefix)
     }
-    if (length(indices)>1 && showWarning)
-        message('[ !!! CAUTION !!! ] ambiguous match.',
-                ' use "', table[indices][1],
+    if (length(indices)>1 && showWarning &&
+        (! prefix %in% c(sapply(1:5, function(i) substr('point',1,i)),
+                         sapply(1:4, function(i) substr('line', 1,i))))) {
+        warning('Ambiguous match. Use "', table[indices][1],
                 '" among ', paste0(table[indices], collapse=', '))
+    }
     return(indices[1])
 }
 
@@ -104,7 +106,7 @@ show_dataset_column_indices <- function(dataset=NULL){
     nchar_longest <- max(sapply(colnames(dataset), nchar))
     short_colnamel <- partial_unique(colnames(dataset), i=4)
     # i = 4 because too short colnames are hard to read
-    mod <- 5
+    mod <- ifelse(ncol(dataset)>50, 15, 5)
     linev <- rep('', mod)
     for ( i in seq_along(short_colnamel) ) {
         this <- names(short_colnamel)[i]
@@ -120,11 +122,11 @@ show_dataset_column_indices <- function(dataset=NULL){
     }
 }
 
-#' show ggbash prompt
+#' build a ggbash prompt string
 #'
 #' @param dataset a data frame
 #'
-show_prompt <- function(dataset=NULL){
+build_prompt <- function(dataset=NULL) {
     ds_str <- attr(dataset, 'ggbash_datasetname')
     username <- Sys.info()['user']
     hostname <- Sys.info()['nodename']
@@ -133,7 +135,16 @@ show_prompt <- function(dataset=NULL){
     ggbash_prompt <- paste0(username, '@',
                             hostname, ' ',
                             working_dir, ds_str, ' $ ')
-    return(readline(prompt=ggbash_prompt))
+    return(ggbash_prompt)
+}
+
+#' show ggbash prompt
+#'
+#' @param dataset a data frame
+#'
+show_prompt <- function(dataset=NULL) {
+    # MAYBE-LATER how can I test functions having readline()?
+    return(readline(prompt=build_prompt(dataset)))
 }
 
 #' split a given character by a pipe ("|")
