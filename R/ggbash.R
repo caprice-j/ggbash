@@ -390,7 +390,7 @@ save_ggplot <- function(
     exe_statl =
         list(cmd  = 'ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))',
              conf = list('x=cyl', 'y=mpg') ),
-    argv=c('png')
+    argv=c('png', '200x500', '"my-file-name"')
 ){
     dir.create(dataset_string, showWarnings = FALSE)
     oldwd <- setwd(dataset_string)
