@@ -6,3 +6,4 @@
 ^album$
 ^\.travis\.yml$
 ^appveyor.yml$
+^.codeclimate.yml$
