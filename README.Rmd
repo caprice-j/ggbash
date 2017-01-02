@@ -6,6 +6,14 @@ output:
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
 # ggbash: A Faster Way to Write ggplot2
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash)
@@ -49,7 +57,7 @@ user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
 ```
 
 
-```{r, echo=FALSE}
+```{r example, echo=FALSE}
 ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,
@@ -298,10 +306,3 @@ are good ways to learn ggplot2 library.
 The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd)
 of ggbash is still in a draft.
 
-```{r, echo = FALSE}
-# knitr::opts_chunk$set(
-#   collapse = TRUE,
-#   comment = "#>",
-#   fig.path = "README-"
-# )
-```

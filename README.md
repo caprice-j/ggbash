@@ -31,11 +31,11 @@ user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
     ggplot(iris) +
     geom_point(aes(Sepal.Width,
                    Sepal.Length,
-                   color=Species,
+                   colour=Species,
                    size=Petal.Width))
 ```
 
-![](README_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](README-example-1.png)
 
 ### One-liner
 
@@ -54,7 +54,7 @@ In the above example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs part
 
 -   **geom names**
     -   `p` matches `geom_point`
-        -   Note: the common prefix geom\_ is removed beforehand.
+        -   Note: the common prefix geom\_ is removed beforehand for simplicity.
 -   **column names**
     -   `Sepal.W` matches `iris$Sepal.Width`.
 
@@ -65,21 +65,21 @@ In the above example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs part
     -   `Petal.W` matches `iris$Petal.Width`.
 
 -   **aesthetics names**
-    -   `c` matches `color`, which is the aesthetic of geom\_point.
+    -   `c` matches `colour`, which is the aesthetic of geom\_point.
     -   `si` matches `size` ('s' cannot identify which one of `shape`, `size`, and `stroke`).
 
 Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
 
 ### 2. Predefined Precedence
 
-Even if unique identification is not possible, `ggbash` tries to execute its best guess instead of bluntly returning an error, hoping to achieve least expected keystrokes.
+Even if unique identification is not possible, `ggbash` tries to execute its best guess instead of bluntly returning an error. Everything is designed to achieve least expected keystrokes.
 
 For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
 Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is executed as the `size` aesthetic.
 
-While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters might be faster in most cases.
+While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
 
 ### 3. Column Index Match
 
@@ -104,16 +104,17 @@ Column Index Match is perhaps the fastest way to build a ggplot2 object. In the 
 
 With more elaborated plots, the differences become much larger.
 
-### 4. Piping to save/copy results
+### 4. Piping to Save or Copy Results
 
 ``` r
+    ggbash(iris)
     user@host currentDir (iris) $ cd imageDir
 
-    user@host currentDir (iris) $ ls
+    user@host imageDir (iris) $ ls
     /Users/myname/currentDir/imageDir
     
-    user@host imageDir (iris) $ p 2 1 c=5 si=4 | png big
-    saved as 'iris-Sepal.W-Sepal.L-Sp.png' (big: 1960 x 1440)
+    user@host imageDir (iris) $ p 2 1 c=5 | png big
+    saved as 'iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.1960x1440.png'
     
     user@host imageDir (iris) $ p 1 2 col=Sp siz=4 | copy
     copied to clipboard:
@@ -123,21 +124,24 @@ With more elaborated plots, the differences become much larger.
                                   size=Petal.Width))
 ```
 
-#### Save .png Files
+#### Save PNG Files
 
-`png` can receive three arguments: plot size, file name, and resolution (pixels per inch). If none specified, the default values are used.
+`png` could receive plot size and file name. If none specified, the default values are used.
 
 `png` command interprets a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic. Both of the following notations generates the same png file whose size is 960 pixels in width and 480 pixels in height.
 
-`p 1 2 | png "my-iris-plot" 960x480`
-`p 1 2 | png 960x480 "my-iris-plot"`
+``` r
+p 1 2 | png "my-iris-plot" 960x480  
+p 1 2 | png 960x480 "my-iris-plot"
+```
 
-#### Save .pdf Files
+#### Save PDF Files
 
 <!-- 1 inch == 2.54 cm -->
-While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`), the numbers are interpreted as inches (1 inch == 2.54 cm).
+While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
 
 ``` r
+
 # pdf of 15 inch width (=~ 40 cm) and 9 inch height (=~ 23 cm)
 p 1 2 | pdf 16x9
 
@@ -150,7 +154,7 @@ p 1 2 | pdf 16x9
 # both return almost the same output
 ```
 
-Note: the default dpi in ggbash is 72 and cannot be changed.
+Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave` function.
 
 ### 5. Auto-generated Filenames
 
@@ -208,7 +212,7 @@ ggbash has two main goals:
 
 2.  **Intuitive tweaking.** Make it less stressful to finalize your plots.
 
-    -   adjust colors or lineweights
+    -   adjust colours or lineweights
 
     -   rotate axis labels
 
