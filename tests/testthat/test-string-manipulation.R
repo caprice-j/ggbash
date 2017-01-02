@@ -3,8 +3,13 @@ context('string-manipulation')
 
 test_that('splitting', {
     expect_equal(
-        split_by_pipe(input='point 1 2 color=3 | copy'),
-        c('point 1 2 color=3 ', ' copy')
+        split_by_pipe(input='gg iris + point 1 2 color=3 + copy'),
+        c("gg iris ", " point 1 2 color=3 ", " copy")
+    )
+
+    expect_equal(
+        split_by_pipe(input='gg iris | point 1 2 color=3 | copy'),
+        c("gg iris ", " point 1 2 color=3 ", " copy")
     )
 
     expect_equal(

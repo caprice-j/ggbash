@@ -143,13 +143,23 @@ show_prompt <- function() {
     return(readline(prompt=build_prompt()))
 }
 
-#' split a given character by a pipe ("|")
+#' split a given character by a pipe ("|" or "+")
+#'
+#' One thing to note here is that
+#' ggbash does not differentiate between "|" and "+".
+#' This follows the observation that sometimes
+#' ggplot2 users would tend to mistype
+#' not
+#' mtcars %>% ggplot() + geom_point(aes(mpg,cyl))
+#' but
+#' mtcars %>% ggplot() %>% geom_point(aes(mpg,cyl))
+#'
 #'
 #' @param input A character
 #'
 #' @export
 split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
-    return(strsplit(input, '\\|')[[1]])
+    return(strsplit(input, '\\||\\+')[[1]])
 }
 
 #' split a given string by spaces
