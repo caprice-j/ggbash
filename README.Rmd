@@ -44,7 +44,7 @@ ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-user@host currentDir $ gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
+gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
 ```
 
 
@@ -161,7 +161,7 @@ ggbash('gg mtcars + point mpg wt + smooth mpg wt')
 ```
 
 ```{r pipe_example, echo=FALSE}
-ggplot(mtcars) + geom_point(aes(x=mpg, y=wt)) + geom_smooth(aes(x=mpg, y=wt))
+ggplot(mtcars) + geom_point(aes(x=mpg, y=wt)) + geom_smooth(aes(x=mpg, y=wt), method='loess')
 ```
 
 <!-- FIXME impelment gg mtcars mpg wt + point + smooth -->
@@ -196,7 +196,7 @@ If none specified, the default values are used.
 `png` is order-agnostic. Both of the following notations
 generates the same png file whose size is 960 pixels in width and 480 pixels in height.
 
-```{r, eval=FALSE}
+```{bash, eval=FALSE}
 gg iris + p 1 2 | png "my-iris-plot" 960x480    
 gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
@@ -317,9 +317,10 @@ ggbash has two main goals:
 `ggbash` follows ggplot2 notations
 as much as possible for reducing learning costs of current ggplot2 users.
 
-Therefore, these [document](http://docs.ggplot2.org/current/) and
-[book](https://github.com/hadley/ggplot2-book)
-are good ways to learn ggplot2 library.
+Learning ggplot2 might be the best way to understand ggbash notations.
+The [document](http://docs.ggplot2.org/current/) and
+[book](https://github.com/hadley/ggplot2-book) of ggplot2 
+would be helpful.
 
 The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd)
 of ggbash is still in a draft.

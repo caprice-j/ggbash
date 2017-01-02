@@ -24,7 +24,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-user@host currentDir $ gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
+gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
 ```
 
 ``` r
@@ -115,8 +115,6 @@ While ggplot2 library only interprets `%>%` operator as pipe, ggbash interprets 
 ggbash('gg mtcars + point mpg wt + smooth mpg wt')
 ```
 
-    #> `geom_smooth()` using method = 'loess'
-
 ![](README-pipe_example-1.png)
 
 <!-- FIXME impelment gg mtcars mpg wt + point + smooth -->
@@ -146,7 +144,7 @@ ggbash('gg mtcars + point mpg wt + smooth mpg wt')
 
 `png` command interprets a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic. Both of the following notations generates the same png file whose size is 960 pixels in width and 480 pixels in height.
 
-``` r
+``` bash
 gg iris + p 1 2 | png "my-iris-plot" 960x480    
 gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
@@ -241,6 +239,6 @@ Learning ggbash
 
 `ggbash` follows ggplot2 notations as much as possible for reducing learning costs of current ggplot2 users.
 
-Therefore, these [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) are good ways to learn ggplot2 library.
+Learning ggplot2 might be the best way to understand ggbash notations. The [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) of ggplot2 would be helpful.
 
 The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd) of ggbash is still in a draft.
