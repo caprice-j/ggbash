@@ -26,4 +26,6 @@ test_that('ggbash', {
     out <- ggbash('gg mtcars x=mpg y=cyl + point + smooth')
     expect_equal(out$cmd,
                  'ggplot(mtcars, aes(x=mpg, y=cyl)) + geom_point(aes()) + geom_smooth(aes())')
+    # TODO gg mtcars x=mpg y=cyl + point worked,
+    # TODO gg mtcars   mpg   cyl + point should work
 })

@@ -24,7 +24,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  | echo
+gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
 ```
 
 ![](README-example-1.png)
@@ -53,7 +53,7 @@ Features
 
 ### 1. Partial Prefix Match
 
-For an input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
+For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
 
 -   **ggplot function**
     -   `gg` matches `ggplot2::ggplot()`.
@@ -69,7 +69,7 @@ For an input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs part
     -   `c` matches `colour`, which is the aesthetic of `geom_point`.
     -   `s` matches `size` by predefined ggbash Precedence.
 
-Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
+Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported.
 
 ### 2. Precedence
 
@@ -99,7 +99,7 @@ user@host currentDir $ gg iris + p 2 1 c=5 si=4
 user@host currentDir $ gg iris + p 2 1 c=5 si=Petal.W
 ```
 
-Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, while the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), `gg iris p 2 1 c=5 si=4` is just **16 characters -- more than 80% keystroke reduction**.
+Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), whereas `gg iris p 2 1 c=5 si=4` is just **16 characters -- more than 80% keystroke reduction**.
 
 With a more elaborated plot, the difference becomes much larger.
 
@@ -107,12 +107,12 @@ With a more elaborated plot, the difference becomes much larger.
 
 #### Adding Layers
 
-While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets both `+` and `|` symbols as the same pipe operator. There is no functional difference between the two. You can use one of both you feel more intuitive.
+While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets both `+` and `|` symbols as the same pipe operator. There is no functional difference between the two. You can use one of both you feel more intuitive for each usecase.
 
 ``` r
-ggbash('gg mtcars + point mpg wt + smooth mpg wt + copy')
-ggbash('gg mtcars | point mpg wt | smooth mpg wt | copy') # the same as the above
-ggbash('gg mtcars + point mpg wt + smooth mpg wt | copy') # can be mixed
+ggbash('gg mtcars x=mpg y=cyl + point + smooth + copy')
+ggbash('gg mtcars x=mpg y=cyl | point + smooth | copy') # the same as the above
+ggbash('gg mtcars x=mpg y=cyl + point + smooth | copy') # can be mixed
 ```
 
 ![](README-pipe_example-1.png)
@@ -138,6 +138,18 @@ ggbash('gg mtcars + point mpg wt + smooth mpg wt | copy') # can be mixed
                                   size=Petal.Width))
 ```
 
+### 5. Auto-generated Filenames
+
+The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified. That function can easily overwrite the previous plot, and users often have to set file names manually.
+
+The `png` and `pdf` commands in `ggbash` tries to generate a sensible file name based on the given dataset and aesthetic names if no file name is specified.
+
+For example, when you are using the `iris` dataset which has 150 rows, the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.png`.
+
+If you happen to have the different `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
+
+### 6. Order Agnostic Arguments
+
 `png` and `pdf` could receive plot size and file name. If none specified, the default values are used.
 
 `png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic: Both of the following notations generates the same png file `"my-iris-plot.960x480.png"`.
@@ -147,7 +159,7 @@ gg iris + p 1 2 | png "my-iris-plot" 960x480
 gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
 
-#### Inches and Pixels
+#### 7. Guessing Inches or Pixels
 
 <!-- 1 inch == 2.54 cm -->
 While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
@@ -165,16 +177,6 @@ gg iris + p 1 2 | png 16x9
 ```
 
 Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)` argument.
-
-### 5. Auto-generated Filenames
-
-The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified. That function can easily overwrite the previous plot, and users often have to set file names manually.
-
-The `png` and `pdf` commands in `ggbash` tries to generate a sensible file name based on the given dataset and aesthetic names if no file name is specified.
-
-For example, when you are using the `iris` dataset which has 150 rows, the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.png`.
-
-If you happen to have the different `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
 
 <!-- ### 6. Type-specific For Loop (To Be Implemented) -->
 <!-- ```{r, eval=FALSE} -->
@@ -218,7 +220,7 @@ The goal of ggbash is to make plotting in ggplot2 as faster as possible. It can 
 
     -   less typing by Column Index Match, Partial Prefix Match, and Predefined Precedence.
 
-    -   casualy save plots with Pipe Operator and Auto-generated Filenames.
+    -   casualy save plots with Pipe Operator, Auto-generated Filenames, and other features.
 
 2.  **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
 
