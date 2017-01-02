@@ -1,7 +1,7 @@
 Package: ggbash
 Type: Package
 Title: A Faster Way to Write ggplot2
-Version: 0.1.2017.1.1
+Version: 0.1.0
 Authors@R: c(person('Yasutaka', 'Tanaka', email = 'tnk.yasutaka@gmail.com', role='cre'))
 Description: ggbash provides a bash-like REPL environment,
     potentially saving your typing by more than 80%.

@@ -9,6 +9,8 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+(This vignette is still in a draft).
+
 ggplot2 provides a comprehensive
 collection of functions to draw a variety of informative plots.
 
@@ -26,6 +28,8 @@ geom_point(aes(x=Sepal.Width,
 
 ggbash is a different and faster interface for the ggplot2.
 It provides a bash-like REPL (read-eval-print loop) environment on top of R.
+It also provides a function to compile
+a short ggbash string to a complete ggplot2 command.
 
 ```{r, eval=FALSE}
 library(ggbash)
@@ -34,11 +38,11 @@ ggbash(iris) # enter in a ggbash session with the 'iris' data frame
 ```
 
 ```{bash, eval=FALSE}
-user@host currentDir (iris) $ point Sepal.W Sepal.L c=Sp si=Petal.W
+user@host currentDir (iris) $ point Sepal.W Sepal.L c=Sp si=Petal.W | echo
 ```
 
 ```{r, eval=FALSE}
-executed (95 characters) :
+executed:
 ggplot(iris) +
 geom_point(aes(x=Sepal.Width,
                y=Sepal.Length,
@@ -62,15 +66,18 @@ If you prefer least possible typing,
 user@host currentDir (iris) $ p 2 1 c=5 si=4
 ```
 
-gives exactly the same plot. The original ggplot2 notation needs 91 characters (whitespaces are not counted) to draw the above plot, whereas the ggbash version of notation only with 10 characters. This means that **ggbash enables more than 80% reduction of key strokes**. The differece becomes much larger with more complicated plots. 
+gives exactly the same plot. The original ggplot2 notation needs 91 characters (whitespaces are not counted) to draw the above plot, whereas the ggbash version of notation only with 10 characters. This means that **ggbash enables more than 80% reduction of key strokes**. The differece becomes much larger with more complicated plots.
 
 
-# Saving multiple images
+# Saving Images
 
 Suppose that you are given an unknown dataset and would like to check what the dataset looks like.
-You might create a directory called `my_images` for storing a bunch of exploratory plots, and begin generating plots within the directory. 
+You might create a directory called `my_images` and begin generating plots within the directory. 
 
-Suppose that you might want to generate histograms. While some people uses diag.panel argument in `graphics::pairs()` for plotting histograms, others might use `geom_histogram()` for quick analysis.
+You might want to generate histograms.
+While some people uses diag.panel argument
+in `graphics::pairs()` for plotting histograms,
+others might use `geom_histogram()` for quick analysis.
 
 Then the script might look like this:
 
@@ -93,11 +100,13 @@ dev.off()
 # ....
 ```
 
-Or if you don't like to write duplicated codes, you might define a function:
+Or if you don't like to write duplicated codes,
+you might define a helper function:
 
-```{r}
+```{r, eval=FALSE}
 ggplot_histogram <- function(dataset, varname='mpg') {
-    png(paste0('my_images/histogram_',varname,'.png'), height=480, width=480)
+    png(paste0('my_images/histogram_',varname,'.png'),
+        height=480, width=480)
         ggplot(dataset) + geom_histogram(aes_string(x=varname))
     dev.off()
 }
@@ -107,13 +116,17 @@ for ( var in colnames(mtcars) )
 ```
 
 While both approaches suffice for one-time usage,
-it would be a pain to repeatedly write these scripts for every single data analysis project.
-You might even have to consider what should be abstracted into function arguments.
-For example, should the directory name `my_images` be an argument? If so, what is the default value?
+it would be a pain to repeatedly write
+these scripts for every single data analysis project.
+You might have to think about some design decisions.
+For example, should the directory name `my_images`
+be an argument? If so, what is the default value?
 How about figure height and width? geom_name like `histogram`?
-If you pass geom_name as an argument `mygeom`, how you can select appropriate geom_mygeom?
+If you pass geom_name as an argument `mygeom`,
+how you can select appropriate geom_mygeom?
 
-ggbash handles these kinds of clerical jobs. In ggbash, you can do the same task more concisely.
+ggbash handles these kinds of clerical jobs.
+In ggbash, you can do the same task more concisely.
 
 ```{r, eval=FALSE}
 ggbash(mtcars)
@@ -122,7 +135,10 @@ ggbash(mtcars)
 ```{bash, eval=FALSE}
 user@host currentDir (mtcars) $ mkdir my_images
 user@host currentDir (mtcars) $ cd my_images
-user@host my_images (mtcars) $ for (var in df) h var | png small
+user@host my_images (mtcars) $ h 1 2 | png small
+user@host my_images (mtcars) $ h 1 3 | png small
+user@host my_images (mtcars) $ h 1 4 | png small
+user@host my_images (mtcars) $ h 1 5 | png small
 ```
 
 Here, `h` partially matches `geom_histogram`.
