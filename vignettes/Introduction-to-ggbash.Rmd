@@ -69,76 +69,76 @@ user@host currentDir (iris) $ p 2 1 c=5 si=4
 gives exactly the same plot. The original ggplot2 notation needs 91 characters (whitespaces are not counted) to draw the above plot, whereas the ggbash version of notation only with 10 characters. This means that **ggbash enables more than 80% reduction of key strokes**. The differece becomes much larger with more complicated plots.
 
 
-# Saving Images
+<!-- # Saving Images -->
 
-Suppose that you are given an unknown dataset and would like to check what the dataset looks like.
-You might create a directory called `my_images` and begin generating plots within the directory. 
+<!-- Suppose that you are given an unknown dataset and would like to check what the dataset looks like. -->
+<!-- You might create a directory called `my_images` and begin generating plots within the directory.  -->
 
-You might want to generate histograms.
-While some people uses diag.panel argument
-in `graphics::pairs()` for plotting histograms,
-others might use `geom_histogram()` for quick analysis.
+<!-- You might want to generate histograms. -->
+<!-- While some people uses diag.panel argument -->
+<!-- in `graphics::pairs()` for plotting histograms, -->
+<!-- others might use `geom_histogram()` for quick analysis. -->
 
-Then the script might look like this:
+<!-- Then the script might look like this: -->
 
-```{r, eval=FALSE}
-dataset <- mtcars
-dir.create('my_images')
+<!-- ```{r, eval=FALSE} -->
+<!-- dataset <- mtcars -->
+<!-- dir.create('my_images') -->
 
-png('my_images/histogram_mpg.png', height=480, width=480) # pixel
-    ggplot(dataset) + geom_histogram(aes(x=mpg))
-dev.off()
+<!-- png('my_images/histogram_mpg.png', height=480, width=480) # pixel -->
+<!--     ggplot(dataset) + geom_histogram(aes(x=mpg)) -->
+<!-- dev.off() -->
 
-png('my_images/histogram_disp.png', height=480, width=480) # pixel
-    ggplot(dataset) + geom_histogram(aes(x=disp))
-dev.off()
+<!-- png('my_images/histogram_disp.png', height=480, width=480) # pixel -->
+<!--     ggplot(dataset) + geom_histogram(aes(x=disp)) -->
+<!-- dev.off() -->
 
-png('my_images/histogram_hp.png', height=480, width=480) # pixel
-    ggplot(dataset) + geom_histogram(aes(x=hp))
-dev.off()
+<!-- png('my_images/histogram_hp.png', height=480, width=480) # pixel -->
+<!--     ggplot(dataset) + geom_histogram(aes(x=hp)) -->
+<!-- dev.off() -->
 
-# ....
-```
+<!-- # .... -->
+<!-- ``` -->
 
-Or if you don't like to write duplicated codes,
-you might define a helper function:
+<!-- Or if you don't like to write duplicated codes, -->
+<!-- you might define a helper function: -->
 
-```{r, eval=FALSE}
-ggplot_histogram <- function(dataset, varname='mpg') {
-    png(paste0('my_images/histogram_',varname,'.png'),
-        height=480, width=480)
-        ggplot(dataset) + geom_histogram(aes_string(x=varname))
-    dev.off()
-}
+<!-- ```{r, eval=FALSE} -->
+<!-- ggplot_histogram <- function(dataset, varname='mpg') { -->
+<!--     png(paste0('my_images/histogram_',varname,'.png'), -->
+<!--         height=480, width=480) -->
+<!--         ggplot(dataset) + geom_histogram(aes_string(x=varname)) -->
+<!--     dev.off() -->
+<!-- } -->
 
-for ( var in colnames(mtcars) )
-    ggplot_histogram(mtcars, var)
-```
+<!-- for ( var in colnames(mtcars) ) -->
+<!--     ggplot_histogram(mtcars, var) -->
+<!-- ``` -->
 
-While both approaches suffice for one-time usage,
-it would be a pain to repeatedly write
-these scripts for every single data analysis project.
-You might have to think about some design decisions.
-For example, should the directory name `my_images`
-be an argument? If so, what is the default value?
-How about figure height and width? geom_name like `histogram`?
-If you pass geom_name as an argument `mygeom`,
-how you can select appropriate geom_mygeom?
+<!-- While both approaches suffice for one-time usage, -->
+<!-- it would be a pain to repeatedly write -->
+<!-- these scripts for every single data analysis project. -->
+<!-- You might have to think about some design decisions. -->
+<!-- For example, should the directory name `my_images` -->
+<!-- be an argument? If so, what is the default value? -->
+<!-- How about figure height and width? geom_name like `histogram`? -->
+<!-- If you pass geom_name as an argument `mygeom`, -->
+<!-- how you can select appropriate geom_mygeom? -->
 
-ggbash handles these kinds of clerical jobs.
-In ggbash, you can do the same task more concisely.
+<!-- ggbash handles these kinds of clerical jobs. -->
+<!-- In ggbash, you can do the same task more concisely. -->
 
-```{r, eval=FALSE}
-ggbash(mtcars)
-```
+<!-- ```{r, eval=FALSE} -->
+<!-- ggbash(mtcars) -->
+<!-- ``` -->
 
-```{bash, eval=FALSE}
-user@host currentDir (mtcars) $ mkdir my_images
-user@host currentDir (mtcars) $ cd my_images
-user@host my_images (mtcars) $ h 1 2 | png small
-user@host my_images (mtcars) $ h 1 3 | png small
-user@host my_images (mtcars) $ h 1 4 | png small
-user@host my_images (mtcars) $ h 1 5 | png small
-```
+<!-- ```{bash, eval=FALSE} -->
+<!-- user@host currentDir (mtcars) $ mkdir my_images -->
+<!-- user@host currentDir (mtcars) $ cd my_images -->
+<!-- user@host my_images (mtcars) $ h 1 2 | png small -->
+<!-- user@host my_images (mtcars) $ h 1 3 | png small -->
+<!-- user@host my_images (mtcars) $ h 1 4 | png small -->
+<!-- user@host my_images (mtcars) $ h 1 5 | png small -->
+<!-- ``` -->
 
-Here, `h` partially matches `geom_histogram`.
+<!-- Here, `h` partially matches `geom_histogram`. -->
