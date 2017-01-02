@@ -80,7 +80,7 @@ find_first <- function(prefix='si',
 #'
 #' This function lists all dataset column indices.
 #'
-#' @param dataset a data frame
+#' @param dataset_str A character representing a data frame
 #'
 #' @seealso \code{partial_unique}, \code{drawgg}
 #'
@@ -89,17 +89,16 @@ find_first <- function(prefix='si',
 #' # without column indices: explicit
 #' drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 #'
-#' show_dataset_column_indices(iris)
+#' show_dataset_column_indices('iris')
 #'
 #' # with column indices: shorter
 #' drawgg(iris, list(build_geom(iris, 'point 1 2')))
 #'
 #' @export
-show_dataset_column_indices <- function(dataset=NULL){
-    if (is.null(dataset)) {
-        message('dataset is not set')
-        return()
-    }
+show_dataset_column_indices <- function(dataset_str=NULL){
+    if (is.null(dataset_str))
+        return(NULL)
+    dataset <- eval(as.symbol((dataset_str)))
 
     pad <- function(i, width=4, side='') {
         gsub('#',' ', sprintf(paste0('%',side,'#',width,'s'), i))
@@ -189,8 +188,14 @@ add_input_to_history <- function(input='point 2 3'){
     unlink(history_file)
 }
 
-# execute ggbash builtins
-execute_ggbash_builtins <- function(raw_input, argv, const, dataset){
+#' execute ggbash builtins
+#'
+#' @param raw_input A character of ggbash command chain (might contain pipes)
+#' @param argv A character vector
+#' @param const A list of ggbash constants
+#'              returned by \{code{define_constant_list}.
+#'
+execute_ggbash_builtins <- function(raw_input, argv, const){
     if (argv[1] %in% c('pwd', 'getwd')) {
         message(getwd())
     } else if (argv[1] %in% c('mkdir', 'dir.create')) {
@@ -213,7 +218,7 @@ execute_ggbash_builtins <- function(raw_input, argv, const, dataset){
         if (ans %in% c('y', 'Y', 'yes', 'Yes'))
             unlink(argv[2], recursive=TRUE)
     } else if (argv[1] %in% c('list', 'str')) {
-        show_dataset_column_indices(dataset)
+        show_dataset_column_indices(argv[2])
     } else if (argv[1] %in% c('ls', 'dir')) {
         message( paste(dir(getwd()), collapse='\t') )
         # TODO ls -l
@@ -302,6 +307,35 @@ define_constant_list <- function(){
 set_ggbash_dataset <- function(dataset_name='iris'){
     dataset <- dplyr::tbl_df(eval(as.symbol(dataset_name), envir = .GlobalEnv))
     attr(dataset, 'ggbash_datasetname') <- dataset_name
+    return(dataset)
+}
+
+#' set ggplot() aesthetics arguments
+#'
+#' @param dataset A data frame
+#' @param aesv A vector of aesthetics
+#'
+set_ggplot_default_aes <- function(dataset, aesv = c('x=mpg', 'y=cyl', 'c=am')) {
+
+    # ggplot2::ggplot() seems only interptets aes (but no non-aes)
+    if (length(aesv) == 0) {
+        attr(dataset, 'ggbash_ggplot2') <- ''
+        return(dataset)
+    }
+
+    aes_str <- ''
+    all_aesv <- get_possible_aes('point') # FIXME all geoms
+
+    for(i in seq_along(aesv)) {
+        aes_str <- paste0(aes_str, ifelse(i>1,', ', ''),
+                          parse_ggbash_aes(i, aesv,
+                                           all_aesv,
+                                           must_aesv = c(),
+                                           colnamev=colnames(dataset)))
+    }
+
+    attr(dataset, 'ggbash_ggplot2') <- paste0('aes(', aes_str, ')')
+
     return(dataset)
 }
 
@@ -445,6 +479,8 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
         if (grepl(paste0('^', argv[1]), 'ggplot2')) {
             # partial prefix match to 'ggplot2'
             dataset <- set_ggbash_dataset(argv[2])
+            dataset <- set_ggplot_default_aes(dataset,
+                                              argv[c(-1,-2)])
         } else if (argv[1] == 'show') {
             print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
             return(FALSE)
@@ -454,7 +490,7 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
             message(ifelse(exists('ggstr'), ggstr$cmd, argv[2]))
             return(FALSE)
         } else if (argv[1] %in% const$builtinv) {
-            execute_ggbash_builtins(raw_input, argv, const, dataset)
+            execute_ggbash_builtins(raw_input, argv, const)
         } else if (argv[1] %in% c('copy', 'cp')) {
             ggstr <- drawgg(dataset, geom_list, doEval=FALSE)
             copy_to_clipboard(ggstr$cmd)
@@ -742,7 +778,12 @@ drawgg <- function(
     if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
 
-    gg <- paste0('ggplot2::ggplot(', attr(dataset, 'ggbash_datasetname'),')')
+    aes_str <- ifelse(attr(dataset, 'ggbash_ggplot2') == '',
+                      '',
+                      paste0(', ', attr(dataset, 'ggbash_ggplot2')))
+
+    gg <- paste0('ggplot2::ggplot(',
+                 attr(dataset, 'ggbash_datasetname'), aes_str, ')')
 
     for (geom in geom_list)
         gg <- paste0(gg, ' + ', geom$geomstr_verbose)

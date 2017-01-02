@@ -1,10 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ggbash: A Faster Interface to Write ggplot2
-===========================================
+ggbash: An Interface to Write ggplot2 Faster
+============================================
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
-ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2). Its goal is to make ggplot2 plotting as faster as possible.
+ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
 Installation
 ------------
@@ -30,7 +30,7 @@ gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  | echo
 ![](README-example-1.png)
 
 ``` r
-# this is the result of the above 'echo' command
+# this is the result of the above ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,
@@ -53,13 +53,13 @@ Features
 
 ### 1. Partial Prefix Match
 
-In the above example (`gg iris + point Sepal.W Sepal.L c="red" s=5`), ggbash performs partial matches six times.
+For an input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
 
 -   **ggplot function**
     -   `gg` matches `ggplot2::ggplot()`.
 -   **geom names**
     -   `point` matches `geom_point`.
-        -   Note: the common prefix geom\_ is removed for usability.
+        -   Note: the common prefix `geom_` is removed for usability.
 -   **column names**
     -   `Sepal.W` matches `iris$Sepal.Width`.
 
@@ -73,7 +73,7 @@ Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported
 
 ### 2. Precedence
 
-Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve least expected keystrokes.
+Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
 For example, if the input is `p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
@@ -107,7 +107,7 @@ With a more elaborated plot, the difference becomes much larger.
 
 #### Adding Layers
 
-While ggplot2 library only interprets `%>%` operator as pipe, ggbash interprets both `+` and `|` symbols as the same pipe operator. (There is no functional difference between the two. Only for the readability.)
+While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets both `+` and `|` symbols as the same pipe operator. There is no functional difference between the two. You can use one of both you feel more intuitive.
 
 ``` r
 ggbash('gg mtcars + point mpg wt + smooth mpg wt + copy')
@@ -140,14 +140,14 @@ ggbash('gg mtcars + point mpg wt + smooth mpg wt | copy') # can be mixed
 
 `png` and `pdf` could receive plot size and file name. If none specified, the default values are used.
 
-`png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic: Both of the following notations generates the same png file whose size is 960 pixels in width and 480 pixels in height.
+`png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic: Both of the following notations generates the same png file `"my-iris-plot.960x480.png"`.
 
 ``` bash
 gg iris + p 1 2 | png "my-iris-plot" 960x480    
 gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
 
-#### Inch and Pixels
+#### Inches and Pixels
 
 <!-- 1 inch == 2.54 cm -->
 While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
@@ -162,17 +162,15 @@ gg iris + p 1 2 | pdf 1440x1440
 
 # the png command in ggbash also recognises inches
 gg iris + p 1 2 | png 16x9
-gg iris + p 1 2 | pdf 16x9
-# both return almost the same output
 ```
 
-Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave` function.
+Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)` argument.
 
 ### 5. Auto-generated Filenames
 
 The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified. That function can easily overwrite the previous plot, and users often have to set file names manually.
 
-The `png` command in `ggbash` tries to generate a file name based on the given dataset and aesthetic names if no file name is specified.
+The `png` and `pdf` commands in `ggbash` tries to generate a sensible file name based on the given dataset and aesthetic names if no file name is specified.
 
 For example, when you are using the `iris` dataset which has 150 rows, the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.png`.
 

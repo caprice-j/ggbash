@@ -4,10 +4,10 @@
 \alias{show_dataset_column_indices}
 \title{show column index list}
 \usage{
-show_dataset_column_indices(dataset = NULL)
+show_dataset_column_indices(dataset_str = NULL)
 }
 \arguments{
-\item{dataset}{a data frame}
+\item{dataset_str}{A character representing a data frame}
 }
 \description{
 This function lists all dataset column indices.
@@ -17,7 +17,7 @@ This function lists all dataset column indices.
 # without column indices: explicit
 drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 
-show_dataset_column_indices(iris)
+show_dataset_column_indices('iris')
 
 # with column indices: shorter
 drawgg(iris, list(build_geom(iris, 'point 1 2')))

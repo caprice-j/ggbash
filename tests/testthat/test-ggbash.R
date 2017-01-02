@@ -20,6 +20,10 @@ test_that('ggbash', {
         'ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length)) + geom_line(aes(x=Sepal.Width, y=Sepal.Length))')
 
     expect_message(
-        ggbash('gg iris + point Petal.Width Petal.Length', 1),
+        ggbash('gg iris + point Petal.Width Petal.Length', clipboard = 1),
         'copied to clipboard')
+
+    out <- ggbash('gg mtcars x=mpg y=cyl + point + smooth')
+    expect_equal(out$cmd,
+                 'ggplot(mtcars, aes(x=mpg, y=cyl)) + geom_point(aes()) + geom_smooth(aes())')
 })
