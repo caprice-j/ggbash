@@ -4,9 +4,12 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(showWarn = TRUE)
+ggbash(batch = "", showWarn = TRUE)
 }
 \arguments{
+\item{batch}{A character. If given, \code{ggbash()} will exit
+just after executing the given command.}
+
 \item{showWarn}{Whether to show a warning message
                    when ambiguously matched. Default is TRUE.
 \describe{
@@ -29,13 +32,15 @@ Some basic commands like setwd() or pwd() works in ggbash session,
 but most of the usual R grammars are disabled.
 Instead, a variety of ggbash commands are enabled
 for writing ggplot2 script as faster as possible.
+
+If you give a string as a first argument of `ggbash`,
+ggbash will exit just after executing the command. Useful for a one-liner.
 }
 \examples{
-\dontrun{ ggbash()
+\dontrun{ ggbash() # enter into an interactive ggbash session
 }
+# plot a ggplot2 figure
+ggbash('gg iris + point Petal.Width Petal.Length')
 
-}
-\seealso{
-For a oneliner, \code{\link{drawgg}} might be more convenient.
 }
 

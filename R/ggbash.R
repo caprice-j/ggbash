@@ -430,9 +430,12 @@ save_ggplot <- function(
 #' @param raw_input A ggbash command chain (might contain pipes)
 #' @param showWarn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
+#' @param batchMode Default is FALSE.
+#'                  If TRUE, the resulted ggplot object is returned.
+#'
 #' @export
 exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
-                        showWarn=TRUE){
+                        showWarn=TRUE, batchMode=FALSE){
     const <- define_constant_list()
     commandv <- split_by_pipe(raw_input)
     geom_list <- list()
@@ -467,6 +470,8 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
             i <- i + 1
         }
     }
+    if (batchMode)
+        return(drawgg(dataset, geom_list))
     drawgg(dataset, geom_list)
     return(FALSE)
 }
@@ -483,6 +488,11 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #' Instead, a variety of ggbash commands are enabled
 #' for writing ggplot2 script as faster as possible.
 #'
+#' If you give a string as a first argument of `ggbash`,
+#' ggbash will exit just after executing the command. Useful for a one-liner.
+#'
+#' @param batch A character. If given, \code{ggbash()} will exit
+#'              just after executing the given command.
 #' @param showWarn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
 #' \describe{
@@ -493,13 +503,16 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #' @return nothing
 #'
 #' @examples
-#' \dontrun{ ggbash()
+#' \dontrun{ ggbash() # enter into an interactive ggbash session
 #' }
-#'
-#' @seealso For a oneliner, \code{\link{drawgg}} might be more convenient.
+#' # plot a ggplot2 figure
+#' ggbash('gg iris + point Petal.Width Petal.Length')
 #'
 #' @export
-ggbash <- function(showWarn=TRUE) {
+ggbash <- function(batch='', showWarn=TRUE) {
+    if (batch != '') {
+        return(exec_ggbash(batch, showWarn, batchMode = TRUE))
+    }
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt()
             if (exec_ggbash(raw_input, showWarn))

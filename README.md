@@ -20,19 +20,20 @@ Usage
 
 ``` bash
 library(ggbash)
-ggbash(iris) # start a ggbash session (using iris as main dataset)
+ggbash() # start a ggbash session
 ```
 
 ``` bash
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
+user@host currentDir $ gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
 ```
 
 ``` r
-    ggplot(iris) +
-    geom_point(aes(Sepal.Width,
-                   Sepal.Length,
-                   colour=Species,
-                   size=Petal.Width))
+# this is the result of the above 'echo' command
+ggplot(iris) +
+geom_point(aes(Sepal.Width,
+               Sepal.Length,
+               colour=Species,
+               size=Petal.Width))
 ```
 
 ![](README-example-1.png)
@@ -40,7 +41,7 @@ user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
 ### One-liner
 
 ``` r
-executed <- drawgg(iris, 'p Sepal.W Sepal.L c=Sp siz=Petal.W')
+executed <- ggbash('gg iris + p Sepal.W Sepal.L c=Sp siz=Petal.W')
 copy_to_clipboard(executed$cmd)
 # copied: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 ```
@@ -104,19 +105,34 @@ Column Index Match is perhaps the fastest way to build a ggplot2 object. In the 
 
 With more elaborated plots, the differences become much larger.
 
-### 4. Piping to Save or Copy Results
+### 4. Pipe Operator (`|` and `+`)
+
+#### Adding Layers
+
+While ggplot2 library only interprets `%>%` operator as pipe, ggbash interprets both `+` and `|` symbols as the same pipe operator.
 
 ``` r
-    ggbash(iris)
-    user@host currentDir (iris) $ cd imageDir
+ggbash('gg mtcars + point mpg wt + smooth mpg wt')
+```
 
-    user@host imageDir (iris) $ ls
+    #> `geom_smooth()` using method = 'loess'
+
+![](README-pipe_example-1.png)
+
+<!-- FIXME impelment gg mtcars mpg wt + point + smooth -->
+#### Save or Copy Results
+
+``` r
+    ggbash()
+    user@host currentDir $ cd imageDir
+
+    user@host imageDir $ ls
     /Users/myname/currentDir/imageDir
     
-    user@host imageDir (iris) $ p 2 1 c=5 | png big
+    user@host imageDir $ gg iris | p 2 1 c=5 | png big
     saved as 'iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.1960x1440.png'
     
-    user@host imageDir (iris) $ p 1 2 col=Sp siz=4 | copy
+    user@host imageDir $ gg iris | p 1 2 col=Sp siz=4 | copy
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
                                   y=Sepal.Width,
@@ -131,8 +147,8 @@ With more elaborated plots, the differences become much larger.
 `png` command interprets a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic. Both of the following notations generates the same png file whose size is 960 pixels in width and 480 pixels in height.
 
 ``` r
-p 1 2 | png "my-iris-plot" 960x480    
-p 1 2 | png 960x480 "my-iris-plot"
+gg iris + p 1 2 | png "my-iris-plot" 960x480    
+gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
 
 #### Save PDF Files
@@ -143,14 +159,14 @@ While the `pdf` function in R only recognizes width and height as inches, the `p
 ``` bash
 
 # pdf of 15 inch width (=~ 40 cm) and 9 inch height (=~ 23 cm)
-p 1 2 | pdf 16x9
+gg iris + p 1 2 | pdf 16x9
 
 # pdf of 1440 pixel (=~ 50 cm) width and height
-p 1 2 | pdf 1440x1440
+gg iris + p 1 2 | pdf 1440x1440
 
 # the png command in ggbash also recognises inches
-p 1 2 | png 16x9
-p 1 2 | pdf 16x9
+gg iris + p 1 2 | png 16x9
+gg iris + p 1 2 | pdf 16x9
 # both return almost the same output
 ```
 

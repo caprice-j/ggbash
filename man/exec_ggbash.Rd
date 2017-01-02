@@ -4,13 +4,17 @@
 \alias{exec_ggbash}
 \title{execute raw ggbash commands}
 \usage{
-exec_ggbash(raw_input = "gg iris | point 1 2 | copy", showWarn = TRUE)
+exec_ggbash(raw_input = "gg iris | point 1 2 | copy", showWarn = TRUE,
+  batchMode = FALSE)
 }
 \arguments{
 \item{raw_input}{A ggbash command chain (might contain pipes)}
 
 \item{showWarn}{Whether to show a warning message
 when ambiguously matched. Default is TRUE.}
+
+\item{batchMode}{Default is FALSE.
+If TRUE, the resulted ggplot object is returned.}
 }
 \description{
 execute raw ggbash commands
