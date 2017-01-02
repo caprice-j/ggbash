@@ -8,3 +8,4 @@
 ^appveyor.yml$
 ^.codeclimate.yml$
 ^cran-comments.md$
+^NEWS\.md$
