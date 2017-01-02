@@ -131,7 +131,7 @@ With more elaborated plots, the differences become much larger.
 `png` command interprets a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic. Both of the following notations generates the same png file whose size is 960 pixels in width and 480 pixels in height.
 
 ``` r
-p 1 2 | png "my-iris-plot" 960x480  
+p 1 2 | png "my-iris-plot" 960x480    
 p 1 2 | png 960x480 "my-iris-plot"
 ```
 
@@ -140,7 +140,7 @@ p 1 2 | png 960x480 "my-iris-plot"
 <!-- 1 inch == 2.54 cm -->
 While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
 
-``` r
+``` bash
 
 # pdf of 15 inch width (=~ 40 cm) and 9 inch height (=~ 23 cm)
 p 1 2 | pdf 16x9
