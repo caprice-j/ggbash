@@ -4,12 +4,14 @@
 \alias{parse_plot_attributes}
 \title{parse given plot settings}
 \usage{
-parse_plot_attributes(argv = c("png", "\\"myname\\"", "900x640"), conf)
+parse_plot_attributes(argv = c("png", "\\"myname\\"", "900x640"),
+  conf = list(aes = list("x=cyl", "y=mpg"), non_aes = list("color=\\"blue\\"",
+  "shape=\\"18\\"")))
 }
 \arguments{
 \item{argv}{A character vector}
 
-\item{conf}{A list of aesthetic assignments}
+\item{conf}{A list of aesthetic and non-aesthetic assignments}
 }
 \description{
 parse given plot settings

@@ -48,7 +48,40 @@ copy_to_clipboard(executed$cmd)
 Features
 --------
 
-### 1. Column Index Match
+### 1. Partial Prefix Match
+
+In the above example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs partial matches seven times.
+
+-   **geom names**
+    -   `p` matches `geom_point`
+        -   Note: the common prefix geom\_ is removed beforehand.
+-   **column names**
+    -   `Sepal.W` matches `iris$Sepal.Width`.
+
+    -   `Sepal.L` matches `iris$Sepal.Length`.
+
+    -   `Sp` matches `iris$Species`.
+
+    -   `Petal.W` matches `iris$Petal.Width`.
+
+-   **aesthetics names**
+    -   `c` matches `color`, which is the aesthetic of geom\_point.
+    -   `si` matches `size` ('s' cannot identify which one of `shape`, `size`, and `stroke`).
+
+Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
+
+### 2. Predefined Precedence
+
+Even if unique identification is not possible, `ggbash` tries to execute its best guess instead of bluntly returning an error, hoping to achieve least expected keystrokes.
+
+For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
+
+Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is executed as the `size` aesthetic.
+
+While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters might be faster in most cases.
+
+### 3. Column Index Match
 
 ``` bash
 # 'list' displays column indices
@@ -70,39 +103,6 @@ user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
 Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, while the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), `p 2 1 c=5 si=4` is just **10 characters -- more than 80% keystroke reduction**.
 
 With more elaborated plots, the differences become much larger.
-
-### 2. Partial Prefix Match
-
-In the first example (`p Sepal.W Sepal.L c=Sp si=Petal.W`), ggbash performs partial matches seven times.
-
--   **geom names**
-    -   `p` matches `geom_point`
-        -   Note: the common prefix geom\_ is removed beforehand.
--   **column names**
-    -   `Sepal.W` matches `iris$Sepal.Width`.
-
-    -   `Sepal.L` matches `iris$Sepal.Length`.
-
-    -   `Sp` matches `iris$Species`.
-
-    -   `Petal.W` matches `iris$Petal.Width`.
-
--   **aesthetics names**
-    -   `c` matches `color`, which is the aesthetic of geom\_point.
-    -   `si` matches `size` ('s' cannot identify which one of `shape`, `size`, and `stroke`).
-
-Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
-
-### 3. Predefined Precedence
-
-Even if unique identification is not possible, `ggbash` tries to execute its best guess instead of bluntly returning an error, hoping to achieve least expected keystrokes.
-
-For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
-Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
-
-Similarly, `s` matches three aesthetics, `size`, `shape`, and `stroke`, preferred by this order. Thus, `s` is executed as the `size` aesthetic.
-
-While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters might be faster in most cases.
 
 ### 4. Piping to save/copy results
 

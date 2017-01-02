@@ -269,7 +269,8 @@ define_constant_list <- function(){
                        'rug', 'raster', 'ribbon',
                        'segment', 'smooth',
                        'vline', 'violin'
-        )
+        ),
+        savev = c('png', 'pdf')
         # TODO implement stat like stat_smooth
     )
 }
@@ -336,11 +337,37 @@ copy_to_clipboard <- function(
     message('copied to clipboard:\n', string)
 }
 
+build_ggbash_filename <- function(
+    conf = list(aes = list('x=cyl', 'y=mpg'),
+                non_aes = list('color="blue"', 'shape="18"') ),
+    out = list(filename = NA, w = 960/72, h = 960/72, dpi=72),
+    extension='png'
+){
+
+    if (length(conf$non_aes) > 0) {
+        tmp <- gsub(paste0('"', '|', "'"), '', conf$non_aes)
+        quote_stripped <- paste0('_', gsub('=', '-', tmp), collapse='_')
+    } else {
+        quote_stripped <- ''
+    }
+
+    aes_string <- paste0(gsub('=', '-', conf$aes), collapse='_')
+
+    return(
+        paste0(aes_string, quote_stripped,
+               '.', out$w*out$dpi, 'x', out$h*out$dpi, '.', extension)
+    )
+}
+
 #' parse given plot settings
 #'
 #' @param argv A character vector
-#' @param conf A list of aesthetic assignments
-parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
+#' @param conf A list of aesthetic and non-aesthetic assignments
+parse_plot_attributes <- function(
+    argv = c('png', '"myname"', '900x640'),
+    conf = list(aes = list('x=cyl', 'y=mpg'),
+            non_aes = list('color="blue"', 'shape="18"'))
+){
     dpi <- 72
     out <- list(filename = NA, w = 960/dpi, h = 960/dpi, dpi=dpi)
     # 72 pixels per inch is R's default
@@ -366,11 +393,9 @@ parse_plot_attributes <- function(argv = c('png', '"myname"', '900x640'), conf){
         }
     }
 
-    if (is.na(out$filename)) { # auto-assign
-        out$filename <- paste0(paste0(gsub('=', '-', conf),
-                                      collapse='_'),
-                               '.', out$w*dpi, 'x', out$h*dpi, '.', argv[1])
-    }
+    if (is.na(out$filename)) # auto-assign
+        out$filename <- build_ggbash_filename(conf, out, argv[1])
+
     return(out)
 }
 
@@ -392,11 +417,11 @@ save_ggplot <- function(
 ){
     dir.create(dataset_string, showWarnings=FALSE)
     oldwd <- setwd(dataset_string)
+    on.exit(setwd(oldwd))
     attrl <- parse_plot_attributes(argv, exe_statl$conf)
 
     ggplot2::ggsave(attrl$filename, plot=eval(parse(text=exe_statl$cmd)),
                     width=attrl$w, height=attrl$h, units='in', dpi=attrl$dpi)
-    setwd(oldwd)
     message('saved: ', paste0(dataset_string, '/', attrl$filename))
 }
 
@@ -411,8 +436,10 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
                         showWarn=TRUE){
     # FIXME initialization should be done just once
     # temporarily moved to here for test coverage improvement
-    if (! is.null(dataset))
+    if (is.null(attr(dataset, 'ggbash_datasetname'))) {
+    #if (! is.null(dataset)) { # this would lead to overwrite by 'dataset'
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
+    }
     const <- define_constant_list()
 
     commandv <- split_by_pipe(raw_input)
@@ -481,8 +508,9 @@ exec_ggbash <- function(dataset, raw_input='point 1 2 | copy',
 #'
 #' @export
 ggbash <- function(dataset = NULL, ambiguous_match=TRUE, showWarn=TRUE) {
-    if (! is.null(dataset))
+    if (! is.null(dataset)) {
         attr(dataset, 'ggbash_datasetname') <- deparse(substitute(dataset))
+    }
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt(dataset)
             if (exec_ggbash(dataset, raw_input, showWarn))
@@ -627,9 +655,10 @@ drawgg <- function(dataset,
                    doEval=TRUE){
     if (is.null(dataset))
         stop('Your dataset is not set. Please execute "use <dataset name>" first.')
-    if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
+    if (is.null(attr(dataset, 'ggbash_datasetname'))) { # called directly
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)),
                                       quietly=TRUE)
+    }
     if (grepl(' ', argv)[1])
         argv <- split_by_space(argv)
         # calling directly often forgets split_by_space ... syntax sugar
@@ -656,7 +685,7 @@ drawgg <- function(dataset,
     for ( i in seq_along(non_aesv) ) { # TODO set non-aes elements
         conf$non_aes[[i]] <- parse_ggbash_non_aes(non_aesv[i], all_aesv, showWarn)
     }
-    command <- paste0('ggplot2::ggplot(',attr(dataset, 'ggbash_datasetname'),') ',
+    command <- paste0('ggplot2::ggplot(', attr(dataset, 'ggbash_datasetname'),') ',
                       '+ ggplot2::geom_', geom_sth, '(',
                       'ggplot2::aes(', paste0(conf$aes,     collapse = ', '), ')',
                       ifelse(length(conf$non_aes),', ',''),
