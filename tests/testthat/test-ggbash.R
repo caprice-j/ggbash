@@ -18,4 +18,8 @@ test_that('ggbash', {
     expect_equal(
         out$cmd,
         'ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length)) + geom_line(aes(x=Sepal.Width, y=Sepal.Length))')
+
+    expect_message(
+        ggbash('gg iris + point Petal.Width Petal.Length', 1),
+        'copied to clipboard')
 })

@@ -4,10 +4,15 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(batch = "", showWarn = TRUE)
+ggbash(batch = "", clipboard = NULL, showWarn = TRUE)
 }
 \arguments{
 \item{batch}{A character. If given, \code{ggbash()} will exit
+just after executing the given command.}
+
+\item{clipboard}{Default is NULL
+    If batch is non-empty and clipboard is non-NULL,
+    ggbash copies a resulted ggplot2 object to clipboard.
 just after executing the given command.}
 
 \item{showWarn}{Whether to show a warning message
@@ -41,6 +46,9 @@ ggbash will exit just after executing the command. Useful for a one-liner.
 }
 # plot a ggplot2 figure
 ggbash('gg iris + point Petal.Width Petal.Length')
+
+#' # plot a ggplot2 figure and copy the result
+ggbash('gg iris + point Petal.Width Petal.Length', 1)
 
 }
 

@@ -334,7 +334,7 @@ copy_to_clipboard <- function(
     } else { # Windows
         cat(string, file='clipboard')
     }
-    message('copied to clipboard:\n', string)
+    message('copied to clipboard:\n  ', string)
 }
 
 build_ggbash_filename <- function(
@@ -493,6 +493,10 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #'
 #' @param batch A character. If given, \code{ggbash()} will exit
 #'              just after executing the given command.
+#' @param clipboard Default is NULL
+#'                  If batch is non-empty and clipboard is non-NULL,
+#'                  ggbash copies a resulted ggplot2 object to clipboard.
+#'              just after executing the given command.
 #' @param showWarn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
 #' \describe{
@@ -508,9 +512,15 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #' # plot a ggplot2 figure
 #' ggbash('gg iris + point Petal.Width Petal.Length')
 #'
+#' #' # plot a ggplot2 figure and copy the result
+#' ggbash('gg iris + point Petal.Width Petal.Length', 1)
+#'
 #' @export
-ggbash <- function(batch='', showWarn=TRUE) {
+ggbash <- function(batch='', clipboard=NULL, showWarn=TRUE) {
     if (batch != '') {
+        if (! is.null(clipboard))
+            batch <- ifelse(grepl(batch, '|\\s*copy'),
+                            batch, paste0(batch,' | copy'))
         return(exec_ggbash(batch, showWarn, batchMode = TRUE))
     }
     while (TRUE) { tryCatch(

@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# ggbash: A Faster Way to Write ggplot2
+# ggbash: A Faster Interface to Write ggplot2
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash)
 [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash)
@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 
 
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
+Its goal is to make ggplot2 plotting as faster as possible.
 
 ```{r, echo=FALSE}
 library(ggplot2)
@@ -44,19 +45,8 @@ ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-gg iris  +  p Sepal.W Sepal.L c=Sp si=Petal.W  | echo
+gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  | echo
 ```
-
-
-```{r, eval = FALSE}
-# this is the result of the above 'echo' command
-ggplot(iris) +
-geom_point(aes(Sepal.Width,
-               Sepal.Length,
-               colour=Species,
-               size=Petal.Width))
-```
-
 
 ```{r example, echo=FALSE}
 ggplot(iris) +
@@ -66,57 +56,65 @@ geom_point(aes(Sepal.Width,
                size=Petal.Width))
 ```
 
+
+```{r, eval = FALSE}
+# this is the result of the above ggbash 'echo' command
+ggplot(iris) +
+geom_point(aes(Sepal.Width,
+               Sepal.Length,
+               colour=Species,
+               size=Petal.Width))
+```
+
+
 ### One-liner
 
 ```{r, eval=FALSE}
-executed <- ggbash('gg iris + p Sepal.W Sepal.L c=Sp siz=Petal.W')
-copy_to_clipboard(executed$cmd)
-# copied: ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
+executed <- ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+# copied to clipboard: 
+#   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 ```
 
 ## Features
 
+![](README-func.png)
+
 ### 1. Partial Prefix Match
 
-In the above example (`p Sepal.W Sepal.L c=Sp si=Petal.W`),
-ggbash performs partial matches seven times.
+For an input `gg iris + point Sepal.W Sepal.L c="red" s=5`,
+ggbash performs partial matches six times.
+
+* __ggplot function__
+    + `gg` matches `ggplot2::ggplot()`.
 
 * __geom names__
-    + `p` matches `geom_point`
-        + Note: the common prefix geom_ is removed beforehand for simplicity.
+    + `point` matches `geom_point`.
+        + Note: the common prefix `geom_` is removed for usability.
 
 * __column names__
     + `Sepal.W` matches `iris$Sepal.Width`.
   
     + `Sepal.L` matches `iris$Sepal.Length`.
   
-    + `Sp` matches `iris$Species`.
-    
-    + `Petal.W` matches `iris$Petal.Width`.
-
 * __aesthetics names__
-    + `c` matches `colour`, which is the aesthetic of geom_point.
-    + `si` matches `size` ('s' cannot identify which one of `shape`, `size`, and `stroke`).
+    + `c` matches `colour`, which is the aesthetic of `geom_point`.
+    + `s` matches `size` by predefined ggbash Precedence.
 
 Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported in the current version.
     
-### 2. Predefined Precedence
+### 2. Precedence
 
-Even if unique identification is not possible,
-`ggbash` tries to execute its best guess
+Even if an unique identification is not possible,
+`ggbash` anyway tries to execute its best guess
 instead of bluntly returning an error.
-Everything is designed to achieve least expected keystrokes.
+Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
-For example, in the input `p Sepal.W Sepal.L c=Sp s=Petal.W`,
+For example, if the input is `p Sepal.W Sepal.L c=Sp`,
 `p` ambiguously matches four different geoms,
 `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.  
 Among these geoms, `ggbash` determines the geom to use
 according to the above predefined order of precedence
 (the first one, `geom_point`, is selected in this example).
-
-Similarly, `s` matches three aesthetics,
-`size`, `shape`, and `stroke`, preferred by this order.
-Thus, `s` is executed as the `size` aesthetic.
 
 While it's possible to define your own precedence order
 through `define_constant_list()`,
@@ -126,7 +124,7 @@ adding one or two characters may be faster in most cases.
 
 ```{bash, eval=FALSE}
 # 'list' displays column indices
-user@host currentDir (iris) $ list
+user@host currentDir $ list iris
 
     1: Sepal.L  (ength)
     2: Sepal.W  (idth)
@@ -135,29 +133,33 @@ user@host currentDir (iris) $ list
     5: Spec     (ies)
 
 # the same as the above 'p Sepal.W Sepal.L c=Sp si=Petal.W'
-user@host currentDir (iris) $ p 2 1 c=5 si=4
+user@host currentDir $ gg iris + p 2 1 c=5 si=4
 
 # you can mix both notations
-user@host currentDir (iris) $ p 2 1 c=5 si=Petal.W
+user@host currentDir $ gg iris + p 2 1 c=5 si=Petal.W
 ```
 
 Column Index Match is perhaps the fastest way to build a ggplot2 object.
 In the above case, while the normal ggplot2 notation
 (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`)
 contains 90 characters (spaces not counted),
-`p 2 1 c=5 si=4` is just **10 characters -- more than 80% keystroke reduction**.
+`gg iris p 2 1 c=5 si=4` is just **16 characters -- more than 80% keystroke reduction**.
 
-With more elaborated plots, the differences become much larger.
+With a more elaborated plot, the difference becomes much larger.
 
-### 4. Pipe Operator (`|` and `+`)
+### 4. Two Pipe Operators (`|` and `+`)
 
 #### Adding Layers
 
-While ggplot2 library only interprets `%>%` operator as pipe,
+While ggplot2 library differentiates between `%>%` and `+` operators,
 ggbash interprets both `+` and `|` symbols as the same pipe operator.
+There is no functional difference between the two.
+You can use one of both you feel more intuitive.
 
 ```{r, eval=FALSE}
-ggbash('gg mtcars + point mpg wt + smooth mpg wt')
+ggbash('gg mtcars + point mpg wt + smooth mpg wt + copy')
+ggbash('gg mtcars | point mpg wt | smooth mpg wt | copy') # the same as the above
+ggbash('gg mtcars + point mpg wt + smooth mpg wt | copy') # can be mixed
 ```
 
 ```{r pipe_example, echo=FALSE}
@@ -186,15 +188,13 @@ ggplot(mtcars) + geom_point(aes(x=mpg, y=wt)) + geom_smooth(aes(x=mpg, y=wt), me
                                   size=Petal.Width))
 ```
 
-#### Save PNG Files
-
-`png` could receive plot size and file name.
+`png` and `pdf` could receive plot size and file name.
 If none specified, the default values are used.
 
-`png` command interprets a single- or double-quoted token as file name
+`png` and `pdf` commands interpret a single- or double-quoted token as file name
 ("iris-for" in the following example), and otherwise plot size.
-`png` is order-agnostic. Both of the following notations
-generates the same png file whose size is 960 pixels in width and 480 pixels in height.
+`png` is order-agnostic: Both of the following notations
+generates the same png file `"my-iris-plot.960x480.png"`.
 
 ```{bash, eval=FALSE}
 gg iris + p 1 2 | png "my-iris-plot" 960x480    
@@ -202,7 +202,7 @@ gg iris + p 1 2 | png 960x480 "my-iris-plot"
 ```
 
 
-#### Save PDF Files
+#### Inches and Pixels
 
 <!-- 1 inch == 2.54 cm -->
 
@@ -222,13 +222,11 @@ gg iris + p 1 2 | pdf 1440x1440
 
 # the png command in ggbash also recognises inches
 gg iris + p 1 2 | png 16x9
-gg iris + p 1 2 | pdf 16x9
-# both return almost the same output
 
 ```
 
 Note: the default dpi in ggbash is 72 (R's default) and cannot be changed.
-If you would like to change the dpi, you could consider `ggplot2::ggsave` function.
+If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)` argument.
 
 ### 5. Auto-generated Filenames
 
@@ -236,7 +234,7 @@ The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no fil
 That function can easily overwrite the previous plot,
 and users often have to set file names manually.
 
-The `png` command in `ggbash` tries to generate a file name based on the given dataset and aesthetic names if no file name is specified.
+The `png` and `pdf` commands in `ggbash` tries to generate a sensible file name based on the given dataset and aesthetic names if no file name is specified.
 
 For example, when you are using the `iris` dataset which has 150 rows,
 the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.png`.
@@ -293,16 +291,17 @@ the same command result is saved in `iris-33/` directory.
 
 ## Goals
 
-ggbash has two main goals:
+The goal of ggbash is to make plotting in ggplot2 as faster as possible.
+It can be categorized into two different sub goals:
 
 1. **Better EDA experience.** Provide blazingly fast way to do Exploratory Data Analysis.
 
     + less typing by Column Index Match,
       Partial Prefix Match, and Predefined Precedence.
 
-    + casualy save plots with Auto-generated Filenames.
+    + casualy save plots with Pipe Operator and Auto-generated Filenames.
 
-2. **Intuitive tweaking.** Make it less stressful to finalize your plots.
+2. **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
 
     + adjust colours or lineweights
 
