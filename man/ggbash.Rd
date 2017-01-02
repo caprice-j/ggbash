@@ -4,19 +4,9 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(dataset = NULL, ambiguous_match = TRUE, showWarn = TRUE)
+ggbash(showWarn = TRUE)
 }
 \arguments{
-\item{dataset}{A dataframe to attach. Default is NULL.
-You can define the dataframe later
-by 'use your_dataset' command in your ggbash session.
-If a matrix object is given, It's automatically
-converted into a tbl_df object.}
-
-\item{ambiguous_match}{A boolean whether to do ambiguous match when a
-ggbash command ambiguously matches several commands.
-Default is TRUE. The matching rules are as follows:}
-
 \item{showWarn}{Whether to show a warning message
                    when ambiguously matched. Default is TRUE.
 \describe{
@@ -42,7 +32,6 @@ for writing ggplot2 script as faster as possible.
 }
 \examples{
 \dontrun{ ggbash()
-ggbash(iris)
 }
 
 }

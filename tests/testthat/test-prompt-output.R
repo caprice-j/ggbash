@@ -1,5 +1,5 @@
 library(ggbash)
-context('drawgg-without-functions')
+context('prompt')
 
 test_that('output', {
     e_mtcars <- function(m) expect_message(show_dataset_column_indices(mtcars), m)
@@ -15,9 +15,4 @@ test_that('output', {
         show_dataset_column_indices(data.frame(matrix(rep(1,200), ncol=100))),
         "  1: X1  \t 16: X16 \t 31: X31 \t 46: X46 \t 61: X61 \t 76: X76 \t 91: X91"
     )
-
-    expect_match(build_prompt(NULL), '.*@.* .* $')
-    expect_match(build_prompt(set_ggbash_dataset('iris', quietly=TRUE)), 'iris')
-
-    expect_output(set_ggbash_dataset('iris'))
 })

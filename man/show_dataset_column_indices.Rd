@@ -15,12 +15,12 @@ This function lists all dataset column indices.
 \examples{
 
 # without column indices: explicit
-drawgg(iris, split_by_space("line x=Sepal.W y=Sepal.L colour=Species"))
+drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 
 show_dataset_column_indices(iris)
 
 # with column indices: shorter
-drawgg(iris, split_by_space('l x=2 y=1 c=5'))
+drawgg(iris, list(build_geom(iris, 'point 1 2')))
 
 }
 \seealso{

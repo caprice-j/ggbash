@@ -40,25 +40,25 @@ devtools::install_github("caprice-j/ggbash")
 
 ```{bash, eval=FALSE}
 library(ggbash)
-ggbash(iris) # start a ggbash session (using iris as main dataset)
+ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-user@host currentDir (iris) $ p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
+user@host currentDir $ gg iris  |  p Sepal.W Sepal.L c=Sp si=Petal.W  |  echo
 ```
 
 
 ```{r, eval = FALSE}
-    ggplot(iris) +
-    geom_point(aes(Sepal.Width,
-                   Sepal.Length,
-                   colour=Species,
-                   size=Petal.Width))
+# the result of the above 'echo' command
+ggplot(iris) +
+geom_point(aes(Sepal.Width,
+               Sepal.Length,
+               colour=Species,
+               size=Petal.Width))
 ```
 
 
 ```{r example, echo=FALSE}
-# the result of ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,

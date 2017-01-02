@@ -4,10 +4,7 @@
 \alias{build_prompt}
 \title{build a ggbash prompt string}
 \usage{
-build_prompt(dataset = NULL)
-}
-\arguments{
-\item{dataset}{a data frame}
+build_prompt()
 }
 \description{
 build a ggbash prompt string

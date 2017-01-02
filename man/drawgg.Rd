@@ -2,18 +2,21 @@
 % Please edit documentation in R/ggbash.R
 \name{drawgg}
 \alias{drawgg}
-\title{build a ggplot2 plot and draw it}
+\title{build a complete ggplot2 object and print it}
 \usage{
-drawgg(dataset, argv = c("p", "x=2", "y=3", "colour=4", "size=5",
-  "shape=\\"18\\""), showWarn = TRUE, doEval = TRUE)
+drawgg(dataset = NULL, geom_list = list(list(geomstr =
+  "geom_point(aes(x=mpg,y=cyl))", geomstr_verbose =
+  "ggplot2::geom_point(ggplot2::aes(x=mpg,y=cyl), colour=\\"blue\\", size=6)",
+  conf = list(aes = c("x=mpg", "y=cyl"), non_aes = c("colour=\\"blue\\"",
+  "size=6"))), list(geomstr = "geom_line(aes(x=mpg,y=cyl))", geomstr_verbose =
+  "ggplot2::geom_line(ggplot2::aes(x=mpg,y=cyl), colour=\\"blue\\", size=6)",
+  conf = list(aes = c("x=mpg", "y=cyl"), non_aes = c("colour=\\"blue\\"",
+  "size=6")))), doEval = TRUE)
 }
 \arguments{
 \item{dataset}{A dataframe with attr('ggbash_datasetname').}
 
-\item{argv}{A character vector containing ggplot2 geom and aesthetics specifications.
-Typically the return value of \code{\link{split_by_space}}.}
-
-\item{showWarn}{whether to show warning when ambiguously matched. Default is TRUE.}
+\item{geom_list}{a list of \code{\link{build_geom}} results.}
 
 \item{doEval}{print the built ggplot object. Default is TRUE. Useful for testthat tests.}
 }
@@ -22,7 +25,6 @@ A list with the following two fields:
 \describe{
     \item{cmd: }{the \code{eval}uated ggplot2 character.}
     \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
-    \item{conf: }{the parsed aes specifications.}
 }
 }
 \description{
@@ -36,13 +38,13 @@ and construct a complete ggplot2 object as a character.
 This can be used as a function to write one
 }
 \examples{
-out <- drawgg(dataset = iris, argv = split_by_space("line x=Sepal.W y=Sepal.L"))
+geom_list <- list(build_geom(iris, 'p 1 2'), build_geom(iris, 'l 1 2'))
+out <- drawgg(dataset = iris, geom_list = geom_list)
 
-# copy the built ggplot2 object (Mac OS X)
 copy_to_clipboard(out$cmd)
 
 }
 \seealso{
-\code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
+\code{\link{ggbash}}, \code{\link{copy_to_clipboard}}, \code{\link{build_geom}}
 }
 

@@ -4,10 +4,7 @@
 \alias{show_prompt}
 \title{show ggbash prompt}
 \usage{
-show_prompt(dataset = NULL)
-}
-\arguments{
-\item{dataset}{a data frame}
+show_prompt()
 }
 \description{
 show ggbash prompt

@@ -4,14 +4,14 @@
 \alias{save_ggplot}
 \title{save a ggplot object into a file}
 \usage{
-save_ggplot(dataset_string = "mtcars-32", exe_statl = list(cmd =
+save_ggplot(dataset_string = "mtcars-32", ggstr = list(cmd =
   "ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))", conf =
   list("x=cyl", "y=mpg")), argv = c("png", "200x500", "\\"my-file-name\\""))
 }
 \arguments{
 \item{dataset_string}{A character. Used as a directory.}
 
-\item{exe_statl}{A list resulted from \code{\link{drawgg}}}
+\item{ggstr}{A list resulted from \code{\link{drawgg}}}
 
 \item{argv}{A character vector}
 }
