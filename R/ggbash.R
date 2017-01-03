@@ -292,7 +292,8 @@ define_constant_list <- function(){
 #' The given character argument is stored in attr('ggbash_datasetname')
 #' for future reference in \code{\link{drawgg}}.
 #'
-#' @param dataset_name a character representing a data frame
+#' @param dataset_name a character representing a data frame.
+#'                     If a matrix is given, it's transformed into a data frame.
 #'
 #' @return a tbl_df object with attr('ggbash_datasetname')
 #'
@@ -305,7 +306,10 @@ define_constant_list <- function(){
 #'
 #' @export
 set_ggbash_dataset <- function(dataset_name='iris'){
-    dataset <- dplyr::tbl_df(eval(as.symbol(dataset_name), envir = .GlobalEnv))
+    rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
+    if (class(rect_data) == 'matrix')
+        rect_data <- as.data.frame(rect_data)
+    dataset <- dplyr::tbl_df(rect_data)
     attr(dataset, 'ggbash_datasetname') <- dataset_name
     return(dataset)
 }

@@ -2,7 +2,7 @@
 ggbash: An Interface to Write ggplot2 Faster
 ============================================
 
-[![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
+[![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
@@ -110,9 +110,9 @@ With a more elaborated plot, the difference becomes much larger.
 While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets both `+` and `|` symbols as the same pipe operator. There is no functional difference between the two. You can use one of both you feel more intuitive for each usecase.
 
 ``` r
-ggbash('gg mtcars x=mpg y=cyl + point + smooth + copy')
-ggbash('gg mtcars x=mpg y=cyl | point + smooth | copy') # the same as the above
-ggbash('gg mtcars x=mpg y=cyl + point + smooth | copy') # can be mixed
+ggbash('gg mtcars x=mpg y=wt + point + smooth + copy')
+ggbash('gg mtcars x=mpg y=wt | point + smooth | copy') # the same as the above
+ggbash('gg mtcars x=mpg y=wt + point + smooth | copy') # can be mixed
 ```
 
 ![](README-pipe_example-1.png)
@@ -172,7 +172,7 @@ gg iris + p 1 2 | pdf 16x9
 # pdf of 1440 pixel (=~ 50 cm) width and height
 gg iris + p 1 2 | pdf 1440x1440
 
-# the png command in ggbash also recognises inches
+# the png command in ggbash also recognises inches and pixels
 gg iris + p 1 2 | png 16x9
 ```
 
