@@ -10,8 +10,12 @@ Installation
 ------------
 
 ``` r
+# install.packages("devtools")
+devtools::install_github("jimhester/fstrings")
 devtools::install_github("caprice-j/ggbash")
 ```
+
+ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3 2017.
 
 Usage
 -----
@@ -24,7 +28,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
+gg iris  |  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
 ```
 
 ![](README-example-1.png)
@@ -41,22 +45,22 @@ geom_point(aes(Sepal.Width,
 ### One-liner
 
 ``` r
-ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris | point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 
 # or using %>% operator
-ggbash('gg iris + point Sepal.W Sepal.L')$cmd %>% copy_to_clipboard
+ggbash('gg iris | point Sepal.W Sepal.L')$cmd %>% copy_to_clipboard
 ```
 
 Features
 --------
 
-![](README-func.png)
+![ggbash Feature Overview](README-func.png)
 
 ### 1. Partial Prefix Match
 
-For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
+For the above input `gg iris | point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
 
 -   **ggplot function**
     -   `gg` matches `ggplot2::ggplot()`.
@@ -78,7 +82,7 @@ Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported
 
 Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
-For example, if the input is `p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+For example, if the input is `gg iris | p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
 While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
@@ -96,50 +100,56 @@ user@host currentDir $ list iris
     5: Spec     (ies)
 
 # the same as the above 'p Sepal.W Sepal.L c=Sp si=Petal.W'
-user@host currentDir $ gg iris + p 2 1 c=5 si=4
+user@host currentDir $ gg iris | p 2 1 c=5 si=4
 
 # you can mix both notations
-user@host currentDir $ gg iris + p 2 1 c=5 si=Petal.W
+user@host currentDir $ gg iris | p 2 1 c=5 si=Petal.W
 ```
 
-Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), whereas `gg iris p 2 1 c=5 si=4` is just **16 characters -- more than 80% keystroke reduction**.
+Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), whereas `gg iris | p 2 1 c=5 si=4` is just **17 characters -- more than 80% keystroke reduction**.
 
 With a more elaborated plot, the difference becomes much larger.
 
-### 4. Two Pipe Operators (`|` and `+`)
+### 4. Pipe Operator (`|`)
 
 #### Adding Layers
 
-While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets both `+` and `|` symbols as the same pipe operator. There is no functional difference between the two. You can use one of both you feel more intuitive for each usecase.
+While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets only the `|` symbol as a pipe operator.
 
 ``` r
-ggbash('gg mtcars x=mpg y=wt + point + smooth + copy')
-ggbash('gg mtcars x=mpg y=wt | point + smooth | copy') # the same as the above
-ggbash('gg mtcars x=mpg y=wt + point + smooth | copy') # can be mixed
+ggbash('gg mtcars x=mpg y=wt | point | smooth | copy')
 ```
 
 ![](README-pipe_example-1.png)
 
-<!-- FIXME impelment gg mtcars mpg wt + point + smooth -->
-#### Save or Copy Results
+#### Copying Results
 
 ``` r
-    ggbash()
-    user@host currentDir $ cd imageDir
-
-    user@host imageDir $ ls
-    /Users/myname/currentDir/imageDir
-    
-    user@host imageDir $ gg iris | p 2 1 c=5 | png big
-    saved as 'iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.1960x1440.png'
-    
-    user@host imageDir $ gg iris | p 1 2 col=Sp siz=4 | copy
+ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
                                   y=Sepal.Width,
                                   colour=Species,
                                   size=Petal.Width))
 ```
+
+#### Saving Results
+
+``` r
+    ggbash('gg iris | p 2 1 c=5 | png my_image/')
+    saved in
+    'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
+```
+
+If you would like to get scatterplot matrix,
+
+``` r
+for( i in 1:ncol(iris) )
+    for ( j in (i+1):ncol(iris) )
+        ggbash("gg iris | point {i} {j} | png my_image/")
+```
+
+[Auto-generated Files](README-image-dir.png)
 
 ### 5. Auto-generated Filenames
 
@@ -153,13 +163,17 @@ If you happen to have the different `iris` dataset which has a different number 
 
 ### 6. Order Agnostic Arguments
 
-`png` and `pdf` could receive plot size and file name. If none specified, the default values are used.
+`png` and `pdf` could receive plot size, file name, and directory name to save plots. If none specified, the default values are used.
 
-`png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), and otherwise plot size. `png` is order-agnostic: Both of the following notations generates the same png file `"my-iris-plot.960x480.png"`.
+`png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), a token with `/` suffix as directory name, and otherwise plot size. `png` is order-agnostic: Any of the following notations generates the same png file `"my_image/my-iris-plot.960x480.png"`.
 
 ``` bash
-gg iris + p 1 2 | png "my-iris-plot" 960x480    
-gg iris + p 1 2 | png 960x480 "my-iris-plot"
+gg iris | p 1 2 | png "my-iris-plot" 960x480 my_image/     
+gg iris | p 1 2 | png "my-iris-plot" my_image/ 960x480
+gg iris | p 1 2 | png my_image/ 960x480 "my-iris-plot"
+gg iris | p 1 2 | png my_image/ "my-iris-plot" 960x480 
+gg iris | p 1 2 | png 960x480 "my-iris-plot" my_image/
+gg iris | p 1 2 | png 960x480 my_image/ "my-iris-plot"
 ```
 
 #### 7. Guessing Inches or Pixels
@@ -170,13 +184,13 @@ While the `pdf` function in R only recognizes width and height as inches, the `p
 ``` bash
 
 # pdf of 15 inch width (=~ 40 cm) and 9 inch height (=~ 23 cm)
-gg iris + p 1 2 | pdf 16x9
+gg iris | p 1 2 | pdf 16x9
 
 # pdf of 1440 pixel (=~ 50 cm) width and height
-gg iris + p 1 2 | pdf 1440x1440
+gg iris | p 1 2 | pdf 1440x1440
 
 # the png command in ggbash also recognises inches and pixels
-gg iris + p 1 2 | png 16x9
+gg iris | p 1 2 | png 16x9
 ```
 
 Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)` argument.
@@ -243,3 +257,20 @@ Learning ggbash
 Learning ggplot2 might be the best way to understand ggbash notations. The [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) of ggplot2 would be helpful.
 
 The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd) of ggbash is still in a draft.
+
+Other Works
+-----------
+
+As far as I know, there are no previous attempts to implement a new interface to ggplot2. Reports of similar attempts are welcomed.
+
+About the different way to generate scatterplot matrix, `GGally::ggpairs` does the similar work. The major differences are:
+
+-   `GGally::ggpairs` output the scatterplot matrix in one plot, while `ggbash` outputs each subplot as a plot.
+-   `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename, while `ggbash` uses `| png` or `| pdf` pipe chains with auto-generated filenames.
+
+Current Implementation Status
+-----------------------------
+
+-   DONE: ggplot(), aes() elements, non aes() elements, ggsave
+
+-   TODO: stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_..., theme
