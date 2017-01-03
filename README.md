@@ -41,9 +41,12 @@ geom_point(aes(Sepal.Width,
 ### One-liner
 
 ``` r
-executed <- ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
+
+# or using %>% operator
+ggbash('gg iris + point Sepal.W Sepal.L')$cmd %>% copy_to_clipboard
 ```
 
 Features

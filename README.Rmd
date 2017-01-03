@@ -32,8 +32,13 @@ library(ggplot2)
 
 ## Installation
 ```{r, eval=FALSE}
+# install.packages("devtools")
+devtools::install_github("jimhester/fstrings")
 devtools::install_github("caprice-j/ggbash")
 ```
+
+ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package,
+which is not on CRAN as of January 3 2017.
 
 ## Usage
 
@@ -70,9 +75,12 @@ geom_point(aes(Sepal.Width,
 ### One-liner
 
 ```{r, eval=FALSE}
-executed <- ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
+
+# or using %>% operator
+ggbash('gg iris + point Sepal.W Sepal.L')$cmd %>% copy_to_clipboard
 ```
 
 ## Features
@@ -147,19 +155,17 @@ contains 90 characters (spaces not counted), whereas
 
 With a more elaborated plot, the difference becomes much larger.
 
-### 4. Two Pipe Operators (`|` and `+`)
+### 4. Pipe Operator (`|`)
 
 #### Adding Layers
 
 While ggplot2 library differentiates between `%>%` and `+` operators,
-ggbash interprets both `+` and `|` symbols as the same pipe operator.
+ggbash interprets only the `|` symbol as the same pipe operator.
 There is no functional difference between the two.
 You can use one of both you feel more intuitive for each usecase.
 
 ```{r, eval=FALSE}
-ggbash('gg mtcars x=mpg y=wt + point + smooth + copy')
-ggbash('gg mtcars x=mpg y=wt | point + smooth | copy') # the same as the above
-ggbash('gg mtcars x=mpg y=wt + point + smooth | copy') # can be mixed
+ggbash('gg mtcars x=mpg y=wt | point | smooth | copy')
 ```
 
 ```{r pipe_example, echo=FALSE}

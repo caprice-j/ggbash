@@ -7,7 +7,7 @@ test_that('save png', {
     on.exit(setwd(oldwd))
     statl <-
     list(cmd  = 'ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))',
-         conf = list('x=cyl', 'y=mpg') )
+         conf = list(geom='point', aes=c('x=cyl', 'y=mpg'), non_aes=c('colour="blue"')))
     datadirv <- c('mtcars-32')
     e <- function(x) expect_message(x)
 

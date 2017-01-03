@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggbash.R
 \name{split_by_pipe}
 \alias{split_by_pipe}
-\title{split a given character by a pipe ("|" or "+")}
+\title{split a given character by a pipe ("|")}
 \usage{
 split_by_pipe(input = "point x=3 y=4 color=5 | copy")
 }
@@ -10,13 +10,6 @@ split_by_pipe(input = "point x=3 y=4 color=5 | copy")
 \item{input}{A character}
 }
 \description{
-One thing to note here is that
-ggbash does not differentiate between "|" and "+".
-This follows the observation that sometimes
-ggplot2 users would tend to mistype
-not
-mtcars %>% ggplot() + geom_point(aes(mpg,cyl))
-but
-mtcars %>% ggplot() %>% geom_point(aes(mpg,cyl))
+split a given character by a pipe ("|")
 }
 

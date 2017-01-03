@@ -45,10 +45,10 @@ ggbash will exit just after executing the command. Useful for a one-liner.
 \dontrun{ ggbash() # enter into an interactive ggbash session
 }
 # plot a ggplot2 figure
-ggbash('gg iris + point Petal.Width Petal.Length')
+ggbash('gg iris | point Petal.Width Petal.Length')
 
 #' # plot a ggplot2 figure and copy the result
-ggbash('gg iris + point Petal.Width Petal.Length', 1)
+ggbash('gg iris | point Petal.Width Petal.Length', 1)
 
 }
 

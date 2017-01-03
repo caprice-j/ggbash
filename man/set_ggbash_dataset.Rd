@@ -7,7 +7,8 @@
 set_ggbash_dataset(dataset_name = "iris")
 }
 \arguments{
-\item{dataset_name}{a character representing a data frame}
+\item{dataset_name}{a character representing a data frame.
+If a matrix is given, it's transformed into a data frame.}
 }
 \value{
 a tbl_df object with attr('ggbash_datasetname')

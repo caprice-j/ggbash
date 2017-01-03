@@ -25,6 +25,7 @@ A list with the following two fields:
 \describe{
     \item{cmd: }{the \code{eval}uated ggplot2 character.}
     \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
+    \item{conf: }{the parsed geom/aes/non-aes specifications.}
 }
 }
 \description{

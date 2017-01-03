@@ -142,23 +142,13 @@ show_prompt <- function() {
     return(readline(prompt=build_prompt()))
 }
 
-#' split a given character by a pipe ("|" or "+")
-#'
-#' One thing to note here is that
-#' ggbash does not differentiate between "|" and "+".
-#' This follows the observation that sometimes
-#' ggplot2 users would tend to mistype
-#' not
-#' mtcars %>% ggplot() + geom_point(aes(mpg,cyl))
-#' but
-#' mtcars %>% ggplot() %>% geom_point(aes(mpg,cyl))
-#'
+#' split a given character by a pipe ("|")
 #'
 #' @param input A character
 #'
 #' @export
 split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
-    return(strsplit(input, '\\||\\+')[[1]])
+    return(strsplit(input, '\\|')[[1]])
 }
 
 #' split a given string by spaces
@@ -170,7 +160,7 @@ split_by_pipe <- function(input='point x=3 y=4 color=5 | copy'){
 split_by_space <- function(input='    point x=3 y=4 color=5 '){
     # remove preceding/trailing spaces
     argv <- strsplit(input, ' ')[[1]]
-    return(argv[nchar(argv)>0])
+    return(argv[nchar(argv) > 0])
 }
 
 #' add ggbash executed commands in R history
@@ -276,8 +266,9 @@ define_constant_list <- function(){
                        # 'p' matches to 'point'
                        'point', 'path', 'polygon', 'pointrange',
                        'quantile',
-                       'rug', 'raster', 'ribbon',
-                       'segment', 'smooth',
+                       'rect', 'rug', 'raster', 'ribbon',
+                       'segment', 'smooth', 'step',
+                       'text', 'tile',
                        'vline', 'violin'
         ),
         savev = c('png', 'pdf')
@@ -378,7 +369,7 @@ copy_to_clipboard <- function(
 build_ggbash_filename <- function(
     conf = list(aes = list('x=cyl', 'y=mpg'),
                 non_aes = list('color="blue"', 'shape="18"') ),
-    out = list(filename = NA, w = 960/72, h = 960/72, dpi=72),
+    out = list(filename = NA, w = 960/72, h = 960/72, dpi=72, dir='./'),
     extension='png'
 ){
 
@@ -389,10 +380,12 @@ build_ggbash_filename <- function(
         quote_stripped <- ''
     }
 
-    aes_string <- paste0(gsub('=', '-', conf$aes), collapse='_')
+    geom_string <- paste0(sort(conf$geom), collapse='-')
+
+    aes_string <- paste0(sort(gsub('=', '-', conf$aes)), collapse='_')
 
     return(
-        paste0(aes_string, quote_stripped,
+        paste0(geom_string, '_', aes_string, quote_stripped,
                '.', out$w*out$dpi, 'x', out$h*out$dpi, '.', extension)
     )
 }
@@ -402,12 +395,14 @@ build_ggbash_filename <- function(
 #' @param argv A character vector
 #' @param conf A list of aesthetic and non-aesthetic assignments
 parse_plot_attributes <- function(
-    argv = c('png', '"myname"', '900x640'),
+    argv = c('png', '"myname"', '900x640', 'my_plot_dir/'),
     conf = list(aes = list('x=cyl', 'y=mpg'),
-            non_aes = list('color="blue"', 'shape="18"'))
+            non_aes = list('color="blue"', 'shape="18"')),
+    dataset_string = 'mtcars-32'
 ){
     dpi <- 72
-    out <- list(filename = NA, w = 960/dpi, h = 960/dpi, dpi=dpi)
+    out <- list(filename = NA, filepath = NA,
+                w = 960/dpi, h = 960/dpi, dpi=dpi, dir='./')
     # 72 pixels per inch is R's default
     single_quote <- "'"
     double_quote <- '"'
@@ -417,6 +412,8 @@ parse_plot_attributes <- function(
             out$filename <-
                 paste0(gsub(paste0(single_quote, '|', double_quote), '', a),
                        '.', argv[1])
+        } else if (grepl('/', a)) {
+            out$dir <- paste0(out$dir, a)
         } else if (grepl('[0-9]', a) && grepl('x', a)) { # size (numeric)
             size <- as.numeric(strsplit(a, 'x')[[1]])
             out$w <- ifelse(size[1] > 50, size[1]/dpi, size[1])
@@ -433,6 +430,9 @@ parse_plot_attributes <- function(
 
     if (is.na(out$filename)) # auto-assign
         out$filename <- build_ggbash_filename(conf, out, argv[1])
+    # FIXME multiple same aes (i.e. point x=Pt | smooth x=Age )
+
+    out$filepath <- paste0(out$dir, dataset_string, '/', out$filename)
 
     return(out)
 }
@@ -451,16 +451,19 @@ save_ggplot <- function(
     ggstr =
         list(cmd  = 'ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))',
              conf = list('x=cyl', 'y=mpg') ),
-    argv=c('png', '200x500', '"my-file-name"')
+    argv=c('png', '200x500', '"my-file-name"', 'my_plot_dir/')
 ){
+    attrl <- parse_plot_attributes(argv, ggstr$conf, dataset_string)
+    dir.create(attrl$dir, showWarnings=FALSE)
+    oldwd <- setwd(attrl$dir)
+    on.exit()
     dir.create(dataset_string, showWarnings=FALSE)
-    oldwd <- setwd(dataset_string)
-    on.exit(setwd(oldwd))
-    attrl <- parse_plot_attributes(argv, ggstr$conf)
+    setwd(dataset_string)
+    setwd(oldwd)
 
-    ggplot2::ggsave(attrl$filename, plot=eval(parse(text=ggstr$cmd)),
+    ggplot2::ggsave(attrl$filepath, plot=eval(parse(text=ggstr$cmd)),
                     width=attrl$w, height=attrl$h, units='in', dpi=attrl$dpi)
-    message('saved: ', paste0(dataset_string, '/', attrl$filename))
+    message('saved: ', attrl$filepath)
 }
 
 #' execute raw ggbash commands
@@ -550,10 +553,10 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #' \dontrun{ ggbash() # enter into an interactive ggbash session
 #' }
 #' # plot a ggplot2 figure
-#' ggbash('gg iris + point Petal.Width Petal.Length')
+#' ggbash('gg iris | point Petal.Width Petal.Length')
 #'
 #' #' # plot a ggplot2 figure and copy the result
-#' ggbash('gg iris + point Petal.Width Petal.Length', 1)
+#' ggbash('gg iris | point Petal.Width Petal.Length', 1)
 #'
 #' @export
 ggbash <- function(batch='', clipboard=NULL, showWarn=TRUE) {
@@ -561,11 +564,11 @@ ggbash <- function(batch='', clipboard=NULL, showWarn=TRUE) {
         if (! is.null(clipboard))
             batch <- ifelse(grepl(batch, '|\\s*copy'),
                             batch, paste0(batch,' | copy'))
-        return(exec_ggbash(batch, showWarn, batchMode = TRUE))
+        return(exec_ggbash(fstrings::fstring(batch), showWarn, batchMode=TRUE))
     }
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt()
-            if (exec_ggbash(raw_input, showWarn))
+            if (exec_ggbash(fstrings::fstring(raw_input), showWarn))
                 break
         },
         warning = function(wrn) { message('I got warning', wrn) },
@@ -688,7 +691,7 @@ parse_ggbash_non_aes <- function(non_aes='shape="1"', all_aesv,
 #' \describe{
 #'     \item{geomstr: }{A string representing a geom.}
 #'     \item{geomstr_verbose: }{geomstr with ggplot2:: modifiers.}
-#'     \item{conf: }{the parsed aes specifications.}
+#'     \item{conf: }{the parsed geom/aes/non-aes specifications.}
 #' }
 #'
 #' @examples
@@ -716,7 +719,8 @@ build_geom <- function(
 
     aesv <- argv[!grepl(paste0(single_quote, '|', double_quote), argv)][-1]
     non_aesv <- argv[ grepl(paste0(single_quote, '|', double_quote), argv)]
-    conf <- list(aes=rep(NA, length(aesv)), non_aes=rep(NA, length(non_aesv)))
+    conf <- list(geom=geom_sth, aes=rep(NA, length(aesv)),
+                 non_aes=rep(NA, length(non_aesv)))
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements
         conf$aes[i] <- parse_ggbash_aes(i, aesv, must_aesv,
                                           all_aesv, colnamev, showWarn)
@@ -751,6 +755,7 @@ build_geom <- function(
 #' \describe{
 #'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
 #'     \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
+#'     \item{conf: }{the parsed geom/aes/non-aes specifications.}
 #' }
 #'
 #' @examples
@@ -788,11 +793,16 @@ drawgg <- function(
 
     gg <- paste0('ggplot2::ggplot(',
                  attr(dataset, 'ggbash_datasetname'), aes_str, ')')
+    conf <- list(geom=c(), aes=c(), non_aes=c())
 
-    for (geom in geom_list)
+    for (geom in geom_list) {
         gg <- paste0(gg, ' + ', geom$geomstr_verbose)
+        conf$aes <- c(conf$aes, geom$conf$aes)
+        conf$non_aes <- c(conf$non_aes, geom$conf$non_aes)
+        conf$geom <- c(conf$geom, geom$conf$geom)
+    }
     if (doEval)
         print(eval(parse(text = gg)))
     short_cmd <- gsub('ggplot2::','', gg)
-    return(list(cmd = short_cmd, cmd_verbose = gg))
+    return(list(cmd = short_cmd, cmd_verbose = gg, conf = conf))
 }

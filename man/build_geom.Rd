@@ -27,7 +27,7 @@ A list with the following two fields:
 \describe{
     \item{geomstr: }{A string representing a geom.}
     \item{geomstr_verbose: }{geomstr with ggplot2:: modifiers.}
-    \item{conf: }{the parsed aes specifications.}
+    \item{conf: }{the parsed geom/aes/non-aes specifications.}
 }
 }
 \description{
