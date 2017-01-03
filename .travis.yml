@@ -25,6 +25,7 @@ notifications:
 # r_github_packages for development version dependencies
 r_github_packages:
   - jimhester/covr
+  - jimhester/fstrings
 
 after_success:
   - Rscript -e 'covr::codecov()'
