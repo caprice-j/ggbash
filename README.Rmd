@@ -346,7 +346,7 @@ of ggbash is still in a draft.
 As far as I know, there are no previous attempts to implement
 a new interface to ggplot2. Reports of similar attempts are welcomed.
 
-About the different way to generate scatterplot matrix,
+About a different way to generate scatterplot matrix,
 `GGally::ggpairs` does the similar work. The major differences are:
 
 + `GGally::ggpairs` output the scatterplot matrix in one plot,
