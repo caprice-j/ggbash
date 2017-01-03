@@ -15,7 +15,7 @@ devtools::install_github("jimhester/fstrings")
 devtools::install_github("caprice-j/ggbash")
 ```
 
-ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3 2017.
+ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
 
 Usage
 -----
@@ -136,8 +136,8 @@ ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
 #### Saving Results
 
 ``` r
-    ggbash('gg iris | p 2 1 c=5 | png my_image/')
-    saved in
+ggbash('gg iris | p 2 1 c=5 | png my_image/')
+    saved in:
     'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
 ```
 
@@ -149,7 +149,7 @@ for( i in 1:ncol(iris) )
         ggbash("gg iris | point {i} {j} | png my_image/")
 ```
 
-[Auto-generated Files](README-image-dir.png)
+![Auto-generated Files](README-image-dir.png)
 
 ### 5. Auto-generated Filenames
 
@@ -274,3 +274,5 @@ Current Implementation Status
 -   DONE: ggplot(), aes() elements, non aes() elements, ggsave
 
 -   TODO: stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_..., theme
+
+-   HOW: auto completion (R's `prompt()` does not have built-in completions)
