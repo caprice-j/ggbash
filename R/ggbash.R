@@ -394,6 +394,7 @@ build_ggbash_filename <- function(
 #'
 #' @param argv A character vector
 #' @param conf A list of aesthetic and non-aesthetic assignments
+#' @param dataset_string A character representing a dataset directory
 parse_plot_attributes <- function(
     argv = c('png', '"myname"', '900x640', 'my_plot_dir/'),
     conf = list(aes = list('x=cyl', 'y=mpg'),

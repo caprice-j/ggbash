@@ -12,6 +12,8 @@ parse_plot_attributes(argv = c("png", "\\"myname\\"", "900x640",
 \item{argv}{A character vector}
 
 \item{conf}{A list of aesthetic and non-aesthetic assignments}
+
+\item{dataset_string}{A character representing a dataset directory}
 }
 \description{
 parse given plot settings
