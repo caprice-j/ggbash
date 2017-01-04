@@ -20,7 +20,7 @@ drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 show_dataset_column_indices('iris')
 
 # with column indices: shorter
-drawgg(iris, list(build_geom(iris, 'point 1 2')))
+drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 
 }
 \seealso{

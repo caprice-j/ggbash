@@ -39,7 +39,7 @@ and construct a complete ggplot2 object as a character.
 This can be used as a function to write one
 }
 \examples{
-geom_list <- list(build_geom(iris, 'p 1 2'), build_geom(iris, 'l 1 2'))
+geom_list <- list(build_geom(iris, 'p Sepal.W Sepal.L'), build_geom(iris, 'l Sepal.W Sepal.L'))
 out <- drawgg(dataset = iris, geom_list = geom_list)
 
 copy_to_clipboard(out$cmd)

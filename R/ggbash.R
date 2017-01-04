@@ -92,7 +92,7 @@ find_first <- function(prefix='si',
 #' show_dataset_column_indices('iris')
 #'
 #' # with column indices: shorter
-#' drawgg(iris, list(build_geom(iris, 'point 1 2')))
+#' drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 #'
 #' @export
 show_dataset_column_indices <- function(dataset_str=NULL){
@@ -688,7 +688,7 @@ parse_ggbash_non_aes <- function(non_aes='shape=1', all_aesv,
 #' }
 #'
 #' @examples
-#' build_geom(iris, 'p 1 2 color=5 shape="13"')
+#' build_geom(iris, 'p Sepal.Width Sepal.Length color=Species shape=13')
 #'
 #' @seealso \code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
 #'
@@ -753,7 +753,7 @@ build_geom <- function(
 #' }
 #'
 #' @examples
-#' geom_list <- list(build_geom(iris, 'p 1 2'), build_geom(iris, 'l 1 2'))
+#' geom_list <- list(build_geom(iris, 'p Sepal.W Sepal.L'), build_geom(iris, 'l Sepal.W Sepal.L'))
 #' out <- drawgg(dataset = iris, geom_list = geom_list)
 #'
 #' copy_to_clipboard(out$cmd)

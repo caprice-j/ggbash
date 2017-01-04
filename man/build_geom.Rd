@@ -34,7 +34,7 @@ A list with the following two fields:
 build a geom (a Layer object) from a ggbash character
 }
 \examples{
-build_geom(iris, 'p 1 2 color=5 shape="13"')
+build_geom(iris, 'p Sepal.Width Sepal.Length color=Species shape=13')
 
 }
 \seealso{
