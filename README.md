@@ -87,32 +87,9 @@ Among these geoms, `ggbash` determines the geom to use according to the above pr
 
 While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
 
-### 3. Column Index Match
+### 3. Pipe Operator (`|`)
 
-``` bash
-# 'list' displays column indices
-user@host currentDir $ list iris
-
-    1: Sepal.L  (ength)
-    2: Sepal.W  (idth)
-    3: Petal.L  (ength)
-    4: Petal.W  (idth)      
-    5: Spec     (ies)
-
-# the same as the above 'p Sepal.W Sepal.L c=Sp si=Petal.W'
-user@host currentDir $ gg iris | p 2 1 c=5 si=4
-
-# you can mix both notations
-user@host currentDir $ gg iris | p 2 1 c=5 si=Petal.W
-```
-
-Column Index Match is perhaps the fastest way to build a ggplot2 object. In the above case, the normal ggplot2 notation (`ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))`) contains 90 characters (spaces not counted), whereas `gg iris | p 2 1 c=5 si=4` is just **17 characters -- more than 80% keystroke reduction**.
-
-With a more elaborated plot, the difference becomes much larger.
-
-### 4. Pipe Operator (`|`)
-
-#### Adding Layers
+#### Pipes for Adding Layers
 
 While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets only the `|` symbol as a pipe operator.
 
@@ -122,7 +99,7 @@ ggbash('gg mtcars x=mpg y=wt | point | smooth | copy')
 
 ![](README-pipe_example-1.png)
 
-#### Copying Results
+#### Pipes for Copying Results
 
 ``` r
 ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
@@ -133,7 +110,7 @@ ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
                                   size=Petal.Width))
 ```
 
-#### Saving Results
+#### Pipes for Saving Results
 
 ``` r
 ggbash('gg iris | p 2 1 c=5 | png my_image/')
@@ -146,12 +123,12 @@ If you would like to get scatterplot matrix,
 ``` r
 for( i in 1:ncol(iris) )
     for ( j in (i+1):ncol(iris) )
-        ggbash("gg iris | point {i} {j} | png my_image/")
+        ggbash("gg iris | point {colnames(iris)[i]} {colnames(iris)[j]} | png my_image/")
 ```
 
 ![Auto-generated Files](README-image-dir.png)
 
-### 5. Auto-generated Filenames
+### 4. Auto-generated Filenames
 
 The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified. That function can easily overwrite the previous plot, and users often have to set file names manually.
 
@@ -161,7 +138,7 @@ For example, when you are using the `iris` dataset which has 150 rows, the outpu
 
 If you happen to have the different `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
 
-### 6. Order Agnostic Arguments
+### 5. Order Agnostic Arguments
 
 `png` and `pdf` could receive plot size, file name, and directory name to save plots. If none specified, the default values are used.
 
@@ -176,7 +153,7 @@ gg iris | p 1 2 | png 960x480 "my-iris-plot" my_image/
 gg iris | p 1 2 | png 960x480 my_image/ "my-iris-plot"
 ```
 
-#### 7. Guessing Inches or Pixels
+#### 6. Guessing Inches or Pixels
 
 <!-- 1 inch == 2.54 cm -->
 While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
@@ -235,9 +212,9 @@ The goal of ggbash is to make plotting in ggplot2 as faster as possible. It can 
 
 1.  **Better EDA experience.** Provide blazingly fast way to do Exploratory Data Analysis.
 
-    -   less typing by Column Index Match, Partial Prefix Match, and Predefined Precedence.
+    -   less typing by Partial Prefix Match and Precedence.
 
-    -   casualy save plots with Pipe Operator, Auto-generated Filenames, and other features.
+    -   casualy save plots with Pipe Operator and Auto-generated Filenames.
 
 2.  **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
 
@@ -263,7 +240,7 @@ Other Works
 
 As far as I know, there are no previous attempts to implement a new interface to ggplot2. Reports of similar attempts are welcomed.
 
-About the different way to generate scatterplot matrix, `GGally::ggpairs` does the similar work. The major differences are:
+About a different way to generate scatterplot matrix, `GGally::ggpairs` does the similar work. The major differences are:
 
 -   `GGally::ggpairs` output the scatterplot matrix in one plot, while `ggbash` outputs each subplot as a plot.
 -   `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename, while `ggbash` uses `| png` or `| pdf` pipe chains with auto-generated filenames.

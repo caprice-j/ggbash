@@ -297,6 +297,8 @@ define_constant_list <- function(){
 #'
 #' @export
 set_ggbash_dataset <- function(dataset_name='iris'){
+    if (! exists(dataset_name))
+        stop('[E001] No such dataset: ', dataset_name)
     rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
     if (class(rect_data) == 'matrix')
         rect_data <- as.data.frame(rect_data)
@@ -562,20 +564,37 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #' @export
 ggbash <- function(batch='', clipboard=NULL, showWarn=TRUE) {
     if (batch != '') {
+        raw_input <- batch
         if (! is.null(clipboard))
-            batch <- ifelse(grepl(batch, '|\\s*copy'),
-                            batch, paste0(batch,' | copy'))
-        return(exec_ggbash(fstrings::fstring(batch), showWarn, batchMode=TRUE))
+            raw_input <- ifelse(grepl(raw_input, '|\\s*copy'),
+                                raw_input, paste0(raw_input,' | copy'))
+        return(exec_ggbash(fstrings::fstring(raw_input), showWarn, batchMode=TRUE))
     }
     while (TRUE) { tryCatch(
         {   raw_input <- show_prompt()
             if (exec_ggbash(fstrings::fstring(raw_input), showWarn))
                 break
         },
-        warning = function(wrn) { message('I got warning', wrn) },
-          error = function(err) { message('ERROR: ', err) }, # stop() to here
+          error = function(err) { advice_on_error(err, raw_input) }, # stop() to here
         finally = { add_input_to_history(raw_input) } # add even if failed
     )}
+}
+
+#' print useful debug advice according to the given error message
+#'
+#' @param err_message A character returned by \code{stop}
+#' @param raw_input A character given to \code{\link{ggbash}} function
+#'
+advice_on_error <- function(err_message,
+                            raw_input='gg iris | p Sepal.W Sepal.L') {
+    message(err_message)
+    if (grepl('E001', err_message)) {
+        # TODO list all data frame and matrices
+    } else if(grepl('no such prefix', err_message)) {
+        datasetname <- gsub('gg\\s([a-zA-Z0-9]+).*', '\\1', raw_input)
+        message('  -- Did you give correct column names, geoms, or aesthetics?')
+        show_dataset_column_indices(datasetname)
+    }
 }
 
 #' retrieve required aesthetic names for a given geom
