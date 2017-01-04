@@ -639,9 +639,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
     if (! before_equal %in% all_aesv)
         before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarn)]
 
-    if (grepl('[0-9]', after_equal))
-        after_equal <- colnamev[as.numeric(after_equal)]
-    else if (! after_equal %in% colnamev)
+    if (! after_equal %in% colnamev)
         after_equal <- colnamev[find_first(after_equal, colnamev, showWarn)]
     return(paste0(before_equal, '=', after_equal))
 }
@@ -657,19 +655,13 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #' all_aesv are built by \code{\link{get_possible_aes}}.
 #' \code{\link{parse_ggbash_aes}}
 #'
-parse_ggbash_non_aes <- function(non_aes='shape="1"', all_aesv,
+parse_ggbash_non_aes <- function(non_aes='shape=1', all_aesv,
                                  showWarn=TRUE){
-    single_quote <- "'"
-    double_quote <- '"'
     before_equal <- gsub('=.*', '', non_aes)
     after_equal  <- gsub('.*=',     '', non_aes)
 
     if (! before_equal %in% all_aesv) # partial match
         before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarn)]
-
-    if (! grepl('[a-zA-Z]', after_equal))
-        after_equal <- as.numeric(gsub(paste0(single_quote, '|', double_quote),
-                                       '', after_equal))
 
     return(paste0(before_equal, '=', after_equal))
 }
@@ -718,8 +710,9 @@ build_geom <- function(
     all_aesv <- get_possible_aes(geom_sth)
     colnamev <- colnames(dataset)
 
-    aesv <- argv[!grepl(paste0(single_quote, '|', double_quote), argv)][-1]
-    non_aesv <- argv[ grepl(paste0(single_quote, '|', double_quote), argv)]
+    is_aes <- ! grepl(paste0(single_quote, '|', double_quote, '|[0-9]'), argv)
+    aesv <- argv[is_aes][-1]
+    non_aesv <- argv[!is_aes]
     conf <- list(geom=geom_sth, aes=rep(NA, length(aesv)),
                  non_aes=rep(NA, length(non_aesv)))
     for ( i in seq_along(aesv) ) { # TODO set non-aes elements

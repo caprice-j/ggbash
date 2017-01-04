@@ -3,7 +3,7 @@ context('build-geom')
 
 
 test_that('build geom', {
-    b <- build_geom(mtcars, 'p cyl mpg c=vs si=a shape="18"')
+    b <- build_geom(mtcars, 'p cyl mpg c=vs si=a shape=18')
 
     expect_equal(
         b$geomstr,

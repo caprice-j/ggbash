@@ -8,11 +8,11 @@ test_that('ggbash', {
 
     expect_output(exec_ggbash('show iris'), 'setosa')
 
-    expect_message(exec_ggbash('gg iris | p 1 2 | echo'), 'geom_point')
+    expect_message(exec_ggbash('gg iris | p Sepal.W Sepal.L | echo'), 'geom_point')
     expect_message(exec_ggbash('echo hi'), 'hi')
 
-    expect_equal(exec_ggbash('gg iris | p 1 2 | copy'), FALSE)
-    expect_equal(exec_ggbash('gg iris | p 1 2'), FALSE)
+    expect_equal(exec_ggbash('gg iris | p Sepal.W Sepal.L | copy'), FALSE)
+    expect_equal(exec_ggbash('gg iris | p Sepal.W Sepal.L'), FALSE)
 
     out <- ggbash('gg iris | point Sepal.W Sepal.L | line Sepal.W Sepal.L')
     expect_equal(
