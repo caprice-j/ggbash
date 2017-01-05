@@ -2,8 +2,15 @@ library(rly)
 
 partial_unique(define_constant_list()$geom_namev)
 
-TOKENS = c('GGPLOT','NAME','LAYER','NUMBER')
-LITERALS = c('=','-','*','/', '(',')','^')
+TOKENS = c('GGPLOT','NAME','NUMBER') # , 'LPAREN' ,'LAYER', 'COMMA', 'RPAREN'
+# SCALE "ScaleDiscrete" "Scale"         "ggproto"
+# GEOM/STAT "LayerInstance" "Layer"         "ggproto"
+# COORD "CoordCartesian" "Coord"          "ggproto"
+# FACET "FacetGrid" "Facet"     "ggproto"
+# labs ?
+# POSITION  "PositionDodge" "Position"      "ggproto"
+# THEME "theme" "gg"
+LITERALS = c('=','-','*','/','^')
 
 Lexer <- R6Class("Lexer",
                  public = list(
@@ -16,10 +23,13 @@ Lexer <- R6Class("Lexer",
                          return(t)
                      },
                      t_NAME = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
-                     t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
-                         t$value <- 'partial_replaced'
-                         return(t)
-                     },
+                     #t_LPAREN  = '\\(',
+                     #t_RPAREN  = '\\)',
+                     #t_COMMA = ',',
+                     # t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
+                     #     t$value <- 'partial_replaced'
+                     #     return(t)
+                     # },
                      t_NUMBER = function(re='\\d+', t) {
                          t$value <- strtoi(t$value)
                          return(t)
@@ -36,12 +46,14 @@ Lexer <- R6Class("Lexer",
                      }
                  )
 )
-custlexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
-custlexer$input('gg iris + point x=Sepal.Width y=Sepal.Length + smooth')
-custlexer$token()
+lexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
+lexer$input('gg iris + point x=Sepal.Width y=Sepal.Length + smooth')
+lexer$token()
 
-custlexer$input('gg iris x=Sepal.Width y=Sepal.Length + point + smooth')
-custlexer$token()
+lexer$input('gg iris x=Sepal.Width y=Sepal.Length + point + smooth')
+lexer$token()
+
+lexer$input('gg iris x=Sepal.Width y=Sepal.Length')
 
 # ggplot(mtcars) + geom_point(colour=1,aes(cyl,mpg))  # works
 
@@ -50,42 +62,80 @@ Parser <- R6Class("Parser",
                       tokens = TOKENS,
                       literals = LITERALS,
                       # Parsing rules
-                      precedence = list(),
+                      #precedence = list(),
                       # dictionary of names
                       names = new.env(hash=TRUE),
-                      p_statement_assign = function(doc='statement : NAME "=" expression', p) {
-                          self$names[[as.character(p$get(2))]] <- p$get(4)
+                      p_expression_func = function(doc="expression : ggplot_func
+                                                                   | ggplot_func '+' expression", p) {
+                          if (p$length() == 2) {
+                              p$set(1, p$get(2))
+                          } else {
+                              p$set(1, paste0(p$get(2), '+', p$get(4)))
+                          }
                       },
-                      p_statement_expr = function(doc='statement : expression', p) {
-                          cat(p$get(2))
-                          cat('\n')
+                      p_ggplot_func = function(doc="ggplot_func : GGPLOT aes_func", p) {
+                            p$set(1, paste0(p$get(2), ',', p$get(3)))
                       },
-                      p_expression_binop = function(doc="expression : expression '+' expression
-                                                    | expression '-' expression
-                                                    | expression '*' expression
-                                                    | expression '/' expression", p) {
-                          if(p$get(3) == '+') p$set(1, p$get(2) + p$get(4))
-                          else if(p$get(3) == '-') p$set(1, p$get(2) - p$get(4))
-                          else if(p$get(3) == '*') p$set(1, p$get(2) * p$get(4))
-                          else if(p$get(3) == '/') p$set(1, p$get(2) / p$get(4))
-                          },
-                      p_expression_uminus = function(doc="expression : '-' expression %prec UMINUS", p) {
-                          p$set(1, -p$get(3))
+                      p_aes_func = function(doc="aes_func : NAME
+                                                          | aes_func NAME", p) {
+                        if (p$length() == 2) {
+                            p$set(1, p$get(2))
+                        } else {
+                            #p$set(1, p$get(2))
+                            p$set(1, paste0(p$get(2), ',', p$get(3)))
+                        }
                       },
-                      p_expression_group = function(doc="expression : '(' expression ')'", p) {
-                          p$set(1, p$get(3))
-                      },
-                      p_expression_number = function(doc='expression : NUMBER', p) {
+                      # p_statement_assign = function(doc='statement : NAME "=" expression', p) {
+                      #     self$names[[as.character(p$get(2))]] <- p$get(4)
+                      # },
+                      # p_statement_expr = function(doc='statement : expression', p) {
+                      #     cat(p$get(2))
+                      #     cat('\n')
+                      # },
+                      # p_expression_binop = function(doc="expression : expression '+' expression
+                      #                               | expression '-' expression
+                      #                               | expression '*' expression
+                      #                               | expression '/' expression", p) {
+                      #     if(p$get(3) == '+') p$set(1, p$get(2) + p$get(4))
+                      #     else if(p$get(3) == '-') p$set(1, p$get(2) - p$get(4))
+                      #     else if(p$get(3) == '*') p$set(1, p$get(2) * p$get(4))
+                      #     else if(p$get(3) == '/') p$set(1, p$get(2) / p$get(4))
+                      #     },
+                      # p_expression_uminus = function(doc="expression : '-' expression %prec UMINUS", p) {
+                      #     p$set(1, -p$get(3))
+                      # },
+                      # p_expression_group = function(doc="expression : '(' expression ')'", p) {
+                      #     p$set(1, p$get(3))
+                      # },
+                      # p_expression_number = function(doc='expression : NUMBER', p) {
+                      #     p$set(1, p$get(2))
+                      # },
+                      # p_expression_name = function(doc='expression : NAME', p) {
+                      #     p$set(1, self$names[[as.character(p$get(2))]])
+                      # },
+                      p_number = function(doc='numeric : NUMBER', p) {
                           p$set(1, p$get(2))
+                          #p$set(1, eval(p$get(2)))
                       },
-                      p_expression_name = function(doc='expression : NAME', p) {
-                          p$set(1, self$names[[as.character(p$get(2))]])
+                      # p_number_signed = function(doc='number : MINUS INTEGER
+                      #                      | MINUS FLOAT', p) {
+                      #     p$set(1, eval(paste("-", p$get(3), collapse="")))
+                      # },
+                      p_empty = function(doc='empty : ', p) {
+                          # convention for readable yacc rules?
                       },
                       p_error = function(p) {
                           if(is.null(p)) cat("Syntax error at EOF")
-                          else           cat(sprintf("Syntax error at '%s'", p$value))
+                          else           cat(sprintf("Syntax error at '%s' ", p$value))
                       }
                       )
                   )
 
+
+
+
+#lexer$input('gg iris SepalWidth SepalLength')
+#parser$parse('gg iris x=Sepal.Width y=Sepal.Length', lexer)
 parser <- rly::yacc(Parser)
+parser$parse('gg iris SepalWidth SepalLength', lexer)
+
