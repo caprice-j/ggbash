@@ -73,8 +73,12 @@ Parser <- R6Class("Parser",
                               p$set(1, paste0(p$get(2), '+', p$get(4)))
                           }
                       },
-                      p_ggplot_func = function(doc="ggplot_func : GGPLOT aes_func", p) {
-                            p$set(1, paste0(p$get(2), ',', p$get(3)))
+                      p_ggplot_func = function(doc="ggplot_func : GGPLOT
+                                                                | GGPLOT aes_func", p) {
+                          if (p$length() == 2)
+                            p$set(1, paste0(p$get(2)), ')')
+                          else
+                            p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
                       },
                       p_aes_func = function(doc="aes_func : NAME
                                                           | NAME aes_func", p) {
