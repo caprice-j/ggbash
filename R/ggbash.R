@@ -183,7 +183,7 @@ add_input_to_history <- function(input='point 2 3'){
 #' @param raw_input A character of ggbash command chain (might contain pipes)
 #' @param argv A character vector
 #' @param const A list of ggbash constants
-#'              returned by \{code{define_constant_list}.
+#'              returned by \{code{define_ggbash_constant_list}.
 #'
 execute_ggbash_builtins <- function(raw_input, argv, const){
     if (argv[1] %in% c('pwd', 'getwd')) {
@@ -218,62 +218,6 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
         else
             setwd(argv[2])
     }
-}
-
-#' define constant values used in ggbash
-#'
-#' \code{define_constant_list} has no side effect.
-#' It is similar with the 'const' modifier in C or C++.
-#'
-#' One thing to note is \code{define_constant_list} set implicitly
-#' the preference order of geom_name in ggplot2.
-#' For example, 'p' ambiguously matches to \code{\link[ggplot2]{geom_point}}
-#' and \code{\link[ggplot2]{geom_pointrange}},
-#' but ggbash automatically uses \code{\link[ggplot2]{geom_point}}
-#' with a warning message about the ambiguity.
-#' This is a design choice based on the observation that
-#' \code{\link[ggplot2]{geom_point}} is often used
-#' more frequently than \code{\link[ggplot2]{geom_pointrange}}.
-#' In order to use \code{\link[ggplot2]{geom_pointrange}},
-#' at least 6 characters ('pointr') is needed.
-#'
-#' @seealso The preference order is used
-#'          when doing partial match in \code{\link{drawgg}}.
-#'
-define_constant_list <- function(){
-    list(
-        first_wd = getwd(),
-        # BUILTIN command Vectors
-        # Note: the following commands are not included -- see exec_ggbash
-        #       echo print quit exit
-        builtinv = c('cd', 'dir', 'dir.create', 'ls', 'list',
-                     'mkdir', 'pwd', 'rm', 'rmdir', 'setwd'),
-        # all geom in ggplot2 documents
-        # the order in geom_namev is important
-        # because build_ggplot_object() uses the first element after partial matching
-        # i.e. the preferable (frequently-used) geom should appear first
-        geom_namev = c('abline', 'area',
-                       'bar', 'bin2d', 'blank', 'boxplot',
-                       'count', 'curve', 'contour', 'crossbar',
-                       'density', 'density_2d', 'dotplot',
-                       'errorbar', 'errorbarh',
-                       'freqpoly',
-                       'histogram', 'hline','hex',
-                       'jitter',
-                       # 'l' matches to 'line' (the first element starting by 'l')
-                       'line', 'label', 'linerange',
-                       'map',
-                       # 'p' matches to 'point'
-                       'point', 'path', 'polygon', 'pointrange',
-                       'quantile',
-                       'rect', 'rug', 'raster', 'ribbon',
-                       'segment', 'smooth', 'step',
-                       'text', 'tile',
-                       'vline', 'violin'
-        ),
-        savev = c('png', 'pdf')
-        # TODO implement stat like stat_smooth
-    )
 }
 
 #' build a data frame from a data frame name
@@ -480,7 +424,7 @@ save_ggplot <- function(
 #' @export
 exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
                         showWarn=TRUE, batchMode=FALSE){
-    const <- define_constant_list()
+    const <- define_ggbash_constant_list()
     commandv <- split_by_pipe(raw_input)
     geom_list <- list()
     i <- 1
@@ -719,7 +663,7 @@ build_geom <- function(
         dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
     argv <- split_by_space(ggstr)
 
-    const <- define_constant_list()
+    const <- define_ggbash_constant_list()
     single_quote <- "'"
     double_quote <- '"'
     # 'p' is resolved into 'point'

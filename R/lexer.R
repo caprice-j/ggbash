@@ -1,7 +1,5 @@
 library(rly)
 
-partial_unique(define_constant_list()$geom_namev)
-
 TOKENS = c('GGPLOT','NAME','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
@@ -27,7 +25,13 @@ Lexer <- R6Class("Lexer",
                      #t_RPAREN  = '\\)',
                      #t_COMMA = ',',
                      t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
-                         t$value <- '+ partial_replaced'
+                         partial <- gsub('(\\+|\\|)\\s*', '', t$value)
+                         const <- define_ggbash_constant_list()
+                         # FIXME showWarn
+                         showWarn <- TRUE
+                         geom_sth <- const$geom_namev[find_first(partial, const$geom_namev, showWarn)]
+
+                         t$value <- paste0(' + ggplot2::geom_', geom_sth)
                          return(t)
                      },
                      t_NUMBER = function(re='\\d+', t) {
