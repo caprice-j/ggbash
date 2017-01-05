@@ -18,7 +18,7 @@ Lexer <- R6Class("Lexer",
                      literals = LITERALS,
                      #states = list(c('ggplot')),
                      # Note: t_(function) defines precedences implicitly
-                     t_GGPLOT = function(re='^g(g|gp|gpl|gplo|gplot)?\\s*[a-zA-Z_][a-zA-Z_0-9\\.]*', t) {
+                     t_GGPLOT = function(re='^(g|gg|ggp|ggpl|ggplo|ggplot)\\s+[a-zA-Z_][a-zA-Z_0-9\\.]*', t) {
                          t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                          return(t)
                      },
@@ -68,20 +68,27 @@ Parser <- R6Class("Parser",
                       # Note: ggproto contains '+' signs in LAYER tokens
                       p_expression_func = function(doc="expression : GGPLOT
                                                                    | GGPLOT aes_func
-                                                                   | GGPLOT ggproto
-                                                                   | GGPLOT aes_func ggproto", p) {
+                                                                   | GGPLOT ggproto_list
+                                                                   | GGPLOT aes_func ggproto_list", p) {
                           message('p_expression_func plength: ', p$length())
 
                           if (p$length() == 2) {
                               message('GGPLOT only ')
                               p$set(1, paste0(p$get(2), ')'))
-                          } else if (p$length() == 3 && (! grepl('\\+', p$get(3))) ) { # FIXME
+                          } else if (p$length() == 3 && (! grepl('\\+', p$get(3)))[1] ) { # FIXME
                               p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
                           } else if (p$length() == 3) {
                               p$set(1, paste0(p$get(2), ')', p$get(3)))
                           } else { #  5
                               p$set(1, paste0(p$get(2), p$get(3), p$get(4)))
                           }
+                      },
+                      p_ggproto_list = function(doc="ggproto_list : ggproto
+                                                                  | ggproto ggproto_list", p) {
+                        if (p$length() == 2)
+                            p$set(1, p$get(2))
+                        else
+                            p$set(1, paste0(p$get(2), p$get(3)))
                       },
                       p_ggproto = function(doc="ggproto : LAYER
                                                         | LAYER layer_aes", p) {
@@ -107,7 +114,6 @@ Parser <- R6Class("Parser",
                         if (p$length() == 2) {
                             p$set(1, paste0(p$get(2), ')'))
                         } else {
-                            #p$set(1, p$get(2))
                             p$set(1, paste0(p$get(2), ',', p$get(3)))
                         }
                       },
@@ -168,3 +174,7 @@ parser$parse('gg iris SepalWidth SepalLength', lexer)
 parser$parse('gg iris + point', lexer)
 parser$parse('gg iris + point abc', lexer)
 parser$parse('gg iris + point abc def', lexer)
+
+parser$parse('gg iris + point abc def + smooth', lexer)
+parser$parse('gg iris + point abc def + smooth ghi', lexer)
+parser$parse('gg iris + point abc def + smooth ghi jkl', lexer)
