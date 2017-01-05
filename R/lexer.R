@@ -24,8 +24,11 @@ Lexer <- R6Class("Lexer",
                          t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                          return(t)
                      },
-                     t_CONSTAES = paste0('[a-z]+=[a-zA-Z0-9\\+\\-\\*\\/\\^]+'),
-                     t_CHARAES = paste0('[a-z]+=("|', "'", ').*("|', "'", ')'),
+                     t_CONSTAES = paste0('[a-z]+=[a-zA-Z0-9]+'),
+                     # I believe CONSTAES cannot contain +-*/^,
+                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
+                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)
+                     t_CHARAES = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')'),
                      t_NAME = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
                      #t_LPAREN  = '\\(',
                      #t_RPAREN  = '\\)',
@@ -62,6 +65,7 @@ lexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression ru
 function(){
     lexer$input('gg iris + point abc def + smooth ghi jkl')
     lexer$input('gg iris + point abc def size=13 colour="blue"')
+    lexer$input('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"')
 }
 
 Parser <- R6Class("Parser",
@@ -268,7 +272,7 @@ parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
 
-parser$parse('gg iris + point Sepal.W Sepal.L colour="blue"', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth Sepal.W Sepal.L', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"', lexer)
+message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue"', lexer))
+message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4', lexer))
+message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth Sepal.W Sepal.L', lexer))
+message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"', lexer))
