@@ -69,10 +69,10 @@ Parser <- R6Class("Parser",
                       # dictionary of names
                       names = new.env(hash=TRUE),
                       # Note: ggproto contains '+' signs in LAYER tokens
-                      p_expression_func = function(doc="expression : GGPLOT
-                                                                   | GGPLOT aes_func
-                                                                   | GGPLOT ggproto_list
-                                                                   | GGPLOT aes_func ggproto_list", p) {
+                      p_expression_func = function(doc="expression : gg_init
+                                                                   | gg_init aes_func
+                                                                   | gg_init ggproto_list
+                                                                   | gg_init aes_func ggproto_list", p) {
                           message('p_expression_func')
 
                           message('p_expression_func plength: ', p$length())
@@ -91,6 +91,15 @@ Parser <- R6Class("Parser",
                           } else { #  5
                               p$set(1, paste0(p$get(2), p$get(3), p$get(4)))
                           }
+                      },
+                      p_gg_init = function(doc="gg_init : GGPLOT", p) {
+                          message('p_gg_init')
+                          ggbenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
+                          ggbenv$dataset <- eval(as.symbol(ggbenv$dataset_name), envir = .GlobalEnv)
+                          message('  set dataset name: ', ggbenv$dataset_name)
+                          print(str(ggbenv))
+
+                          p$set(1, p$get(2))
                       },
                       p_ggproto_list = function(doc="ggproto_list : ggproto
                                                                   | ggproto ggproto_list", p) {
@@ -118,6 +127,7 @@ Parser <- R6Class("Parser",
                           ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
                           message('  after: ', ggbashenv$previous_geom)
                           ggbashenv$aes_i <- 1
+                          p$set(1, p$get(2))
                       },
                       p_layer_aes = function(doc="layer_aes : NAME
                                                             | NAME layer_aes", p) {
@@ -125,6 +135,9 @@ Parser <- R6Class("Parser",
                             # column name partial match?
                         single_quote <- "'"
                         double_quote <- '"'
+                        # for ( obj in ls(envir=ggbashenv))
+                        #     message('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
+
                         geom_sth <- ggbashenv$previous_geom
                         #message('p layer aes: ', geom_sth)
                         colnamev <- colnames(ggbashenv$dataset)
@@ -135,8 +148,9 @@ Parser <- R6Class("Parser",
                         must_aesv <- get_required_aes(geom_sth)
                         all_aesv <- get_possible_aes(geom_sth)
                         # FIXME positional
-                        dummy_aesv <- c(rep('', ggbashenv$aes_i - 1), p$get(2))
-                        column_name <- parse_ggbash_aes(ggbashenv$aes_i, dummy_aesv, must_aesv,
+                        index <- length(must_aesv) - ggbashenv$aes_i + 1
+                        dummy_aesv <- c(rep('', index - 1), p$get(2))
+                        column_name <- parse_ggbash_aes(index, dummy_aesv, must_aesv,
                                                         all_aesv, colnamev, ggbashenv$showWarn)
                         ggbashenv$aes_i <- ggbashenv$aes_i + 1
 
