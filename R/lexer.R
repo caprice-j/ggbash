@@ -75,7 +75,7 @@ Parser <- R6Class("Parser",
                           if (p$length() == 2) {
                               message('GGPLOT only ')
                               p$set(1, paste0(p$get(2), ')'))
-                          } else if (p$length() == 3 && (! grepl('\\+', p$get(3))) ) {
+                          } else if (p$length() == 3 && (! grepl('\\+', p$get(3))) ) { # FIXME
                               p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
                           } else if (p$length() == 3) {
                               p$set(1, paste0(p$get(2), ')', p$get(3)))
@@ -83,20 +83,21 @@ Parser <- R6Class("Parser",
                               p$set(1, paste0(p$get(2), p$get(3), p$get(4)))
                           }
                       },
-                      p_ggproto = function(doc="ggproto : layer_func
-                                                        | position_func", p) {
-                            p$set(1, p$get(2))
-                      },
-                      p_layer_func = function(doc="layer_func : LAYER
-                                                              | LAYER layer_name", p) {
+                      p_ggproto = function(doc="ggproto : LAYER
+                                                        | LAYER layer_aes", p) {
                           if (p$length() == 2) {
-                              p$set(1, p$get(2))
+                              p$set(1, paste0(p$get(2), '()'))
                           } else {
-                              p$set(1, paste0(p$get(2), p$get(3)))
+                              p$set(1, paste0(p$get(2), '(ggplot2::aes(', p$get(3), ')'))
                           }
                       },
-                      p_layer_name = function(doc="layer_name : ", p) {
-
+                      p_layer_aes = function(doc="layer_aes : NAME
+                                                            | NAME layer_aes", p) {
+                            # column name partial match?
+                        if (p$length() == 2)
+                            p$set(1, paste0(p$get(2), ')'))
+                        else
+                            p$set(1, paste0(p$get(2), ', ', p$get(3)))
                       },
                       p_position_func = function(doc="position_func : ", p) {
 
