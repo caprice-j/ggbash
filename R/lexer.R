@@ -1,0 +1,91 @@
+library(rly)
+
+partial_unique(define_constant_list()$geom_namev)
+
+TOKENS = c('GGPLOT','NAME','LAYER','NUMBER')
+LITERALS = c('=','-','*','/', '(',')','^')
+
+Lexer <- R6Class("Lexer",
+                 public = list(
+                     tokens = TOKENS,
+                     literals = LITERALS,
+                     #states = list(c('ggplot')),
+                     # Note: t_(function) defines precedences implicitly
+                     t_GGPLOT = function(re='^g(g|gp|gpl|gplo|gplot)?\\s*[a-zA-Z_][a-zA-Z_0-9\\.]*', t) {
+                         t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
+                         return(t)
+                     },
+                     t_NAME = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
+                     t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
+                         t$value <- 'partial_replaced'
+                         return(t)
+                     },
+                     t_NUMBER = function(re='\\d+', t) {
+                         t$value <- strtoi(t$value)
+                         return(t)
+                     },
+                     t_ignore = " \t",
+                     t_newline = function(re='\\n+', t) {
+                         t$lexer$lineno <- t$lexer$lineno + nchar(t$value)
+                         return(NULL)
+                     },
+                     t_error = function(t) {
+                         cat(sprintf("Illegal character '%s'", t$value[1]))
+                         t$lexer$skip(1)
+                         return(t)
+                     }
+                 )
+)
+custlexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
+custlexer$input('gg iris + point x=Sepal.Width y=Sepal.Length + smooth')
+custlexer$token()
+
+custlexer$input('gg iris x=Sepal.Width y=Sepal.Length + point + smooth')
+custlexer$token()
+
+# ggplot(mtcars) + geom_point(colour=1,aes(cyl,mpg))  # works
+
+Parser <- R6Class("Parser",
+                  public = list(
+                      tokens = TOKENS,
+                      literals = LITERALS,
+                      # Parsing rules
+                      precedence = list(),
+                      # dictionary of names
+                      names = new.env(hash=TRUE),
+                      p_statement_assign = function(doc='statement : NAME "=" expression', p) {
+                          self$names[[as.character(p$get(2))]] <- p$get(4)
+                      },
+                      p_statement_expr = function(doc='statement : expression', p) {
+                          cat(p$get(2))
+                          cat('\n')
+                      },
+                      p_expression_binop = function(doc="expression : expression '+' expression
+                                                    | expression '-' expression
+                                                    | expression '*' expression
+                                                    | expression '/' expression", p) {
+                          if(p$get(3) == '+') p$set(1, p$get(2) + p$get(4))
+                          else if(p$get(3) == '-') p$set(1, p$get(2) - p$get(4))
+                          else if(p$get(3) == '*') p$set(1, p$get(2) * p$get(4))
+                          else if(p$get(3) == '/') p$set(1, p$get(2) / p$get(4))
+                          },
+                      p_expression_uminus = function(doc="expression : '-' expression %prec UMINUS", p) {
+                          p$set(1, -p$get(3))
+                      },
+                      p_expression_group = function(doc="expression : '(' expression ')'", p) {
+                          p$set(1, p$get(3))
+                      },
+                      p_expression_number = function(doc='expression : NUMBER', p) {
+                          p$set(1, p$get(2))
+                      },
+                      p_expression_name = function(doc='expression : NAME', p) {
+                          p$set(1, self$names[[as.character(p$get(2))]])
+                      },
+                      p_error = function(p) {
+                          if(is.null(p)) cat("Syntax error at EOF")
+                          else           cat(sprintf("Syntax error at '%s'", p$value))
+                      }
+                      )
+                  )
+
+parser <- rly::yacc(Parser)
