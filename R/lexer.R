@@ -73,13 +73,13 @@ Parser <- R6Class("Parser",
                                                                    | GGPLOT aes_func
                                                                    | GGPLOT ggproto_list
                                                                    | GGPLOT aes_func ggproto_list", p) {
-                          # initialization
-                            ggbashenv$aes_i <- 1
+                          message('p_expression_func')
 
                           message('p_expression_func plength: ', p$length())
 
                           ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                           ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
+                          ggbashenv$previous_geom <- ''
 
                           if (p$length() == 2) {
                               message('GGPLOT only ')
@@ -94,17 +94,16 @@ Parser <- R6Class("Parser",
                       },
                       p_ggproto_list = function(doc="ggproto_list : ggproto
                                                                   | ggproto ggproto_list", p) {
+                        message('p_ggproto_list')
                         if (p$length() == 2)
                             p$set(1, p$get(2))
                         else
                             p$set(1, paste0(p$get(2), p$get(3)))
                       },
-                      p_ggproto = function(doc="ggproto : LAYER
-                                                        | LAYER layer_aes", p) {
+                      p_ggproto = function(doc="ggproto : layer_init
+                                                        | layer_init layer_aes", p) {
+                          message('p_ggproto')
 
-                          ggbashenv$aes_i <- 1 # (re-)initialization
-
-                          ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
                           # ex: ggbashenv$previous_geom == 'point'
                           if (p$length() == 2) {
                               p$set(1, paste0(p$get(2), '()'))
@@ -112,8 +111,17 @@ Parser <- R6Class("Parser",
                               p$set(1, paste0(p$get(2), '(ggplot2::aes(', p$get(3), ')'))
                           }
                       },
+                      p_layer_init = function(doc="layer_init : LAYER", p) {
+                          # initialization
+                          message('p_layer_init')
+                          message('  before: ', ggbashenv$previous_geom)
+                          ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
+                          message('  after: ', ggbashenv$previous_geom)
+                          ggbashenv$aes_i <- 1
+                      },
                       p_layer_aes = function(doc="layer_aes : NAME
                                                             | NAME layer_aes", p) {
+                          message('p_layer_aes')
                             # column name partial match?
                         single_quote <- "'"
                         double_quote <- '"'
@@ -143,6 +151,7 @@ Parser <- R6Class("Parser",
                       },
                       p_aes_func = function(doc="aes_func : NAME
                                                           | NAME aes_func", p) {
+                        message('p_aes_func')
                         if (p$length() == 2) {
                             p$set(1, paste0(p$get(2), ')'))
                         } else {
@@ -204,7 +213,7 @@ parser$parse('gg iris SepalWidth', lexer)
 parser$parse('gg iris SepalWidth SepalLength', lexer)
 
 parser$parse('gg iris + point', lexer)
-parser$parse('gg iris + point Sepal.W', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L', lexer)
 parser$parse('gg iris + rect Sepal.W Sepal.L', lexer)
 parser$parse('gg iris + rect Sepal.W Sepal.L Petal.L Petal.W', lexer)
 
