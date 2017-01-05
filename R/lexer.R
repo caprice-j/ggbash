@@ -2,7 +2,7 @@ library(rly)
 
 partial_unique(define_constant_list()$geom_namev)
 
-TOKENS = c('GGPLOT','NAME','NUMBER') # , 'LPAREN' ,'LAYER', 'COMMA', 'RPAREN'
+TOKENS = c('GGPLOT','NAME','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -26,10 +26,10 @@ Lexer <- R6Class("Lexer",
                      #t_LPAREN  = '\\(',
                      #t_RPAREN  = '\\)',
                      #t_COMMA = ',',
-                     # t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
-                     #     t$value <- 'partial_replaced'
-                     #     return(t)
-                     # },
+                     t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
+                         t$value <- '+ partial_replaced'
+                         return(t)
+                     },
                      t_NUMBER = function(re='\\d+', t) {
                          t$value <- strtoi(t$value)
                          return(t)
@@ -65,25 +65,40 @@ Parser <- R6Class("Parser",
                       #precedence = list(),
                       # dictionary of names
                       names = new.env(hash=TRUE),
+                      # Note: ggproto contains '+' signs in LAYER tokens
                       p_expression_func = function(doc="expression : GGPLOT
                                                                    | GGPLOT aes_func
-                                                                   | GGPLOT '+' ggproto
-                                                                   | GGPLOT aes_func '+' ggproto", p) {
+                                                                   | GGPLOT ggproto
+                                                                   | GGPLOT aes_func ggproto", p) {
                           message('p_expression_func plength: ', p$length())
 
                           if (p$length() == 2) {
                               message('GGPLOT only ')
                               p$set(1, paste0(p$get(2), ')'))
-                          } else if (p$length() == 3) {
+                          } else if (p$length() == 3 && (! grepl('\\+', p$get(3))) ) {
                               p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
-                          } else if (p$length() == 4) {
-                              p$set(1, paste0(p$get(2), ')', ))
+                          } else if (p$length() == 3) {
+                              p$set(1, paste0(p$get(2), ')', p$get(3)))
                           } else { #  5
-                              p$set(1, paste0(p$get(2), '+', p$get(4)))
+                              p$set(1, paste0(p$get(2), p$get(3), p$get(4)))
                           }
+                      },
+                      p_ggproto = function(doc="ggproto : layer_func
+                                                        | position_func", p) {
+                            p$set(1, p$get(2))
+                      },
+                      p_layer_func = function(doc="layer_func : LAYER
+                                                              | LAYER layer_name", p) {
+                          if (p$length() == 2) {
+                              p$set(1, p$get(2))
+                          } else {
+                              p$set(1, paste0(p$get(2), p$get(3)))
+                          }
+                      },
+                      p_layer_name = function(doc="layer_name : ", p) {
 
                       },
-                      p_ggproto = function(doc="ggproto : ", p) {
+                      p_position_func = function(doc="position_func : ", p) {
 
                       },
                       p_aes_func = function(doc="aes_func : NAME
@@ -144,9 +159,11 @@ Parser <- R6Class("Parser",
 
 
 
-#lexer$input('gg iris SepalWidth SepalLength')
-#parser$parse('gg iris x=Sepal.Width y=Sepal.Length', lexer)
 parser <- rly::yacc(Parser)
 parser$parse('gg iris', lexer)
 parser$parse('gg iris SepalWidth', lexer)
 parser$parse('gg iris SepalWidth SepalLength', lexer)
+
+parser$parse('gg iris + point', lexer)
+parser$parse('gg iris + point abc', lexer)
+parser$parse('gg iris + point abc def', lexer)
