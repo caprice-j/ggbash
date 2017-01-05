@@ -77,9 +77,9 @@ Parser <- R6Class("Parser",
                             p$set(1, paste0(p$get(2), ',', p$get(3)))
                       },
                       p_aes_func = function(doc="aes_func : NAME
-                                                          | aes_func NAME", p) {
+                                                          | NAME aes_func", p) {
                         if (p$length() == 2) {
-                            p$set(1, p$get(2))
+                            p$set(1, paste0(p$get(2), ')'))
                         } else {
                             #p$set(1, p$get(2))
                             p$set(1, paste0(p$get(2), ',', p$get(3)))
