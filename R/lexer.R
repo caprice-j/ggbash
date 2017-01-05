@@ -1,6 +1,8 @@
 library(rly)
 
-TOKENS = c('GGPLOT','NAME','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
+# CONSTAES : Constant Aesthetics
+# CHARAES : Character Aesthetics
+TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -8,7 +10,7 @@ TOKENS = c('GGPLOT','NAME','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
 # labs ?
 # POSITION  "PositionDodge" "Position"      "ggproto"
 # THEME "theme" "gg"
-LITERALS = c('=','-','*','/','^')
+LITERALS = c()
 
 ggbashenv <- new.env()
 
@@ -22,6 +24,8 @@ Lexer <- R6Class("Lexer",
                          t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                          return(t)
                      },
+                     t_CONSTAES = paste0('[a-z]+=[a-zA-Z0-9\\+\\-\\*\\/\\^]+'),
+                     t_CHARAES = paste0('[a-z]+=("|', "'", ').*("|', "'", ')'),
                      t_NAME = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
                      #t_LPAREN  = '\\(',
                      #t_RPAREN  = '\\)',
@@ -57,7 +61,7 @@ Lexer <- R6Class("Lexer",
 lexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
 function(){
     lexer$input('gg iris + point abc def + smooth ghi jkl')
-
+    lexer$input('gg iris + point abc def size=13 colour="blue"')
 }
 
 Parser <- R6Class("Parser",

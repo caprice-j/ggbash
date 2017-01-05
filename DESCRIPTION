@@ -4,7 +4,7 @@ Title: An Interface to Write ggplot2 Faster
 Version: 0.1.0
 Authors@R: c(person('Yasutaka', 'Tanaka', , 'tnk.yasutaka@gmail.com', c('aut', 'cre')))
 Description: ggbash provides a bash-like REPL environment,
-    potentially saving your typing by more than 80%.
+    potentially saving your typing by more than 50%.
 License: MIT + file LICENSE
 Depends: R (>= 3.2.4)
 Imports: 
