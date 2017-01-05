@@ -65,20 +65,26 @@ Parser <- R6Class("Parser",
                       #precedence = list(),
                       # dictionary of names
                       names = new.env(hash=TRUE),
-                      p_expression_func = function(doc="expression : ggplot_func
-                                                                   | ggplot_func '+' expression", p) {
+                      p_expression_func = function(doc="expression : GGPLOT
+                                                                   | GGPLOT aes_func
+                                                                   | GGPLOT '+' ggproto
+                                                                   | GGPLOT aes_func '+' ggproto", p) {
+                          message('p_expression_func plength: ', p$length())
+
                           if (p$length() == 2) {
-                              p$set(1, p$get(2))
-                          } else {
+                              message('GGPLOT only ')
+                              p$set(1, paste0(p$get(2), ')'))
+                          } else if (p$length() == 3) {
+                              p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
+                          } else if (p$length() == 4) {
+                              p$set(1, paste0(p$get(2), ')', ))
+                          } else { #  5
                               p$set(1, paste0(p$get(2), '+', p$get(4)))
                           }
+
                       },
-                      p_ggplot_func = function(doc="ggplot_func : GGPLOT
-                                                                | GGPLOT aes_func", p) {
-                          if (p$length() == 2)
-                            p$set(1, paste0(p$get(2)), ')')
-                          else
-                            p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
+                      p_ggproto = function(doc="ggproto : ", p) {
+
                       },
                       p_aes_func = function(doc="aes_func : NAME
                                                           | NAME aes_func", p) {
@@ -141,5 +147,6 @@ Parser <- R6Class("Parser",
 #lexer$input('gg iris SepalWidth SepalLength')
 #parser$parse('gg iris x=Sepal.Width y=Sepal.Length', lexer)
 parser <- rly::yacc(Parser)
+parser$parse('gg iris', lexer)
+parser$parse('gg iris SepalWidth', lexer)
 parser$parse('gg iris SepalWidth SepalLength', lexer)
-
