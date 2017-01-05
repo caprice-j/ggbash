@@ -10,6 +10,8 @@ TOKENS = c('GGPLOT','NAME','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
 # THEME "theme" "gg"
 LITERALS = c('=','-','*','/','^')
 
+ggbashenv <- new.env()
+
 Lexer <- R6Class("Lexer",
                  public = list(
                      tokens = TOKENS,
@@ -25,13 +27,15 @@ Lexer <- R6Class("Lexer",
                      #t_RPAREN  = '\\)',
                      #t_COMMA = ',',
                      t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
-                         partial <- gsub('(\\+|\\|)\\s*', '', t$value)
-                         const <- define_ggbash_constant_list()
+                         partial <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', t$value)
+                         ggbashenv$const <- define_ggbash_constant_list()
                          # FIXME showWarn
-                         showWarn <- TRUE
-                         geom_sth <- const$geom_namev[find_first(partial, const$geom_namev, showWarn)]
+                         ggbashenv$showWarn <- TRUE
+                         geom_sth <- ggbashenv$const$geom_namev[find_first(partial,
+                                                                           ggbashenv$const$geom_namev,
+                                                                           ggbashenv$showWarn)]
 
-                         t$value <- paste0(' + ggplot2::geom_', geom_sth)
+                         t$value <- paste0(' + geom_', geom_sth)
                          return(t)
                      },
                      t_NUMBER = function(re='\\d+', t) {
@@ -51,15 +55,10 @@ Lexer <- R6Class("Lexer",
                  )
 )
 lexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
-lexer$input('gg iris + point x=Sepal.Width y=Sepal.Length + smooth')
-lexer$token()
+function(){
+    lexer$input('gg iris + point abc def + smooth ghi jkl')
 
-lexer$input('gg iris x=Sepal.Width y=Sepal.Length + point + smooth')
-lexer$token()
-
-lexer$input('gg iris x=Sepal.Width y=Sepal.Length')
-
-# ggplot(mtcars) + geom_point(colour=1,aes(cyl,mpg))  # works
+}
 
 Parser <- R6Class("Parser",
                   public = list(
@@ -75,6 +74,9 @@ Parser <- R6Class("Parser",
                                                                    | GGPLOT ggproto_list
                                                                    | GGPLOT aes_func ggproto_list", p) {
                           message('p_expression_func plength: ', p$length())
+
+                          ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
+                          ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
 
                           if (p$length() == 2) {
                               message('GGPLOT only ')
@@ -96,6 +98,8 @@ Parser <- R6Class("Parser",
                       },
                       p_ggproto = function(doc="ggproto : LAYER
                                                         | LAYER layer_aes", p) {
+                          ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
+                          # ex: ggbashenv$previous_geom == 'point'
                           if (p$length() == 2) {
                               p$set(1, paste0(p$get(2), '()'))
                           } else {
@@ -105,10 +109,26 @@ Parser <- R6Class("Parser",
                       p_layer_aes = function(doc="layer_aes : NAME
                                                             | NAME layer_aes", p) {
                             # column name partial match?
-                        if (p$length() == 2)
-                            p$set(1, paste0(p$get(2), ')'))
-                        else
-                            p$set(1, paste0(p$get(2), ', ', p$get(3)))
+                        single_quote <- "'"
+                        double_quote <- '"'
+                        geom_sth <- ggbashenv$previous_geom
+                        #message('p layer aes: ', geom_sth)
+                        colnamev <- colnames(ggbashenv$dataset)
+                        geom_sth <- ggbashenv$const$geom_namev[find_first(geom_sth,
+                                                                          ggbashenv$const$geom_namev,
+                                                                          ggbashenv$showWarn)]
+
+                        must_aesv <- get_required_aes(geom_sth)
+                        all_aesv <- get_possible_aes(geom_sth)
+                        # FIXME positional
+                        column_name <- parse_ggbash_aes(1, p$get(2), must_aesv,
+                                                        all_aesv, colnamev, ggbashenv$showWarn)
+
+                        if (p$length() == 2) {
+                            p$set(1, paste0(column_name, ')'))
+                        } else {
+                            p$set(1, paste0(column_name, ', ', p$get(3)))
+                        }
                       },
                       p_position_func = function(doc="position_func : ", p) {
 
@@ -176,9 +196,13 @@ parser$parse('gg iris SepalWidth', lexer)
 parser$parse('gg iris SepalWidth SepalLength', lexer)
 
 parser$parse('gg iris + point', lexer)
-parser$parse('gg iris + point abc', lexer)
-parser$parse('gg iris + point abc def', lexer)
+parser$parse('gg iris + point Sepal.W', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L', lexer)
 
-parser$parse('gg iris + point abc def + smooth', lexer)
-parser$parse('gg iris + point abc def + smooth ghi', lexer)
-parser$parse('gg iris + point abc def + smooth ghi jkl', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
+
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
