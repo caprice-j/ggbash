@@ -73,6 +73,9 @@ Parser <- R6Class("Parser",
                                                                    | GGPLOT aes_func
                                                                    | GGPLOT ggproto_list
                                                                    | GGPLOT aes_func ggproto_list", p) {
+                          # initialization
+                            ggbashenv$aes_i <- 1
+
                           message('p_expression_func plength: ', p$length())
 
                           ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
@@ -98,6 +101,9 @@ Parser <- R6Class("Parser",
                       },
                       p_ggproto = function(doc="ggproto : LAYER
                                                         | LAYER layer_aes", p) {
+
+                          ggbashenv$aes_i <- 1 # (re-)initialization
+
                           ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
                           # ex: ggbashenv$previous_geom == 'point'
                           if (p$length() == 2) {
@@ -121,8 +127,10 @@ Parser <- R6Class("Parser",
                         must_aesv <- get_required_aes(geom_sth)
                         all_aesv <- get_possible_aes(geom_sth)
                         # FIXME positional
-                        column_name <- parse_ggbash_aes(1, p$get(2), must_aesv,
+                        dummy_aesv <- c(rep('', ggbashenv$aes_i - 1), p$get(2))
+                        column_name <- parse_ggbash_aes(ggbashenv$aes_i, dummy_aesv, must_aesv,
                                                         all_aesv, colnamev, ggbashenv$showWarn)
+                        ggbashenv$aes_i <- ggbashenv$aes_i + 1
 
                         if (p$length() == 2) {
                             p$set(1, paste0(column_name, ')'))
@@ -197,7 +205,8 @@ parser$parse('gg iris SepalWidth SepalLength', lexer)
 
 parser$parse('gg iris + point', lexer)
 parser$parse('gg iris + point Sepal.W', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L', lexer)
+parser$parse('gg iris + rect Sepal.W Sepal.L', lexer)
+parser$parse('gg iris + rect Sepal.W Sepal.L Petal.L Petal.W', lexer)
 
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
