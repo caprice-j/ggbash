@@ -83,7 +83,7 @@ Parser <- R6Class("Parser",
 
                           ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                           ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
-                          ggbashenv$previous_geom <- ''
+                          ggbashenv$geom <- ''
 
                           if (p$length() == 2) {
                               message('GGPLOT only ')
@@ -98,10 +98,10 @@ Parser <- R6Class("Parser",
                       },
                       p_gg_init = function(doc="gg_init : GGPLOT", p) {
                           message('p_gg_init')
-                          ggbenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
-                          ggbenv$dataset <- eval(as.symbol(ggbenv$dataset_name), envir = .GlobalEnv)
-                          message('  set dataset name: ', ggbenv$dataset_name)
-                          print(str(ggbenv))
+                          ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
+                          ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
+                          message('  set dataset name: ', ggbashenv$dataset_name)
+                          print(ls(envir = ggbashenv))
 
                           p$set(1, p$get(2))
                       },
@@ -114,24 +114,46 @@ Parser <- R6Class("Parser",
                             p$set(1, paste0(p$get(2), p$get(3)))
                       },
                       p_ggproto = function(doc="ggproto : layer_init
-                                                        | layer_init layer_aes", p) {
+                                                        | layer_init layer_aes
+                                                        | layer_init layer_raw_aes
+                                                        | layer_init layer_aes layer_raw_aes
+                                                        | layer_init layer_raw_aes layer_aes", p) {
                           message('p_ggproto')
 
-                          # ex: ggbashenv$previous_geom == 'point'
+                          # ex: ggbashenv$geom == 'point'
                           if (p$length() == 2) {
-                              p$set(1, paste0(p$get(2), '()'))
+                              return(p$set(1, paste0(p$get(2), '()')))
+                          }
+
+                          # FIXME more general
+                          message('3rd is : ', p$get(3))
+                          raw_is_3rd <- grepl(paste0('=([0-9\\+\\-\\*\\/\\^]+|"|', "'", ')'), p$get(3))
+
+                          if (raw_is_3rd) {
+                              if (p$length() == 3) {
+                                  p$set(1, paste0(p$get(2), '(', p$get(3)))
+                              } else {
+                                  p$set(1, paste0(p$get(2), '(', p$get(3), ', ggplot2::aes(', p$get(4), ')'))
+                              }
                           } else {
-                              p$set(1, paste0(p$get(2), '(ggplot2::aes(', p$get(3), ')'))
+                              if (p$length() == 3) {
+                                p$set(1, paste0(p$get(2), '(ggplot2::aes(', p$get(3), ')'))
+                              } else {
+                                p$set(1, paste0(p$get(2), '(ggplot2::aes(', p$get(3), ', ', p$get(4)))
+                              }
                           }
                       },
                       p_layer_init = function(doc="layer_init : LAYER", p) {
                           # initialization
                           message('p_layer_init')
-                          message('  before: ', ggbashenv$previous_geom)
-                          ggbashenv$previous_geom <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
-                          message('  after: ', ggbashenv$previous_geom)
+                          message('  before: ', ggbashenv$geom)
+                          prev <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
+                          ggbashenv$geom <- ggbashenv$const$geom_namev[find_first(prev,
+                                                                                ggbashenv$const$geom_namev,
+                                                                                ggbashenv$showWarn)]
+                          message('  after: ', ggbashenv$geom)
                           ggbashenv$aes_i <- 1
-                          p$set(1, p$get(2))
+                          p$set(1, paste0(' + ggplot2::geom_', prev))
                       },
                       p_layer_aes = function(doc="layer_aes : NAME
                                                             | NAME layer_aes", p) {
@@ -142,15 +164,10 @@ Parser <- R6Class("Parser",
                         # for ( obj in ls(envir=ggbashenv))
                         #     message('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
 
-                        geom_sth <- ggbashenv$previous_geom
-                        #message('p layer aes: ', geom_sth)
                         colnamev <- colnames(ggbashenv$dataset)
-                        geom_sth <- ggbashenv$const$geom_namev[find_first(geom_sth,
-                                                                          ggbashenv$const$geom_namev,
-                                                                          ggbashenv$showWarn)]
 
-                        must_aesv <- get_required_aes(geom_sth)
-                        all_aesv <- get_possible_aes(geom_sth)
+                        must_aesv <- get_required_aes(ggbashenv$geom)
+                        all_aesv <- get_possible_aes(ggbashenv$geom)
                         # FIXME positional
                         index <- length(must_aesv) - ggbashenv$aes_i + 1
                         dummy_aesv <- c(rep('', index - 1), p$get(2))
@@ -163,6 +180,18 @@ Parser <- R6Class("Parser",
                         } else {
                             p$set(1, paste0(column_name, ', ', p$get(3)))
                         }
+                      },
+                      p_layer_raw_aes = function(doc="layer_raw_aes : CHARAES
+                                                                    | CONSTAES
+                                                                    | CHARAES layer_raw_aes
+                                                                    | CONSTAES layer_raw_aes", p) {
+                          all_aesv <- get_possible_aes(ggbashenv$geom)
+                          raw_aes <- parse_ggbash_non_aes(p$get(2), all_aesv, ggbashenv$showWarn)
+
+                        if (p$length() == 2)
+                            p$set(1, paste0(raw_aes, ')'))
+                        else
+                            p$set(1, paste0(raw_aes, ', ', p$get(3)))
                       },
                       p_position_func = function(doc="position_func : ", p) {
 
@@ -232,13 +261,14 @@ parser$parse('gg iris SepalWidth SepalLength', lexer)
 
 parser$parse('gg iris + point', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L', lexer)
-parser$parse('gg iris + rect Sepal.W Sepal.L', lexer)
+parser$parse('gg iris + rect Sepal.W Sepal.L', lexer) # FIXME only last 2
 parser$parse('gg iris + rect Sepal.W Sepal.L Petal.L Petal.W', lexer)
 
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
 parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
 
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L colour="blue"', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth Sepal.W Sepal.L', lexer)
+parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"', lexer)
