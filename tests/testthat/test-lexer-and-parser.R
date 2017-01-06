@@ -39,11 +39,14 @@ test_that('ggplot2 lexer', {
 test_that('ggplot2 parser', {
     prsr <- rly::yacc(Ggplot2Parser)
     ee(prsr$parse('gg iris', glex), 'ggplot2::ggplot(iris)')
-    ee(prsr$parse('gg iris SepalWidth', glex), 'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth))')
-    ee(prsr$parse('gg iris SepalWidth SepalLength', glex),
-       'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth, SepalLength))')
-    ee(prsr$parse('gg iris SepalWidth SepalLength + point', glex),
-       'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth, SepalLength)) + ggplot2::geom_point()')
+    ee(prsr$parse('gg iris Sepal.Width', glex), 'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width))')
+    ee(prsr$parse('gg iris Sepal.Width Sepal.Length', glex),
+       'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length))')
+    ee(prsr$parse('gg iris Sepal.Width Sepal.Length + point', glex),
+       'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + ggplot2::geom_point()')
+    # FIXME how should I deal with non-existing column names?
+    ee(prsr$parse('gg iris SepalWidth + point', glex),
+       'ggplot2::ggplot(iris, ggplot2::aes()) + ggplot2::geom_point()')
 
     ee(prsr$parse('gg iris + point', glex), 'ggplot2::ggplot(iris) + ggplot2::geom_point()')
     ee(prsr$parse('gg iris + point Sepal.W Sepal.L', glex),
@@ -71,4 +74,7 @@ test_that('ggplot2 parser', {
        'ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length), colour="blue", size=4) + ggplot2::geom_smooth(colour="blue")')
     ee(prsr$parse('gg iris + p Sepal.W Sepal.L c="blue" si=4 + sm c="blue"', glex),
        'ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length), colour="blue", size=4) + ggplot2::geom_smooth(colour="blue")')
+
+    ee(prsr$parse('gg iris Sepal.W Sepal.L + geom_point + geom_smooth', glex),
+       'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + ggplot2::geom_point() + ggplot2::geom_smooth()')
 })

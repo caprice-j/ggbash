@@ -62,7 +62,7 @@ find_first <- function(prefix='si',
         if (grepl('colo', prefix))
             indices <- grep(paste0('^colour'), table)
         else
-            stop('no such prefix: ', prefix)
+            return(NULL) # stop('no such prefix: ', prefix)
     }
     if (length(indices)>1 && showWarn &&
         (! prefix %in% c(sapply(1:5, function(i) substr('point',1,i)),

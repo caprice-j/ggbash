@@ -95,7 +95,8 @@ Ggplot2Parser <-
                     p_layer_aes = function(doc="layer_aes : NAME
                                            | NAME layer_aes", p) {
                         message('p_layer_aes')
-                        # column name partial match?
+
+                        # do column-name partial match
                         single_quote <- "'"
                         double_quote <- '"'
                         # for ( obj in ls(envir=ggbashenv))
@@ -105,7 +106,7 @@ Ggplot2Parser <-
 
                         must_aesv <- get_required_aes(ggbashenv$geom)
                         all_aesv <- get_possible_aes(ggbashenv$geom)
-                        # FIXME positional
+                        # FIXME not reverse
                         index <- length(must_aesv) - ggbashenv$aes_i + 1
                         dummy_aesv <- c(rep('', index - 1), p$get(2))
                         column_name <- parse_ggbash_aes(index, dummy_aesv, must_aesv,
@@ -136,14 +137,33 @@ Ggplot2Parser <-
                     #
                     # },
                     p_aes_func = function(doc="aes_func : NAME
-                                          | NAME aes_func", p) {
+                                                        | NAME aes_func", p) {
                         message('p_aes_func')
-                        if (p$length() == 2) {
-                            p$set(1, paste0(p$get(2), ')'))
-                        } else {
-                            p$set(1, paste0(p$get(2), ', ', p$get(3)))
+
+                        # for ( obj in ls(envir=ggbashenv))
+                        #     message('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
+
+                        colnamev <- colnames(ggbashenv$dataset)
+
+                        geom_tmp <- 'point' # FIXME more general
+                        must_aesv <- get_required_aes(geom_tmp)
+                        all_aesv <- get_possible_aes(geom_tmp)
+
+                        column_name <- parse_ggbash_aes(1, p$get(2), must_aesv,
+                                                        all_aesv, colnamev, ggbashenv$showWarn)
+                        if (is.null(column_name)) {
+                            message('column_name is null: ', column_name)
+                            Sys.sleep(3)
                         }
-                        },
+                        # FIXME is this okay?
+                        column_name <- gsub('[a-z]+=', '', column_name)
+
+                        if (p$length() == 2) {
+                            p$set(1, paste0(column_name, ')'))
+                        } else {
+                            p$set(1, paste0(column_name, ', ', p$get(3)))
+                        }
+                    },
                     # p_statement_assign = function(doc='statement : NAME "=" expression', p) {
                     #     self$names[[as.character(p$get(2))]] <- p$get(4)
                     # },
