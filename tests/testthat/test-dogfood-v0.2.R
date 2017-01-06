@@ -18,4 +18,9 @@ test_that('case1', {
 
     ee(p$parse(char, g),
     "ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length, colour=Species)) + ggplot2::theme(legend.key = ggplot2::element_rect(colour=\"black\"))")
+
+    # spaces between theme element name and its configurations
+    expect_error(p$parse('gg iris + point Sepal.W Sepal.L + theme text : colour="blue"', g), regexp=NA)
 })
+
+

@@ -31,7 +31,10 @@ Ggplot2Lexer <-
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)
                     t_CHARAES = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')'),
-                    t_THEMEELEM = '[a-zA-Z_][a-zA-Z\\.]*\\:',
+                    t_THEMEELEM = function(re='[a-zA-Z_][a-zA-Z\\.]*\\s*\\:', t) {
+                        t$value <- gsub(' ', '', t$value)
+                        return(t)
+                    },
                     t_NAME      = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
                     #t_LPAREN  = '\\(',
                     #t_RPAREN  = '\\)',
