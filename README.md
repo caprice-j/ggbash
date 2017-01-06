@@ -4,7 +4,7 @@ ggbash: A Simpler Syntax for ggplot2
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
-ggbash provides a higher-level language and a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
+ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
 Installation
 ------------
@@ -83,14 +83,14 @@ Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported
 
 Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
-For example, if the input is `gg iris + p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+For example, if the input is `ggplot iris + p Sepal.Width Sepal.Length colour=Species`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
-While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
+While it's possible to check and define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
 
-### 3. Pipe Operator (`+` and `|`)
+### 3. Pipe Operators (`+` and `|`)
 
-#### Pipes for Adding Layers (`+`)
+#### Pipe for Adding Layers (`+`)
 
 ``` r
 ggbash('gg mtcars x=mpg y=wt + point + smooth')
@@ -98,7 +98,7 @@ ggbash('gg mtcars x=mpg y=wt + point + smooth')
 
 ![](README-pipe_example-1.png)
 
-#### Pipes for Copying Results (`|`)
+#### Pipe for Copying Results (`|`)
 
 ``` r
 ggbash('gg iris + p Sepal.W Sepal.L col=Sp siz=4 | copy')
@@ -109,7 +109,7 @@ ggbash('gg iris + p Sepal.W Sepal.L col=Sp siz=4 | copy')
                                   size=Petal.Width))
 ```
 
-#### Pipes for Saving Results (`|`)
+#### Pipe for Saving Results (`|`)
 
 ``` r
 ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
@@ -117,11 +117,11 @@ ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
     'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
 ```
 
-If you would like to get scatterplot matrix,
+If you would like to get a scatterplot matrix,
 
 ``` r
 for( i in 1:ncol(iris) )
-    for ( j in (i+1):ncol(iris) )
+    for ( j in min(i+1, ncol(iris)):ncol(iris) )
         ggbash("gg iris + point {colnames(iris)[i]} {colnames(iris)[j]} | png my_image/")
 ```
 
@@ -141,17 +141,17 @@ If you happen to have the different `iris` dataset which has a different number 
 
 `png` and `pdf` could receive plot size, file name, and directory name to save plots. If not specified, the default values are used.
 
-`png` and `pdf` commands interpret a single- or double-quoted token as file name (`"my-iris-plot"` in the following example), a token with `/` suffix as directory name, and otherwise plot size.
+`png` and `pdf` commands interpret a single- or double-quoted token as file name (`"my-plot"` in the following example), a token with `/` suffix as directory name, and otherwise plot size.
 
-`png` is order-agnostic: Any of the following notations generates the same png file `"my_image/my-iris-plot.960x480.png"`.
+`png` and `pdf` arguments are order-agnostic: Any of the following notations generates the same png file `"my_image/iris-150/point-my-plot.1960x1480.png"`.
 
 ``` bash
-gg iris | p 1 2 | png "my-iris-plot" 960x480 my_image/     
-gg iris | p 1 2 | png "my-iris-plot" my_image/ 960x480
-gg iris | p 1 2 | png my_image/ 960x480 "my-iris-plot"
-gg iris | p 1 2 | png my_image/ "my-iris-plot" 960x480 
-gg iris | p 1 2 | png 960x480 "my-iris-plot" my_image/
-gg iris | p 1 2 | png 960x480 my_image/ "my-iris-plot"
+gg mtcars | p mpg cyl | png  "my-plot"  1960x1480  my_image/     
+gg mtcars | p mpg cyl | png  "my-plot"  my_image/  1960x1480
+gg mtcars | p mpg cyl | png  my_image/  1960x1480  "my-plot"
+gg mtcars | p mpg cyl | png  my_image/  "my-plot"  1960x1480 
+gg mtcars | p mpg cyl | png  1960x1480  "my-plot"  my_image/
+gg mtcars | p mpg cyl | png  1960x1480  my_image/  "my-plot"
 ```
 
 #### Guessing Inches or Pixels
@@ -209,7 +209,7 @@ Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If yo
 Goals
 -----
 
-The goal of ggbash is to make plotting in ggplot2 as fast as possible. It can be categorized into two different sub goals:
+The goal of ggbash is to make plotting in ggplot2 as fast as possible. It can be categorized into two different subgoals:
 
 1.  **Better EDA experience.** Provide blazingly fast way to do Exploratory Data Analysis.
 

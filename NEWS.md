@@ -1,6 +1,55 @@
+
+# ggbash 0.2
+
+## Major Updates
+
+### Implemented ggplot2::theme()
+
+`ggplot2::theme()` is a powerful function that tweaks a lot of plot elements.
+
+In this v0.1.2 release, most of the functions of `theme` are implemented.
+
+It might need more test cases because of a lot of possibilities (such as a character variable),
+so the next a few weeks will be for fixing various bugs.
+
+#### Copy of Internal Variable `ggplot2:::.element_tree`
+
+Implementation of `theme` requires names and classes of
+theme elements like `axis.text.x` or `legend.title`.
+
+As far as I researched, using `ggplot2:::.element_tree` seemed to be the best way
+to get those classes such as `element_text` or `character`.
+
+But anyone can see in `get_all_theme_aes` implementation,
+this does not look a clean way to achieve that.
+
+#### Design Decision of `theme`
+
+One design decision I made and am not certain is to use `:` for separating theme's elements.
+
+One example is:
+```
+theme(text = element_text(size=5, face="bold"), line = element_line(linetype='dotted'))
+theme text:               size=5  face="bold"   line:               linetype='dotted'
+```
+
+The other ways I considered were as follows:
+
+```
+theme text  = size=5 face="bold"   line  = linetype="dotted"   # nested =
+theme text := size=5 face="bold"   line := linetype="dotted"   # new operator :=
+theme text(size=5, face="bold")    line(linetype="dotted")     # function-like parentheses
+theme text(size=5  face="bold")    line(linetype="dotted")     # without commas
+```
+
+I could not decide which way is the best,
+but the implemented one was felt most intuitive, easy-to-learn, and easy-to-read.
+This decision will be easily changed by a more appealing alternative.
+
+
 # ggbash 0.1.1
 
-## Major updates
+## Major Updates
 
 ### rly (R clone of Lex and Yacc)
 
