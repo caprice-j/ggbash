@@ -50,7 +50,7 @@ ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-gg  iris  +  point  Sepal.W  Sepal.L  c=Spec  siz=Petal.W  |  echo
+gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W  +  theme text: size=20 face="bold" |  echo
 ```
 
 ```{r example, echo=FALSE}
@@ -58,7 +58,7 @@ ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,
                colour=Species,
-               size=Petal.Width))
+               size=Petal.Width)) + theme(text=element_text(size=20, face="bold"))
 ```
 
 
@@ -68,14 +68,15 @@ ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,
                colour=Species,
-               size=Petal.Width))
+               size=Petal.Width)) +
+theme(text=element_text(size=20, face="bold"))
 ```
 
 
 ### One-liner
 
 ```{r, eval=FALSE}
-ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris + point Sepal.W Sepal.L', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 
@@ -106,7 +107,7 @@ ggbash performs partial matches six times.
   
 * __aesthetics names__
     + `c` matches `colour`, which is the aesthetic of `geom_point`.
-    + `s` matches `size` by predefined ggbash Precedence.
+    + `s` matches `size` by predefined ggbash Precedence (explained below).
 
 Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported.
     
@@ -331,8 +332,10 @@ ggbash is influenced by some other higher level programming languages such as Co
 
 ## Current Implementation Status
 
-+ DONE: ggplot(), aes() elements, non aes() elements, ggsave
++ DONE:
+    + version 0.1 : ggplot(), aes() elements, non aes() elements, ggsave
+    + version 0.2 : theme()
 
-+ TODO:  stat_..., scale_..., coord_..., facet_..., labs, position_..., theme
++ TODO:  stat_..., scale_..., coord_..., facet_..., labs, position_...
 
 + HOW: auto completion (R's `prompt()` does not have built-in completions)

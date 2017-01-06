@@ -1,10 +1,10 @@
 <!-- README.md is generated from README.Rmd. Please edit that file -->
-ggbash: An Interface to Write ggplot2 Faster
-============================================
+ggbash: A Simpler Syntax for ggplot2
+====================================
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
-ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
+ggbash provides a higher-level language and a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
 Installation
 ------------
@@ -28,7 +28,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
+gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W  +  theme text: size=20 face="bold" |  echo
 ```
 
 ![](README-example-1.png)
@@ -39,13 +39,14 @@ ggplot(iris) +
 geom_point(aes(Sepal.Width,
                Sepal.Length,
                colour=Species,
-               size=Petal.Width))
+               size=Petal.Width)) +
+theme(text=element_text(size=20, face="bold"))
 ```
 
 ### One-liner
 
 ``` r
-ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris + point Sepal.W Sepal.L', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 
@@ -74,7 +75,7 @@ For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash perfor
 
 -   **aesthetics names**
     -   `c` matches `colour`, which is the aesthetic of `geom_point`.
-    -   `s` matches `size` by predefined ggbash Precedence.
+    -   `s` matches `size` by predefined ggbash Precedence (explained below).
 
 Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported.
 
@@ -108,7 +109,7 @@ ggbash('gg iris + p Sepal.W Sepal.L col=Sp siz=4 | copy')
                                   size=Petal.Width))
 ```
 
-#### Pipes for Saving Results
+#### Pipes for Saving Results (`|`)
 
 ``` r
 ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
@@ -214,7 +215,7 @@ The goal of ggbash is to make plotting in ggplot2 as fast as possible. It can be
 
     -   less typing by Partial Prefix Match and Precedence.
 
-    -   casualy save plots with Pipe Operator and Auto-generated Filenames.
+    -   casualy save plots with Pipe Operators and Auto-generated Filenames.
 
 2.  **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
 
@@ -245,11 +246,14 @@ About a different way to generate scatterplot matrix, `GGally::ggpairs` does the
 -   `GGally::ggpairs` output the scatterplot matrix in one plot, while `ggbash` outputs each subplot as a plot.
 -   `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename, while `ggbash` uses `| png` or `| pdf` pipe chains with auto-generated filenames.
 
+ggbash is influenced by some other higher level programming languages such as CoffeeScript.
+
 Current Implementation Status
 -----------------------------
 
--   DONE: ggplot(), aes() elements, non aes() elements, ggsave
-
--   TODO: stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_..., theme
+-   DONE:
+    -   version 0.1 : ggplot(), aes() elements, non aes() elements, ggsave
+    -   version 0.2 : theme()
+-   TODO: stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_...
 
 -   HOW: auto completion (R's `prompt()` does not have built-in completions)

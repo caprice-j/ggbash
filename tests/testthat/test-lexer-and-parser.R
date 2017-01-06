@@ -77,6 +77,8 @@ test_that('ggplot2 parser', {
 
     ee(prsr$parse('gg iris Sepal.W Sepal.L + geom_point + geom_smooth', glex),
        'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + ggplot2::geom_point() + ggplot2::geom_smooth()')
+
+    prsr$parse('gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W', glex)
 })
 
 test_that('ggplot2 tokenize theme', {
@@ -89,5 +91,7 @@ test_that('ggplot2 parse theme', {
     glex$input('gg iris + theme text: size=4')
     expect_true(grepl('ggplot2::ggplot\\(iris\\) \\+ ggplot2::theme\\(text = ggplot2::element_text',
                       prsr$parse('gg iris + theme text: size=4', glex)))
+    expect_true(grepl('ggplot2::ggplot\\(iris\\) \\+ ggplot2::theme\\(text = ggplot2::element_text',
+                      prsr$parse('gg iris + theme text: size=4 color="red"', glex)))
 })
 

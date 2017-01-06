@@ -106,12 +106,18 @@ Ggplot2Parser <-
 
                         must_aesv <- get_required_aes(ggbashenv$geom)
                         all_aesv <- get_possible_aes(ggbashenv$geom)
-                        # FIXME not reverse
+                        # FIXME show in the right order if insufficient number of without-equal aes
                         index <- length(must_aesv) - ggbashenv$aes_i + 1
+                        #index <- ggbashenv$aes_i
+                        if (index < 1) {
+                            return(p$set(1, paste0(p$get(2), ')')))
+                            #return(NULL) # error
+                        }
                         dummy_aesv <- c(rep('', index - 1), p$get(2))
                         column_name <- parse_ggbash_aes(index, dummy_aesv, must_aesv,
                                                         all_aesv, colnamev, ggbashenv$showWarn)
-                        ggbashenv$aes_i <- ggbashenv$aes_i + 1
+                        if (! grepl('=',p$get(2)))
+                            ggbashenv$aes_i <- ggbashenv$aes_i + 1
                         ggbashenv$conf$aes <- c(ggbashenv$conf$aes, column_name)
 
                         if (p$length() == 2) {
@@ -183,15 +189,17 @@ Ggplot2Parser <-
                         if(p$length() == 2) {
                             p$set(1, paste0(elem, ')')) # close ggplot2::theme(
                         } else {
-                            p$set(1, paste0(elem, p$get(3)))
+                            p$set(1, paste0(elem, ', ', p$get(3)))
+                            # text = element_text(...) , ...
                         }
                     },
                     p_theme_elem = function(doc="theme_elem : THEMEELEM theme_conf_list", p) {
                         message('p_theme_elem')
                         elem_name <- gsub(':', '', p$get(2))
 
+                        tdf <- ggbashenv$const$themedf
                         # FIXME ugly
-                        elem_class <- ggbashenv$const$themedf[ggbashenv$const$themedf == elem_name, ]$class
+                        elem_class <- tdf[tdf == elem_name, ]$class
 
                         if (grepl('^element_|margin', elem_class)) {
                             modifier <- 'ggplot2::'
@@ -215,7 +223,7 @@ Ggplot2Parser <-
                             # FIXME add spaces
                             p$set(1, paste0(conf, ')')) # close ggplot2::element_sth(
                         } else {
-                            p$set(1, paste0(conf, p$get(3)))
+                            p$set(1, paste0(conf, ', ', p$get(3)))
                         }
                     },
                     # p_statement_assign = function(doc='statement : NAME "=" expression', p) {
