@@ -19,7 +19,6 @@ Ggplot2Parser <-
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                         ggbashenv$geom <- ''
-                        ggbashenv$geom_list <- c()
 
                         if (p$length() == 2) {
                             message('GGPLOT only ')
@@ -36,7 +35,7 @@ Ggplot2Parser <-
                         message('p_gg_init')
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
-                        ggbashenv$conf <- list(aes=c(), non_aes=c())
+                        ggbashenv$conf <- list(aes=c(), non_aes=c(), geom_list=c())
                         message('  set dataset name: ', ggbashenv$dataset_name)
 
                         p$set(1, p$get(2))
@@ -88,7 +87,7 @@ Ggplot2Parser <-
                                                                                 ggbashenv$const$geom_namev,
                                                                                 ggbashenv$showWarn)]
                         message('  after: ', ggbashenv$geom)
-                        ggbashenv$geom_list <- c(ggbashenv$geom_list, ggbashenv$geom)
+                        ggbashenv$conf$geom_list <- c(ggbashenv$conf$geom_list, ggbashenv$geom)
                         ggbashenv$aes_i <- 1
                         p$set(1, paste0(' + ggplot2::geom_', prev))
                     },

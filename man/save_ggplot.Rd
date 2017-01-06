@@ -4,15 +4,17 @@
 \alias{save_ggplot}
 \title{save a ggplot object into a file}
 \usage{
-save_ggplot(dataset_string = "mtcars-32", ggstr = list(cmd =
-  "ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))", conf =
-  list("x=cyl", "y=mpg")), argv = c("png", "200x500", "\\"my-file-name\\"",
-  "my_plot_dir/"))
+save_ggplot(dataset_string = "mtcars-32",
+  ggstr = "ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length))",
+  conf = list(aes = c("x=cyl", "y=mpg"), non_aes = c(), geom_list = "point"),
+  argv = c("png", "200x500", "\\"my-file-name\\"", "my_plot_dir/"))
 }
 \arguments{
 \item{dataset_string}{A character. Used as a directory.}
 
 \item{ggstr}{A list of aesthetics}
+
+\item{conf}{A list of aesthetics, non-aesthetics and geoms}
 
 \item{argv}{A character vector}
 }

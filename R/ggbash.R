@@ -223,9 +223,10 @@ copy_to_clipboard <- function(
 }
 
 build_ggbash_filename <- function(
-    conf = list(aes = list('x=cyl', 'y=mpg'),
-                non_aes = list('color="blue"', 'shape="18"') ),
-    out = list(filename = NA, w = 960/72, h = 960/72, dpi=72, dir='./'),
+    conf = list(aes = c('x=cyl', 'y=mpg'),
+                non_aes = c('color="blue"', 'shape="18"'),
+                geom_list = c('point')),
+    out = list(filename = '', w = 960/72, h = 960/72, dpi=72, dir='./'),
     extension='png'
 ){
 
@@ -236,7 +237,11 @@ build_ggbash_filename <- function(
         quote_stripped <- ''
     }
 
-    geom_string <- paste0(sort(conf$geom), collapse='-')
+    if ((! is.null(conf$geom_list)) && conf$geom_list != '') {
+        geom_string <- paste0(sort(conf$geom_list), collapse='-')
+    } else {
+        geom_string <- 'no_geom'
+    }
 
     aes_string <- paste0(sort(gsub('=', '-', conf$aes)), collapse='_')
 
@@ -254,11 +259,12 @@ build_ggbash_filename <- function(
 parse_plot_attributes <- function(
     argv = c('png', '"myname"', '900x640', 'my_plot_dir/'),
     conf = list(aes = list('x=cyl', 'y=mpg'),
-            non_aes = list('color="blue"', 'shape="18"')),
+            non_aes = list('color="blue"', 'shape="18"'),
+            geom_list = c('point', 'smooth')),
     dataset_string = 'mtcars-32'
 ){
     dpi <- 72
-    out <- list(filename = NA, filepath = NA,
+    out <- list(filename = '', filepath = '',
                 w = 960/dpi, h = 960/dpi, dpi=dpi, dir='./')
     # 72 pixels per inch is R's default
     single_quote <- "'"
@@ -285,7 +291,7 @@ parse_plot_attributes <- function(
         }
     }
 
-    if (is.na(out$filename)) # auto-assign
+    if (out$filename == '') # auto-assign
         out$filename <- build_ggbash_filename(conf, out, argv[1])
     # FIXME multiple same aes (i.e. point x=Pt | smooth x=Age )
 
@@ -298,6 +304,7 @@ parse_plot_attributes <- function(
 #'
 #' @param dataset_string A character. Used as a directory.
 #' @param ggstr A list of aesthetics
+#' @param conf A list of aesthetics, non-aesthetics and geoms
 #' @param argv A character vector
 #'
 #' @importFrom grDevices dev.off
@@ -305,20 +312,18 @@ parse_plot_attributes <- function(
 #' @importFrom grDevices pdf
 save_ggplot <- function(
     dataset_string = 'mtcars-32',
-    ggstr =
-        list(cmd  = 'ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(cyl,mpg))',
-             conf = list('x=cyl', 'y=mpg') ),
+    ggstr = 'ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length))',
+    conf = list(aes=c('x=cyl', 'y=mpg'), non_aes=c(), geom_list='point'),
     argv=c('png', '200x500', '"my-file-name"', 'my_plot_dir/')
 ){
-    attrl <- parse_plot_attributes(argv, ggstr$conf, dataset_string)
+    attrl <- parse_plot_attributes(argv, conf, dataset_string)
     dir.create(attrl$dir, showWarnings=FALSE)
     oldwd <- setwd(attrl$dir)
-    on.exit()
     dir.create(dataset_string, showWarnings=FALSE)
     setwd(dataset_string)
     setwd(oldwd)
 
-    ggplot2::ggsave(attrl$filepath, plot=eval(parse(text=ggstr$cmd)),
+    ggplot2::ggsave(attrl$filepath, plot=eval(parse(text=ggstr)),
                     width=attrl$w, height=attrl$h, units='in', dpi=attrl$dpi)
     message('saved: ', attrl$filepath)
 }
@@ -358,7 +363,7 @@ exec_ggbash <- function(raw_input='gg mtcars + point mpg cyl | copy',
         } else if (argv[1] %in% const$savev) {
             dataset_str <- paste0(attr(dataset, 'ggbash_datasetname'),
                                   '-', nrow(dataset))
-            save_ggplot(dataset_str, ggobj, argv)
+            save_ggplot(dataset_str, ggobj, ggbashenv$conf, argv)
         } else if (argv[1] %in% c('exit', 'quit', 'q')) {
                 return(TRUE)
         } else {
