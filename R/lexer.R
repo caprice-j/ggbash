@@ -1,8 +1,6 @@
-library(rly)
-
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
-TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','NUMBER','LAYER') # , 'LPAREN' , 'COMMA', 'RPAREN'
+GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','LAYER')
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -10,14 +8,15 @@ TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','NUMBER','LAYER') # , 'LPAREN' ,
 # labs ?
 # POSITION  "PositionDodge" "Position"      "ggproto"
 # THEME "theme" "gg"
-LITERALS = c()
+GGPLOT2_LITERALS = c() # needed?
 
-ggbashenv <- new.env()
+# MAYBE-LATER don't know how to pass variables between yacc's production rules
+ggbashenv <- new.env() # Note: This is a global variable.
 
-Lexer <- R6Class("Lexer",
+Ggplot2Lexer <- R6::R6Class("Lexer",
                  public = list(
-                     tokens = TOKENS,
-                     literals = LITERALS,
+                     tokens = GGPLOT2_TOKENS,
+                     literals = GGPLOT2_LITERALS,
                      #states = list(c('ggplot')),
                      # Note: t_(function) defines precedences implicitly
                      t_GGPLOT = function(re='^(g|gg|ggp|ggpl|ggplo|ggplot)\\s+[a-zA-Z_][a-zA-Z_0-9\\.]*', t) {
@@ -61,17 +60,11 @@ Lexer <- R6Class("Lexer",
                      }
                  )
 )
-lexer  <- rly::lex(module=Lexer, debug = TRUE) # Build all regular expression rules from the supplied
-function(){
-    lexer$input('gg iris + point abc def + smooth ghi jkl')
-    lexer$input('gg iris + point abc def size=13 colour="blue"')
-    lexer$input('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"')
-}
 
-Parser <- R6Class("Parser",
+Ggplot2Parser <- R6::R6Class("Parser",
                   public = list(
-                      tokens = TOKENS,
-                      literals = LITERALS,
+                      tokens = GGPLOT2_TOKENS,
+                      literals = GGPLOT2_LITERALS,
                       # Parsing rules
                       #precedence = list(),
                       # dictionary of names
@@ -105,7 +98,6 @@ Parser <- R6Class("Parser",
                           ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                           ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                           message('  set dataset name: ', ggbashenv$dataset_name)
-                          print(ls(envir = ggbashenv))
 
                           p$set(1, p$get(2))
                       },
@@ -197,9 +189,9 @@ Parser <- R6Class("Parser",
                         else
                             p$set(1, paste0(raw_aes, ', ', p$get(3)))
                       },
-                      p_position_func = function(doc="position_func : ", p) {
-
-                      },
+                      # p_position_func = function(doc="position_func : ", p) {
+                      #
+                      # },
                       p_aes_func = function(doc="aes_func : NAME
                                                           | NAME aes_func", p) {
                         message('p_aes_func')
@@ -237,42 +229,20 @@ Parser <- R6Class("Parser",
                       # p_expression_name = function(doc='expression : NAME', p) {
                       #     p$set(1, self$names[[as.character(p$get(2))]])
                       # },
-                      p_number = function(doc='numeric : NUMBER', p) {
-                          p$set(1, p$get(2))
-                          #p$set(1, eval(p$get(2)))
-                      },
+                      # p_number = function(doc='numeric : NUMBER', p) {
+                      #     p$set(1, p$get(2))
+                      #     #p$set(1, eval(p$get(2)))
+                      # },
                       # p_number_signed = function(doc='number : MINUS INTEGER
                       #                      | MINUS FLOAT', p) {
                       #     p$set(1, eval(paste("-", p$get(3), collapse="")))
                       # },
-                      p_empty = function(doc='empty : ', p) {
-                          # convention for readable yacc rules?
-                      },
+                      # p_empty = function(doc='empty : ', p) {
+                      #     # convention for readable yacc rules?
+                      # },
                       p_error = function(p) {
                           if(is.null(p)) cat("Syntax error at EOF")
                           else           cat(sprintf("Syntax error at '%s' ", p$value))
                       }
                       )
                   )
-
-
-
-
-parser <- rly::yacc(Parser)
-parser$parse('gg iris', lexer)
-parser$parse('gg iris SepalWidth', lexer)
-parser$parse('gg iris SepalWidth SepalLength', lexer)
-
-parser$parse('gg iris + point', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L', lexer)
-parser$parse('gg iris + rect Sepal.W Sepal.L', lexer) # FIXME only last 2
-parser$parse('gg iris + rect Sepal.W Sepal.L Petal.L Petal.W', lexer)
-
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W', lexer)
-parser$parse('gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L', lexer)
-
-message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue"', lexer))
-message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4', lexer))
-message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth Sepal.W Sepal.L', lexer))
-message(parser$parse('gg iris + point Sepal.W Sepal.L colour="blue" size=4 + smooth colour="blue"', lexer))
