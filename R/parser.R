@@ -93,7 +93,7 @@ Ggplot2Parser <-
                         p$set(1, paste0(' + ggplot2::geom_', prev))
                     },
                     p_layer_aes = function(doc="layer_aes : NAME
-                                           | NAME layer_aes", p) {
+                                                          | NAME layer_aes", p) {
                         message('p_layer_aes')
 
                         # do column-name partial match
@@ -165,13 +165,59 @@ Ggplot2Parser <-
                         }
                     },
                     # see p_ggproto_layer
-                    p_ggproto_theme = function(doc="ggproto : theme_init theme_elem", p) {
-
+                    p_ggproto_theme = function(doc="ggproto : theme_init theme_elem_list", p) {
+                        message('p_ggproto_theme')
+                        p$set(1, paste0(p$get(2), p$get(3)))
                     },
                     p_theme_init = function(doc="theme_init : THEME", p) {
+                        # initialization
+                        message('p_theme_init')
+                        theme_str <- gsub('\\s|\\+', '', p$get(2))
 
+                        p$set(1, paste0(' + ggplot2::', theme_str, '('))
                     },
-                    p_theme_elem = function(doc="theme_elem : NAME")
+                    p_theme_elem_list = function(doc="theme_elem_list : theme_elem
+                                                                      | theme_elem theme_elem_list" ,p) {
+                        message('p_theme_elem_list')
+                        elem <- p$get(2)
+                        if(p$length() == 2) {
+                            p$set(1, paste0(elem, ')')) # close ggplot2::theme(
+                        } else {
+                            p$set(1, paste0(elem, p$get(3)))
+                        }
+                    },
+                    p_theme_elem = function(doc="theme_elem : THEMEELEM theme_conf_list", p) {
+                        message('p_theme_elem')
+                        elem_name <- gsub(':', '', p$get(2))
+
+                        # FIXME ugly
+                        elem_class <- ggbashenv$const$themedf[ggbashenv$const$themedf == elem_name, ]$class
+
+                        if (grepl('^element_|margin', elem_class)) {
+                            modifier <- 'ggplot2::'
+                        } else if (elem_class == 'unit') {
+                            modifier <- 'grid::'
+                        } else {
+                            modifier <- 'as.' # as.character and as.logical
+                        }
+
+                        function_name <- paste0(modifier, elem_class)
+
+                        p$set(1, paste0(elem_name, ' = ', function_name, '(', p$get(3)))
+                    },
+                    p_theme_conf_list = function(doc="theme_conf_list : CONSTAES
+                                                                      | CHARAES
+                                                                      | CONSTAES theme_conf_list
+                                                                      | CHARAES theme_conf_list", p) {
+                        message('p_theme_conf_list')
+                        conf <- p$get(2)
+                        if(p$length() == 2) {
+                            # FIXME add spaces
+                            p$set(1, paste0(conf, ')')) # close ggplot2::element_sth(
+                        } else {
+                            p$set(1, paste0(conf, p$get(3)))
+                        }
+                    },
                     # p_statement_assign = function(doc='statement : NAME "=" expression', p) {
                     #     self$names[[as.character(p$get(2))]] <- p$get(4)
                     # },

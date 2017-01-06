@@ -125,7 +125,8 @@ define_ggbash_constant_list <- function(){
                        'text', 'tile',
                        'vline', 'violin'
         ),
-        savev = c('png', 'pdf')
+        savev = c('png', 'pdf'),
+        themedf = get_all_theme_aes()
         # TODO implement stat like stat_smooth
     )
 }

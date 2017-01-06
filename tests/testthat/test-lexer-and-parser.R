@@ -79,7 +79,15 @@ test_that('ggplot2 parser', {
        'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + ggplot2::geom_point() + ggplot2::geom_smooth()')
 })
 
-test_that('tokenize theme', {
+test_that('ggplot2 tokenize theme', {
     glex$input('gg mtcars + point cyl mpg + theme text: colour="blue"')
     glex$token()
 })
+
+test_that('ggplot2 parse theme', {
+    prsr <- rly::yacc(Ggplot2Parser)
+    glex$input('gg iris + theme text: size=4')
+    expect_true(grepl('ggplot2::ggplot\\(iris\\) \\+ ggplot2::theme\\(text = ggplot2::element_text',
+                      prsr$parse('gg iris + theme text: size=4', glex)))
+})
+
