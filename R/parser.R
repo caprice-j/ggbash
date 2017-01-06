@@ -194,18 +194,31 @@ Ggplot2Parser <-
                     },
                     p_theme_elem = function(doc="theme_elem : THEMEELEM theme_conf_list", p) {
                         message('p_theme_elem')
-                        elem_name <- gsub(':', '', p$get(2))
+                        elem_name <- gsub('\\:', '', p$get(2))
 
                         tdf <- ggbashenv$const$themedf
                         # FIXME ugly
                         elem_class <- tdf[tdf == elem_name, ]$class
 
+                        if (length(elem_class) == 0) {
+                            print(p$get(2))
+                            print(elem_name)
+                            print(elem_class)
+
+                            Sys.sleep(5)
+                        } else if (length(elem_class) > 1) {
+                            elem_class <- elem_class[1] # What's this error?
+                        }
+
                         if (grepl('^element_|margin', elem_class)) {
                             modifier <- 'ggplot2::'
                         } else if (elem_class == 'unit') {
                             modifier <- 'grid::'
-                        } else {
+                        } else if (elem_class %in% c('logical', 'character') ){
                             modifier <- 'as.' # as.character and as.logical
+                        } else {
+                            print(elem_class)
+                            Sys.sleep(3)
                         }
 
                         function_name <- paste0(modifier, elem_class)

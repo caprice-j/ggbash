@@ -94,4 +94,3 @@ test_that('ggplot2 parse theme', {
     expect_true(grepl('ggplot2::ggplot\\(iris\\) \\+ ggplot2::theme\\(text = ggplot2::element_text',
                       prsr$parse('gg iris + theme text: size=4 color="red"', glex)))
 })
-

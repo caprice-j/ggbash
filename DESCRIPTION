@@ -23,3 +23,8 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 5.0.1
 VignetteBuilder: knitr
+Collate:
+    'ggbash.R'
+    'partial_match_utils.R'
+    'lexer.R'
+    'parser.R'

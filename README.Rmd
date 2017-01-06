@@ -54,11 +54,8 @@ gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W  +  theme text: size=20 f
 ```
 
 ```{r example, echo=FALSE}
-ggplot(iris) +
-geom_point(aes(Sepal.Width,
-               Sepal.Length,
-               colour=Species,
-               size=Petal.Width)) + theme(text=element_text(size=20, face="bold"))
+ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=Petal.Width))+theme(text=element_text(size=20,face="bold"))
+# gg iris + point Sepal.W Sepal.L col=Spec siz=Petal.W + theme text: size=20 face="bold"
 ```
 
 
@@ -336,6 +333,8 @@ ggbash is influenced by some other higher level programming languages such as Co
     + version 0.1 : ggplot(), aes() elements, non aes() elements, ggsave
     + version 0.2 : theme()
 
-+ TODO:  stat_..., scale_..., coord_..., facet_..., labs, position_...
++ TODO:
+    + stat_..., scale_..., coord_..., facet_..., labs, position_...
+    + sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 
 + HOW: auto completion (R's `prompt()` does not have built-in completions)

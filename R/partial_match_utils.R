@@ -200,8 +200,8 @@ get_element_tree_clone <- function() {
         strip.switch.pad.grid strip.switch.pad.grid         unit
         strip.switch.pad.wrap strip.switch.pad.wrap         unit", '\\s+')[[1]], nrow=3)
 
-    aes_info <- as.data.frame(t(rect_data), stringsAsFactors = FALSE)[,2:3]
-    colnames(aes_info) <- c('name', 'class')
+    aes_info <- as.data.frame(t(rect_data), stringsAsFactors = FALSE)
+    colnames(aes_info) <- c('name', 'unknown', 'class')
     return(aes_info)
 
     # code to obtain the above dataframe

@@ -254,6 +254,7 @@ Current Implementation Status
 -   DONE:
     -   version 0.1 : ggplot(), aes() elements, non aes() elements, ggsave
     -   version 0.2 : theme()
--   TODO: stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_...
-
+-   TODO:
+    -   stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_...
+    -   sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 -   HOW: auto completion (R's `prompt()` does not have built-in completions)

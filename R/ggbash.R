@@ -493,6 +493,7 @@ get_possible_aes <- function(suffix='point') {
 #' \code{\link{get_required_aes}} and
 #' \code{\link{get_possible_aes}}, respectively.
 #'
+#' @export
 parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
                              colnamev, showWarn=TRUE){
     # TODO as.factor as.character cut substr
