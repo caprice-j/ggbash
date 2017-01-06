@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# ggbash: An Interface to Write ggplot2 Faster
+# ggbash: A Simpler Syntax for ggplot2
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash)
 [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash)
@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 
 
-ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
+ggbash provides a higher-level language and a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
 ```{r, echo=FALSE}
 library(ggplot2)
@@ -50,7 +50,7 @@ ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
+gg  iris  +  point  Sepal.W  Sepal.L  c=Spec  siz=Petal.W  |  echo
 ```
 
 ```{r example, echo=FALSE}

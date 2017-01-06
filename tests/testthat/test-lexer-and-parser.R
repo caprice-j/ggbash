@@ -78,3 +78,8 @@ test_that('ggplot2 parser', {
     ee(prsr$parse('gg iris Sepal.W Sepal.L + geom_point + geom_smooth', glex),
        'ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + ggplot2::geom_point() + ggplot2::geom_smooth()')
 })
+
+test_that('tokenize theme', {
+    glex$input('gg mtcars + point cyl mpg + theme text: colour="blue"')
+    glex$token()
+})

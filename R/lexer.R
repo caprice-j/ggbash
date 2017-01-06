@@ -1,6 +1,6 @@
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
-GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','LAYER', 'THEME')
+GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','THEME', 'LAYER', 'THEMEELEM')
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -31,11 +31,17 @@ Ggplot2Lexer <-
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)
                     t_CHARAES = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')'),
-                    t_NAME = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
+                    t_THEMEELEM = '[a-zA-Z_][a-zA-Z\\:\\.]*',
+                    t_NAME      = '[a-zA-Z_][a-zA-Z_0-9\\.=]*',
                     #t_LPAREN  = '\\(',
                     #t_RPAREN  = '\\)',
                     #t_COMMA = ',',
+                    t_THEME = '(\\+|\\|)\\s*theme', # t_THEME is preferred to t_LAYER
                     t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
+                        if (grepl('(\\+|\\|)\\s*theme', t$value)) {
+                            t$type <- 'THEME'
+                            return(t)
+                        }
                         partial <- gsub(paste0(ggbash_plus_pipe, '(geom_)?'), '', t$value)
                         ggbashenv$const <- define_ggbash_constant_list()
                         # FIXME showWarn
@@ -47,7 +53,6 @@ Ggplot2Lexer <-
                         t$value <- paste0(' + geom_', geom_sth)
                         return(t)
                     },
-                    t_THEME = paste0(ggbash_plus_pipe, 'theme'),
                     t_NUMBER = function(re='\\d+', t) {
                         t$value <- strtoi(t$value)
                         return(t)
@@ -62,3 +67,4 @@ Ggplot2Lexer <-
                         t$lexer$skip(1)
                         return(t)
                     }))
+

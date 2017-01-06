@@ -49,12 +49,12 @@ Ggplot2Parser <-
                         else
                             p$set(1, paste0(p$get(2), p$get(3)))
                         },
-                    p_ggproto = function(doc="ggproto : layer_init
-                                         | layer_init layer_aes
-                                         | layer_init layer_raw_aes
-                                         | layer_init layer_aes layer_raw_aes
-                                         | layer_init layer_raw_aes layer_aes", p) {
-                        message('p_ggproto')
+                    p_ggproto_layer = function(doc="ggproto : layer_init
+                                                            | layer_init layer_aes
+                                                            | layer_init layer_raw_aes
+                                                            | layer_init layer_aes layer_raw_aes
+                                                            | layer_init layer_raw_aes layer_aes", p) {
+                        message('p_ggproto_layer')
 
                         # ex: ggbashenv$geom == 'point'
                         if (p$length() == 2) {
@@ -164,6 +164,14 @@ Ggplot2Parser <-
                             p$set(1, paste0(column_name, ', ', p$get(3)))
                         }
                     },
+                    # see p_ggproto_layer
+                    p_ggproto_theme = function(doc="ggproto : theme_init theme_elem", p) {
+
+                    },
+                    p_theme_init = function(doc="theme_init : THEME", p) {
+
+                    },
+                    p_theme_elem = function(doc="theme_elem : NAME")
                     # p_statement_assign = function(doc='statement : NAME "=" expression', p) {
                     #     self$names[[as.character(p$get(2))]] <- p$get(4)
                     # },
