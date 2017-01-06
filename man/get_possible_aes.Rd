@@ -12,7 +12,4 @@ get_possible_aes(suffix = "point")
 \description{
 retrieve all aesthetic names for a given geom
 }
-\seealso{
-used in \code{\link{drawgg}}.
-}
 

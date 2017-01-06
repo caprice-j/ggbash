@@ -9,9 +9,9 @@ Ggplot2Parser <-
                     names = new.env(hash=TRUE),
                     # Note: ggproto contains '+' signs in LAYER tokens
                     p_expression_func = function(doc="expression : gg_init
-                                                 | gg_init aes_func
-                                                 | gg_init ggproto_list
-                                                 | gg_init aes_func ggproto_list", p) {
+                                                                 | gg_init aes_func
+                                                                 | gg_init ggproto_list
+                                                                 | gg_init aes_func ggproto_list", p) {
                         message('p_expression_func')
 
                         message('p_expression_func plength: ', p$length())
@@ -19,6 +19,7 @@ Ggplot2Parser <-
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                         ggbashenv$geom <- ''
+                        ggbashenv$geom_list <- c()
 
                         if (p$length() == 2) {
                             message('GGPLOT only ')
@@ -28,13 +29,14 @@ Ggplot2Parser <-
                         } else if (p$length() == 3) {
                             p$set(1, paste0(p$get(2), ')', p$get(3)))
                         } else { #  5
-                            p$set(1, paste0(p$get(2), p$get(3), p$get(4)))
+                            p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')', p$get(4)))
                         }
                         },
                     p_gg_init = function(doc="gg_init : GGPLOT", p) {
                         message('p_gg_init')
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
+                        ggbashenv$conf <- list(aes=c(), non_aes=c())
                         message('  set dataset name: ', ggbashenv$dataset_name)
 
                         p$set(1, p$get(2))
@@ -60,7 +62,7 @@ Ggplot2Parser <-
                         }
 
                         # FIXME more general
-                        message('3rd is : ', p$get(3))
+                        message('  3rd is : ', p$get(3))
                         raw_is_3rd <- grepl(paste0('=([0-9\\+\\-\\*\\/\\^]+|"|', "'", ')'), p$get(3))
 
                         if (raw_is_3rd) {
@@ -86,6 +88,7 @@ Ggplot2Parser <-
                                                                                 ggbashenv$const$geom_namev,
                                                                                 ggbashenv$showWarn)]
                         message('  after: ', ggbashenv$geom)
+                        ggbashenv$geom_list <- c(ggbashenv$geom_list, ggbashenv$geom)
                         ggbashenv$aes_i <- 1
                         p$set(1, paste0(' + ggplot2::geom_', prev))
                     },
@@ -108,6 +111,7 @@ Ggplot2Parser <-
                         column_name <- parse_ggbash_aes(index, dummy_aesv, must_aesv,
                                                         all_aesv, colnamev, ggbashenv$showWarn)
                         ggbashenv$aes_i <- ggbashenv$aes_i + 1
+                        ggbashenv$conf$aes <- c(ggbashenv$conf$aes, column_name)
 
                         if (p$length() == 2) {
                             p$set(1, paste0(column_name, ')'))
@@ -121,6 +125,7 @@ Ggplot2Parser <-
                                                | CONSTAES layer_raw_aes", p) {
                         all_aesv <- get_possible_aes(ggbashenv$geom)
                         raw_aes <- parse_ggbash_non_aes(p$get(2), all_aesv, ggbashenv$showWarn)
+                        ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
 
                         if (p$length() == 2)
                             p$set(1, paste0(raw_aes, ')'))
@@ -136,7 +141,7 @@ Ggplot2Parser <-
                         if (p$length() == 2) {
                             p$set(1, paste0(p$get(2), ')'))
                         } else {
-                            p$set(1, paste0(p$get(2), ',', p$get(3)))
+                            p$set(1, paste0(p$get(2), ', ', p$get(3)))
                         }
                         },
                     # p_statement_assign = function(doc='statement : NAME "=" expression', p) {

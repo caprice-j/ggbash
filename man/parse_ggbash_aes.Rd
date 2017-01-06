@@ -18,15 +18,13 @@ parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev, showWarn = TRUE)
 \item{colnamev}{A vector of column names of a dataframe.}
 
 \item{showWarn}{a flag for printing warning when ambiguous match.
-Default is TRUE.}
+                   Default is TRUE.
+
+must_aesv and all_aesv are built by
+\code{\link{get_required_aes}} and
+\code{\link{get_possible_aes}}, respectively.}
 }
 \description{
 convert given ggbash strings into ggplot2 aesthetic specifications
-}
-\seealso{
-used in \code{\link{drawgg}}.
-must_aesv and all_aesv are built by
-\code{\link{get_required_aes}} and
-\code{\link{get_possible_aes}}, respectively.
 }
 

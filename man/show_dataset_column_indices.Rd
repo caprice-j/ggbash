@@ -12,18 +12,7 @@ show_dataset_column_indices(dataset_str = NULL)
 \description{
 This function lists all dataset column indices.
 }
-\examples{
-
-# without column indices: explicit
-drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
-
-show_dataset_column_indices('iris')
-
-# with column indices: shorter
-drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
-
-}
 \seealso{
-\code{partial_unique}, \code{drawgg}
+\code{partial_unique}
 }
 

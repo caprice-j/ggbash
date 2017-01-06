@@ -24,7 +24,7 @@ Ggplot2Lexer <-
                         t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                         return(t)
                     },
-                    t_CONSTAES = paste0('[a-z]+=[a-zA-Z0-9]+'),
+                    t_CONSTAES = paste0('[a-z]+=[0-9]+'),
                     # I believe CONSTAES cannot contain +-*/^,
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)

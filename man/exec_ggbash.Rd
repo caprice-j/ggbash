@@ -4,7 +4,7 @@
 \alias{exec_ggbash}
 \title{execute raw ggbash commands}
 \usage{
-exec_ggbash(raw_input = "gg iris | point 1 2 | copy", showWarn = TRUE,
+exec_ggbash(raw_input = "gg mtcars + point mpg cyl | copy", showWarn = TRUE,
   batchMode = FALSE)
 }
 \arguments{

@@ -12,14 +12,12 @@ parse_ggbash_non_aes(non_aes = "shape=1", all_aesv, showWarn = TRUE)
 \item{all_aesv}{A vector of possible aesthetics.}
 
 \item{showWarn}{a flag for printing warning when ambiguous match.
-Default is TRUE.}
+                   Default is TRUE.
+
+all_aesv are built by \code{\link{get_possible_aes}}.
+\code{\link{parse_ggbash_aes}}}
 }
 \description{
 convert given ggbash strings into ggplot2 non-aesthetic (constant) specifications
-}
-\seealso{
-used in \code{\link{drawgg}}.
-all_aesv are built by \code{\link{get_possible_aes}}.
-\code{\link{parse_ggbash_aes}}
 }
 

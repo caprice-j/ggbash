@@ -16,16 +16,11 @@ a tbl_df object with attr('ggbash_datasetname')
 \description{
 \code{set_ggbash_dataset} receives a character (a data frame name),
 evaluate it as a symbol, and construct a corresponding tbl_df object.
-The given character argument is stored in attr('ggbash_datasetname')
-for future reference in \code{\link{drawgg}}.
 }
 \examples{
 
 newdf <- set_ggbash_dataset('iris')
 attr(newdf, 'ggbash_datasetname')  # 'iris'
 
-}
-\seealso{
-\code{\link{drawgg}}
 }
 

@@ -12,7 +12,4 @@ get_required_aes(suffix = "point")
 \description{
 retrieve required aesthetic names for a given geom
 }
-\seealso{
-used in \code{\link{drawgg}}.
-}
 

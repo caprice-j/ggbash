@@ -12,7 +12,7 @@ save_ggplot(dataset_string = "mtcars-32", ggstr = list(cmd =
 \arguments{
 \item{dataset_string}{A character. Used as a directory.}
 
-\item{ggstr}{A list resulted from \code{\link{drawgg}}}
+\item{ggstr}{A list of aesthetics}
 
 \item{argv}{A character vector}
 }

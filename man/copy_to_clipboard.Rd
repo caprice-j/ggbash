@@ -15,7 +15,4 @@ nothing
 \description{
 \code{copy_to_clipboard} invokes OS-specific routine to copy a character to clipboard.
 }
-\seealso{
-\code{\link{drawgg}}
-}
 

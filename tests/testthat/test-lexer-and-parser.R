@@ -1,6 +1,6 @@
 library(ggbash)
 library(futile.logger)
-context('ggbash-interpreter')
+context('ggbash-lexer-and-perser')
 
 glex  <- rly::lex(module=Ggplot2Lexer)
 
@@ -41,7 +41,9 @@ test_that('ggplot2 parser', {
     ee(prsr$parse('gg iris', glex), 'ggplot2::ggplot(iris)')
     ee(prsr$parse('gg iris SepalWidth', glex), 'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth))')
     ee(prsr$parse('gg iris SepalWidth SepalLength', glex),
-       'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth,SepalLength))')
+       'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth, SepalLength))')
+    ee(prsr$parse('gg iris SepalWidth SepalLength + point', glex),
+       'ggplot2::ggplot(iris, ggplot2::aes(SepalWidth, SepalLength)) + ggplot2::geom_point()')
 
     ee(prsr$parse('gg iris + point', glex), 'ggplot2::ggplot(iris) + ggplot2::geom_point()')
     ee(prsr$parse('gg iris + point Sepal.W Sepal.L', glex),

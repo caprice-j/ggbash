@@ -7,17 +7,8 @@ NULL
 #'
 #' @param dataset_str A character representing a data frame
 #'
-#' @seealso \code{partial_unique}, \code{drawgg}
+#' @seealso \code{partial_unique}
 #'
-#' @examples
-#'
-#' # without column indices: explicit
-#' drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
-#'
-#' show_dataset_column_indices('iris')
-#'
-#' # with column indices: shorter
-#' drawgg(iris, list(build_geom(iris, 'point Sepal.Width Sepal.Length')))
 #'
 #' @export
 show_dataset_column_indices <- function(dataset_str=NULL){
@@ -149,15 +140,11 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
 #'
 #' \code{set_ggbash_dataset} receives a character (a data frame name),
 #' evaluate it as a symbol, and construct a corresponding tbl_df object.
-#' The given character argument is stored in attr('ggbash_datasetname')
-#' for future reference in \code{\link{drawgg}}.
 #'
 #' @param dataset_name a character representing a data frame.
 #'                     If a matrix is given, it's transformed into a data frame.
 #'
 #' @return a tbl_df object with attr('ggbash_datasetname')
-#'
-#' @seealso \code{\link{drawgg}}
 #'
 #' @examples
 #'
@@ -212,8 +199,6 @@ set_ggplot_default_aes <- function(dataset, aesv = c('x=mpg', 'y=cyl', 'c=am')) 
 #' @param string a character to be copied
 #'
 #' @return nothing
-#'
-#' @seealso \code{\link{drawgg}}
 #'
 #' @export
 copy_to_clipboard <- function(
@@ -312,7 +297,7 @@ parse_plot_attributes <- function(
 #' save a ggplot object into a file
 #'
 #' @param dataset_string A character. Used as a directory.
-#' @param ggstr A list resulted from \code{\link{drawgg}}
+#' @param ggstr A list of aesthetics
 #' @param argv A character vector
 #'
 #' @importFrom grDevices dev.off
@@ -347,47 +332,43 @@ save_ggplot <- function(
 #'                  If TRUE, the resulted ggplot object is returned.
 #'
 #' @export
-exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
+exec_ggbash <- function(raw_input='gg mtcars + point mpg cyl | copy',
                         showWarn=TRUE, batchMode=FALSE){
     const <- define_ggbash_constant_list()
     commandv <- split_by_pipe(raw_input)
-    geom_list <- list()
+    ggobj <- ''
     i <- 1
     for (cmd in commandv) {
         argv <- split_by_space(cmd)
         if (grepl(paste0('^', argv[1]), 'ggplot2')) {
-            # partial prefix match to 'ggplot2'
             dataset <- set_ggbash_dataset(argv[2])
-            dataset <- set_ggplot_default_aes(dataset,
-                                              argv[c(-1,-2)])
+            ggobj <- rly::yacc(Ggplot2Parser)$parse(cmd, rly::lex(module=Ggplot2Lexer))
         } else if (argv[1] == 'show') {
             print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
             return(FALSE)
         } else if (argv[1] %in% c('echo', 'print')) {
-            if (length(geom_list) > 0)
-                ggstr <- drawgg(dataset, geom_list, doEval=FALSE)
-            message(ifelse(exists('ggstr'), ggstr$cmd, argv[2]))
+            if (ggobj != '')
+                print(eval(parse(text=ggobj)))
+            message(ifelse(ggobj != '', ggobj, argv[2]))
             return(FALSE)
         } else if (argv[1] %in% const$builtinv) {
             execute_ggbash_builtins(raw_input, argv, const)
         } else if (argv[1] %in% c('copy', 'cp')) {
-            ggstr <- drawgg(dataset, geom_list, doEval=FALSE)
-            copy_to_clipboard(ggstr$cmd)
+            copy_to_clipboard(ggobj)
         } else if (argv[1] %in% const$savev) {
             dataset_str <- paste0(attr(dataset, 'ggbash_datasetname'),
                                   '-', nrow(dataset))
-            ggstr <- drawgg(dataset, geom_list, doEval=FALSE)
-            save_ggplot(dataset_str, ggstr, argv)
+            save_ggplot(dataset_str, ggobj, argv)
         } else if (argv[1] %in% c('exit', 'quit', 'q')) {
                 return(TRUE)
-        } else { # if 'point' or 'p' is passed
-            geom_list[[i]] <- build_geom(dataset, cmd, showWarn)
-            i <- i + 1
+        } else {
+            stop('unknown command is supplied')
         }
     }
+    print(eval(parse(text=ggobj)))
     if (batchMode)
-        return(drawgg(dataset, geom_list))
-    drawgg(dataset, geom_list)
+        return(gsub('ggplot2::', '', ggobj))
+
     return(FALSE)
 }
 
@@ -423,12 +404,13 @@ exec_ggbash <- function(raw_input='gg iris | point 1 2 | copy',
 #'
 #' @examples
 #' \dontrun{ ggbash() # enter into an interactive ggbash session
-#' }
+#'
 #' # plot a ggplot2 figure
-#' ggbash('gg iris | point Petal.Width Petal.Length')
+#' ggbash('gg iris + point Petal.Width Petal.Length')
 #'
 #' #' # plot a ggplot2 figure and copy the result
-#' ggbash('gg iris | point Petal.Width Petal.Length', 1)
+#' ggbash('gg iris + point Petal.Width Petal.Length', 1)
+#' }
 #'
 #' @export
 ggbash <- function(batch='', clipboard=NULL, showWarn=TRUE) {
@@ -470,7 +452,6 @@ advice_on_error <- function(err_message,
 #'
 #' @param suffix geom suffix
 #'
-#' @seealso used in \code{\link{drawgg}}.
 #' @export
 get_required_aes <- function(suffix='point') {
     command <- paste0('ggplot2::geom_', suffix, '()')
@@ -482,7 +463,6 @@ get_required_aes <- function(suffix='point') {
 #'
 #' @param suffix geom suffix
 #'
-#' @seealso used in \code{\link{drawgg}}.
 #' @export
 get_possible_aes <- function(suffix='point') {
     command <- paste0('ggplot2::geom_', suffix, '()')
@@ -504,7 +484,6 @@ get_possible_aes <- function(suffix='point') {
 #' @param showWarn a flag for printing warning when ambiguous match.
 #'                    Default is TRUE.
 #'
-#' @seealso used in \code{\link{drawgg}}.
 #' must_aesv and all_aesv are built by
 #' \code{\link{get_required_aes}} and
 #' \code{\link{get_possible_aes}}, respectively.
@@ -539,7 +518,6 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #' @param showWarn a flag for printing warning when ambiguous match.
 #'                    Default is TRUE.
 #'
-#' @seealso used in \code{\link{drawgg}}.
 #' all_aesv are built by \code{\link{get_possible_aes}}.
 #' \code{\link{parse_ggbash_aes}}
 #'
@@ -552,139 +530,4 @@ parse_ggbash_non_aes <- function(non_aes='shape=1', all_aesv,
         before_equal <- all_aesv[find_first(before_equal, all_aesv, showWarn)]
 
     return(paste0(before_equal, '=', after_equal))
-}
-
-#' build a geom (a Layer object) from a ggbash character
-#'
-#' @param dataset A dataframe with attr('ggbash_datasetname').
-#' @param ggstr A ggbash string of geom name, aesthetics, and non-aesthetics
-#' @param showWarn Show \code{warning} message when ambiguous partial match.
-#'                 Default is TRUE.
-#'
-#' \code{build_geom} interprets given a ggbash character (vector)
-#' and build a geom string.
-#'
-#' \code{build_geom} is a core function in ggbash library.
-#' It performs partial matches against geom name, column names, and aesthetics
-#' and construct a complete geom as a character.
-#'
-#' @return A list with the following two fields:
-#' \describe{
-#'     \item{geomstr: }{A string representing a geom.}
-#'     \item{geomstr_verbose: }{geomstr with ggplot2:: modifiers.}
-#'     \item{conf: }{the parsed geom/aes/non-aes specifications.}
-#' }
-#'
-#' @examples
-#' build_geom(iris, 'p Sepal.Width Sepal.Length color=Species shape=13')
-#'
-#' @seealso \code{\link{ggbash}}, \code{\link{copy_to_clipboard}}
-#'
-#' @export
-build_geom <- function(
-    dataset, ggstr='p x=2 y=3 colour=4 shape="18"', showWarn=TRUE
-){
-    if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
-        dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
-    argv <- split_by_space(ggstr)
-
-    const <- define_ggbash_constant_list()
-    single_quote <- "'"
-    double_quote <- '"'
-    # 'p' is resolved into 'point'
-    geom_sth <- const$geom_namev[find_first(argv[1], const$geom_namev, showWarn)]
-
-    must_aesv <- get_required_aes(geom_sth)
-    all_aesv <- get_possible_aes(geom_sth)
-    colnamev <- colnames(dataset)
-
-    is_aes <- ! grepl(paste0(single_quote, '|', double_quote, '|[0-9]'), argv)
-    aesv <- argv[is_aes][-1]
-    non_aesv <- argv[!is_aes]
-    conf <- list(geom=geom_sth, aes=rep(NA, length(aesv)),
-                 non_aes=rep(NA, length(non_aesv)))
-    for ( i in seq_along(aesv) ) { # TODO set non-aes elements
-        conf$aes[i] <- parse_ggbash_aes(i, aesv, must_aesv,
-                                          all_aesv, colnamev, showWarn)
-    }
-    for ( i in seq_along(non_aesv) ) { # TODO set non-aes elements
-        conf$non_aes[i] <- parse_ggbash_non_aes(non_aesv[i], all_aesv, showWarn)
-    }
-
-    aes_str <- paste0('ggplot2::aes(', paste0(conf$aes, collapse = ', '), ')')
-    non_aes_str <- paste0(ifelse(length(conf$non_aes),', ',''),
-                          paste0(conf$non_aes, collapse = ', '))
-
-    command <- paste0('ggplot2::geom_', geom_sth, '(', aes_str, non_aes_str, ')')
-    return(list(geomstr = gsub('ggplot2::','', command),
-                geomstr_verbose = command, conf = conf))
-}
-
-#' build a complete ggplot2 object and print it
-#'
-#' \code{drawgg} interprets given a ggbash character vector
-#' and build a complete ggplot2 object.
-#'
-#' \code{drawgg} is a core function in ggbash library.
-#' It performs partial matches against geom name, column names, and aesthetics
-#' and construct a complete ggplot2 object as a character.
-#' This can be used as a function to write one
-#'
-#' @param dataset A dataframe with attr('ggbash_datasetname').
-#' @param geom_list a list of \code{\link{build_geom}} results.
-#' @param doEval print the built ggplot object. Default is TRUE. Useful for testthat tests.
-#' @return A list with the following two fields:
-#' \describe{
-#'     \item{cmd: }{the \code{eval}uated ggplot2 character.}
-#'     \item{cmd_verbose: }{cmd with ggplot2:: modifiers and \code{labs}.}
-#'     \item{conf: }{the parsed geom/aes/non-aes specifications.}
-#' }
-#'
-#' @examples
-#' geom_list <- list(build_geom(iris, 'p Sepal.W Sepal.L'), build_geom(iris, 'l Sepal.W Sepal.L'))
-#' out <- drawgg(dataset = iris, geom_list = geom_list)
-#'
-#' copy_to_clipboard(out$cmd)
-#'
-#' @seealso \code{\link{ggbash}}, \code{\link{copy_to_clipboard}}, \code{\link{build_geom}}
-#'
-#' @export
-drawgg <- function(
-    dataset=NULL,
-    geom_list = list(
-        list(geomstr = 'geom_point(aes(x=mpg,y=cyl))',
-             geomstr_verbose =
-                 'ggplot2::geom_point(ggplot2::aes(x=mpg,y=cyl), colour="blue", size=6)',
-             conf = list(aes=c('x=mpg', 'y=cyl'),
-                         non_aes=c('colour="blue"', 'size=6'))),
-        list(geomstr = 'geom_line(aes(x=mpg,y=cyl))',
-             geomstr_verbose =
-                 'ggplot2::geom_line(ggplot2::aes(x=mpg,y=cyl), colour="blue", size=6)',
-             conf = list(aes=c('x=mpg', 'y=cyl'),
-                         non_aes=c('colour="blue"', 'size=6')))),
-    doEval=TRUE
-){
-    if (is.null(dataset))
-        return()
-    if (is.null(attr(dataset, 'ggbash_datasetname'))) # called directly
-        dataset <- set_ggbash_dataset(deparse(substitute(dataset)))
-
-    aes_str <- ifelse(attr(dataset, 'ggbash_ggplot2') == '',
-                      '',
-                      paste0(', ', attr(dataset, 'ggbash_ggplot2')))
-
-    gg <- paste0('ggplot2::ggplot(',
-                 attr(dataset, 'ggbash_datasetname'), aes_str, ')')
-    conf <- list(geom=c(), aes=c(), non_aes=c())
-
-    for (geom in geom_list) {
-        gg <- paste0(gg, ' + ', geom$geomstr_verbose)
-        conf$aes <- c(conf$aes, geom$conf$aes)
-        conf$non_aes <- c(conf$non_aes, geom$conf$non_aes)
-        conf$geom <- c(conf$geom, geom$conf$geom)
-    }
-    if (doEval)
-        print(eval(parse(text = gg)))
-    short_cmd <- gsub('ggplot2::','', gg)
-    return(list(cmd = short_cmd, cmd_verbose = gg, conf = conf))
 }

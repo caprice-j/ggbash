@@ -92,7 +92,7 @@ find_first <- function(prefix='si',
 #' at least 6 characters ('pointr') is needed.
 #'
 #' @seealso The preference order is used
-#'          when doing partial match in \code{\link{drawgg}}.
+#'          when doing partial match in GgplotParser.
 #'
 define_ggbash_constant_list <- function(){
     list(
