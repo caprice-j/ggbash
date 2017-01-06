@@ -28,7 +28,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-gg iris  |  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
+gg iris  +  point Sepal.W Sepal.L c=Spec siz=Petal.W  |  echo
 ```
 
 ![](README-example-1.png)
@@ -45,12 +45,12 @@ geom_point(aes(Sepal.Width,
 ### One-liner
 
 ``` r
-ggbash('gg iris | point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
+ggbash('gg iris + point Sepal.W Sepal.L c=Spec siz=Petal.W', clipboard=1)
 # copied to clipboard: 
 #   ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length, colour=Species, size=Petal.Width))
 
-# or using %>% operator
-ggbash('gg iris | point Sepal.W Sepal.L')$cmd %>% copy_to_clipboard
+# ... or using the %>% operator
+ggbash('gg iris + point Sepal.W Sepal.L') %>% copy_to_clipboard
 ```
 
 Features
@@ -60,13 +60,13 @@ Features
 
 ### 1. Partial Prefix Match
 
-For the above input `gg iris | point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
+For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
 
 -   **ggplot function**
     -   `gg` matches `ggplot2::ggplot()`.
 -   **geom names**
     -   `point` matches `geom_point`.
-        -   Note: the common prefix `geom_` is removed for usability.
+        -   Note: you can also write `geom_point` (i.e. write `geom_` prefix explicitly).
 -   **column names**
     -   `Sepal.W` matches `iris$Sepal.Width`.
 
@@ -82,27 +82,25 @@ Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported
 
 Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
-For example, if the input is `gg iris | p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
+For example, if the input is `gg iris + p Sepal.W Sepal.L c=Sp`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
 While it's possible to define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
 
-### 3. Pipe Operator (`|`)
+### 3. Pipe Operator (`+` and `|`)
 
-#### Pipes for Adding Layers
-
-While ggplot2 library differentiates between `%>%` and `+` operators, ggbash interprets only the `|` symbol as a pipe operator.
+#### Pipes for Adding Layers (`+`)
 
 ``` r
-ggbash('gg mtcars x=mpg y=wt | point | smooth | copy')
+ggbash('gg mtcars x=mpg y=wt + point + smooth')
 ```
 
 ![](README-pipe_example-1.png)
 
-#### Pipes for Copying Results
+#### Pipes for Copying Results (`|`)
 
 ``` r
-ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
+ggbash('gg iris + p Sepal.W Sepal.L col=Sp siz=4 | copy')
     copied to clipboard:
     ggplot(iris) + geom_point(aes(x=Sepal.Length,
                                   y=Sepal.Width,
@@ -113,7 +111,7 @@ ggbash('gg iris | p 1 2 col=Sp siz=4 | copy')
 #### Pipes for Saving Results
 
 ``` r
-ggbash('gg iris | p 2 1 c=5 | png my_image/')
+ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
     saved in:
     'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
 ```
@@ -123,7 +121,7 @@ If you would like to get scatterplot matrix,
 ``` r
 for( i in 1:ncol(iris) )
     for ( j in (i+1):ncol(iris) )
-        ggbash("gg iris | point {colnames(iris)[i]} {colnames(iris)[j]} | png my_image/")
+        ggbash("gg iris + point {colnames(iris)[i]} {colnames(iris)[j]} | png my_image/")
 ```
 
 ![Auto-generated Files](README-image-dir.png)
@@ -140,9 +138,11 @@ If you happen to have the different `iris` dataset which has a different number 
 
 ### 5. Order Agnostic Arguments
 
-`png` and `pdf` could receive plot size, file name, and directory name to save plots. If none specified, the default values are used.
+`png` and `pdf` could receive plot size, file name, and directory name to save plots. If not specified, the default values are used.
 
-`png` and `pdf` commands interpret a single- or double-quoted token as file name ("iris-for" in the following example), a token with `/` suffix as directory name, and otherwise plot size. `png` is order-agnostic: Any of the following notations generates the same png file `"my_image/my-iris-plot.960x480.png"`.
+`png` and `pdf` commands interpret a single- or double-quoted token as file name (`"my-iris-plot"` in the following example), a token with `/` suffix as directory name, and otherwise plot size.
+
+`png` is order-agnostic: Any of the following notations generates the same png file `"my_image/my-iris-plot.960x480.png"`.
 
 ``` bash
 gg iris | p 1 2 | png "my-iris-plot" 960x480 my_image/     
@@ -153,24 +153,24 @@ gg iris | p 1 2 | png 960x480 "my-iris-plot" my_image/
 gg iris | p 1 2 | png 960x480 my_image/ "my-iris-plot"
 ```
 
-#### 6. Guessing Inches or Pixels
+#### Guessing Inches or Pixels
 
 <!-- 1 inch == 2.54 cm -->
-While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `<width>x<height>` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch == 2.54 cm).**
+While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `(width)x(height)` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch = 2.54 cm).**
 
 ``` bash
 
 # pdf of 15 inch width (=~ 40 cm) and 9 inch height (=~ 23 cm)
-gg iris | p 1 2 | pdf 16x9
+gg iris + p Sepal.W Sepal.L | pdf 16x9
 
 # pdf of 1440 pixel (=~ 50 cm) width and height
-gg iris | p 1 2 | pdf 1440x1440
+gg iris + p Sepal.W Sepal.L | pdf 1440x1440
 
 # the png command in ggbash also recognises inches and pixels
-gg iris | p 1 2 | png 16x9
+gg iris + p Sepal.W Sepal.L | png 16x9
 ```
 
-Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)` argument.
+Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)`.
 
 <!-- ### 6. Type-specific For Loop (To Be Implemented) -->
 <!-- ```{r, eval=FALSE} -->
@@ -208,7 +208,7 @@ Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If yo
 Goals
 -----
 
-The goal of ggbash is to make plotting in ggplot2 as faster as possible. It can be categorized into two different sub goals:
+The goal of ggbash is to make plotting in ggplot2 as fast as possible. It can be categorized into two different sub goals:
 
 1.  **Better EDA experience.** Provide blazingly fast way to do Exploratory Data Analysis.
 
