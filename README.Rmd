@@ -150,7 +150,7 @@ ggbash('gg iris + p Sepal.W Sepal.L col=Sp siz=4 | copy')
                                   size=Petal.Width))
 ```
 
-#### Pipes for Saving Results
+#### Pipes for Saving Results (`|`)
 
 ```{r, eval=FALSE}
 ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
@@ -289,7 +289,7 @@ It can be categorized into two different sub goals:
 
     + less typing by Partial Prefix Match and Precedence.
 
-    + casualy save plots with Pipe Operator and Auto-generated Filenames.
+    + casualy save plots with Pipe Operators and Auto-generated Filenames.
 
 2. **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
 
@@ -326,6 +326,8 @@ About a different way to generate scatterplot matrix,
   while `ggbash` outputs each subplot as a plot.
 + `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
+
+ggbash is influenced by some other higher level programming languages such as CoffeeScript.
 
 ## Current Implementation Status
 

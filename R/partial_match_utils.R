@@ -129,3 +129,48 @@ define_ggbash_constant_list <- function(){
         # TODO implement stat like stat_smooth
     )
 }
+
+get_all_theme_aes <- function(){
+
+    # retrieve each theme element's corresponding handler from default settings
+    # (i.e. element_text(), element_rect(), ...)
+    theme_aes <- ggplot2::theme_classic()
+    aes_info <-
+        data.frame(
+            name = names(theme_aes),
+            class = sapply(theme_aes, function(aes) { class(aes)[1] } ),
+            stringsAsFactors = FALSE
+        )
+
+    # 12 elements in the above theme has NULL classes --
+    # this is because these elements inherit its values from the parent element.
+    #   Ex. "axis.text.x" and "axis.text.y" inherits from "axis.text"
+    #   Ex. "legend.key.height" and "legend.key.width" inherits from "legend.key.size"
+    #
+    # Thus, retrieve handlers from inheritance info
+    inherit_matrix <- sapply(ggplot2:::.element_tree, function(x){x})
+    is_child <- inherit_matrix['inherit', ] != 'NULL'
+    is_null <- aes_info$class == 'NULL'
+    is_aes <- colnames(inherit_matrix) %in% aes_info[is_null, ]$name
+    child_class <- unlist(inherit_matrix['class', is_child & is_aes ])
+    aes_info[names(child_class), 'class'] <- child_class
+
+
+    # Still 4 elements have no handler.
+    # This is because these are just characters.
+    undefined <- c("legend.text.align", "legend.direction",
+                   "legend.box", "legend.title.align")
+    aes_info[undefined, ]$class <- 'character'
+
+    # Another problem is element_blank()
+    aes_info[aes_info$class == 'element_blank', ] <-
+        c('element_rect', # legend.key
+          'element_rect', # legend.box.background
+          'element_rect', # panel.border
+          'element_line', # panel.grid.major
+          'element_line'  # panel.grid.minor
+          )
+
+    # Now all of aes_info$class is non-NULL and not element_blank().
+    return(aes_info)
+}

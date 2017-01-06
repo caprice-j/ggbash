@@ -1,6 +1,6 @@
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
-GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','LAYER')
+GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','LAYER', 'THEME')
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -12,6 +12,8 @@ GGPLOT2_LITERALS = c() # needed?
 
 # MAYBE-LATER don't know how to pass variables between yacc's production rules
 ggbashenv <- new.env() # Note: This is a global variable.
+
+ggbash_plus_pipe <- '(\\+|\\|)\\s*'
 
 Ggplot2Lexer <-
     R6::R6Class("Lexer",
@@ -34,7 +36,7 @@ Ggplot2Lexer <-
                     #t_RPAREN  = '\\)',
                     #t_COMMA = ',',
                     t_LAYER = function(re='(\\+|\\|)\\s*[a-z_]+', t) {
-                        partial <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', t$value)
+                        partial <- gsub(paste0(ggbash_plus_pipe, '(geom_)?'), '', t$value)
                         ggbashenv$const <- define_ggbash_constant_list()
                         # FIXME showWarn
                         ggbashenv$showWarn <- TRUE
@@ -45,6 +47,7 @@ Ggplot2Lexer <-
                         t$value <- paste0(' + geom_', geom_sth)
                         return(t)
                     },
+                    t_THEME = paste0(ggbash_plus_pipe, 'theme'),
                     t_NUMBER = function(re='\\d+', t) {
                         t$value <- strtoi(t$value)
                         return(t)
@@ -58,6 +61,4 @@ Ggplot2Lexer <-
                         cat(sprintf("Illegal character '%s'", t$value[1]))
                         t$lexer$skip(1)
                         return(t)
-                    }
-                )
-    )
+                    }))
