@@ -8,7 +8,7 @@ Description: ggbash provides a bash-like REPL environment,
 License: MIT + file LICENSE
 Depends: R (>= 3.3.0)
 Imports: 
-    dplyr,
+    tibble (>= 1.0.0),
     ggplot2 (>= 2.2.0),
     fstrings,
     rly (>= 1.3.0)

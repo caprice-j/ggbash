@@ -158,7 +158,7 @@ set_ggbash_dataset <- function(dataset_name='iris'){
     rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
     if (class(rect_data) == 'matrix')
         rect_data <- as.data.frame(rect_data)
-    dataset <- dplyr::tbl_df(rect_data)
+    dataset <- tibble::as_data_frame(rect_data)
     attr(dataset, 'ggbash_datasetname') <- dataset_name
     return(dataset)
 }
@@ -349,7 +349,7 @@ exec_ggbash <- function(raw_input='gg mtcars + point mpg cyl | copy',
             dataset <- set_ggbash_dataset(argv[2])
             ggobj <- rly::yacc(Ggplot2Parser)$parse(cmd, rly::lex(module=Ggplot2Lexer))
         } else if (argv[1] == 'show') {
-            print(dplyr::tbl_df(eval(as.symbol((argv[2])))))
+            print(tibble::as_data_frame(eval(as.symbol((argv[2])))))
             return(FALSE)
         } else if (argv[1] %in% c('echo', 'print')) {
             if (ggobj != '')
