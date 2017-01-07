@@ -55,6 +55,9 @@ test_that('cases 2', {
     for (boolean_input in c('TRUE','FALSE','T','F','t','f','true','false','True','False'))
         g$input(boolean_input); ee(g$token()$type, 'BOOLEAN')
 
+    # TODO whitespaces
+    g$input('ggplot iris +      p       Sepal.W       Sepal.L      c     ="red" s   =5')
+
     # TODO partial match for theme elements
 
     # TODO  theme(legend.position = c(.5, .5))
@@ -62,6 +65,4 @@ test_that('cases 2', {
     # TODO recover from non-existing configuration settings
     # gg iris + point Sepal.W Sepal.L c=Sp + theme legend : angle=45
 
-    # TODO whitespaces
-    # ggplot iris +      p       Sepal.W       Sepal.L      c     ="red" s   =5
 })

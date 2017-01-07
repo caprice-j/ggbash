@@ -17,7 +17,7 @@ devtools::install_github("caprice-j/ggbash")
 
 ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
 
-Note: if you met no `appender.console` error, you might need `install.packages('futile.logger')`.
+If you met no `appender.console` error, you might need `install.packages('futile.logger')`.
 
 Usage
 -----
@@ -251,11 +251,17 @@ Other Works
 
 As far as I know, there are no previous attempts to implement a higher-level language that [transcompiles](https://en.wikipedia.org/wiki/Source-to-source_compiler) to ggplot2. Reports of similar attempts are welcomed.
 
-About a different way to generate scatterplot matrix, `GGally::ggpairs` does the similar work. The major differences are:
+<!--
 
--   `GGally::ggpairs` output the scatterplot matrix in one plot, while `ggbash` outputs each subplot as a plot (or as a file).
--   `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename, while `ggbash` uses `| png` or `| pdf` pipe chains with auto-generated filenames.
+About a different way to generate scatterplot matrix,
+`GGally::ggpairs` does the similar work. The major differences are:
 
++ `GGally::ggpairs` output the scatterplot matrix in one plot,
+  while `ggbash` outputs each subplot as a plot (or as a file).
++ `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename,
+  while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
+
+-->
 ggbash is influenced by some other higher level programming languages such as CoffeeScript or Ruby.
 
 Current Implementation Status
@@ -271,6 +277,7 @@ Current Implementation Status
     -   auto completion (R's `prompt()` does not have built-in completions)
     -   new geoms/stats in ggplot2 extensions
     -   Approximate String Match (e.g. identifying `size` by `sz`)
+    -   interfaces to dplyr/tidyr
 
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 <!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif) -->

@@ -333,6 +333,8 @@ a higher-level language that
 [transcompiles](https://en.wikipedia.org/wiki/Source-to-source_compiler) to ggplot2.
 Reports of similar attempts are welcomed.
 
+<!--
+
 About a different way to generate scatterplot matrix,
 `GGally::ggpairs` does the similar work. The major differences are:
 
@@ -340,6 +342,8 @@ About a different way to generate scatterplot matrix,
   while `ggbash` outputs each subplot as a plot (or as a file).
 + `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
+
+-->
 
 ggbash is influenced by some other higher level programming
 languages such as CoffeeScript or Ruby.

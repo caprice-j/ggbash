@@ -252,9 +252,9 @@ Ggplot2Parser <-
                         dbgmsg('p_theme_conf_list')
                         conf <- p$get(2)
                         if(p$length() == 2) {
-                            if (grepl(ggbash_quoted_regex, conf)) {
+                            if (grepl(ggregex$quoted, conf)) {
                                 p$set(1, conf)
-                            } else if (grepl(ggbash_boolean_regex, conf)) {
+                            } else if (grepl(ggregex$boolean, conf)) {
                                 p$set(1, conf)
                             } else {
                                 # FIXME add spaces

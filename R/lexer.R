@@ -13,11 +13,15 @@ GGPLOT2_LITERALS = c() # needed?
 # MAYBE-LATER don't know how to pass variables between yacc's production rules
 ggbashenv <- new.env() # Note: This is a global variable.
 
-ggbash_plus_pipe <- '(\\+|\\|)\\s*'
-ggbash_quoted_regex <- paste0('^(', "'|", '")',                   # start from a quote
-                              '[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+',
-                              "('|", '")$')                       # end by a quote
-ggbash_boolean_regex <- '^(TRUE|FALSE|T|F|t|f|true|false|True|False)$'
+ggregex <- list(
+    plus_pipe = '(\\+|\\|)\\s*',
+    quoted    = paste0('^(', "'|", '")',                   # start from a quote
+                      '[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+',
+                      "('|", '")$'),                      # end by a quote
+    boolean   = '^(TRUE|FALSE|T|F|t|f|true|false|True|False)$',
+    constaes  = paste0('[a-z]+=[0-9\\.]+'),
+    charaes   = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')')
+)
 
 Ggplot2Lexer <-
     R6::R6Class("Lexer",
@@ -30,13 +34,13 @@ Ggplot2Lexer <-
                         t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                         return(t)
                     },
-                    t_CONSTAES = paste0('[a-z]+=[0-9\\.]+'), # integers and floats
-                    t_BOOLEAN = ggbash_boolean_regex,
-                    t_QUOTED = ggbash_quoted_regex,
+                    t_CONSTAES = ggregex$constaes, # integers and floats
+                    t_BOOLEAN = ggregex$boolean,
+                    t_QUOTED = ggregex$quoted,
                     # I believe CONSTAES cannot contain +-*/^,
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)
-                    t_CHARAES = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')'),
+                    t_CHARAES = ggregex$charaes,
                     t_THEMEELEM = function(re='[a-zA-Z_][a-zA-Z\\.]*\\s*\\:', t) {
                         t$value <- gsub(' ', '', t$value)
                         return(t)
@@ -51,7 +55,7 @@ Ggplot2Lexer <-
                             t$type <- 'THEME'
                             return(t)
                         }
-                        partial <- gsub(paste0(ggbash_plus_pipe, '(geom_)?'), '', t$value)
+                        partial <- gsub(paste0(ggregex$plus_pipe, '(geom_)?'), '', t$value)
                         ggbashenv$const <- define_ggbash_constant_list()
                         # FIXME showWarn
                         ggbashenv$showWarn <- TRUE
