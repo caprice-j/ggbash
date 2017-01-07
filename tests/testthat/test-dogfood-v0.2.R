@@ -27,4 +27,24 @@ test_that('cases', {
 
 })
 
+test_that('cases 2', {
+    # TODO add theme_bw()
+    # gg iris + point Sepal.W Sepal.L col=Species size=5 + theme text: size=20 family="Baskerville" face="bold" + theme_bw()
 
+
+    # TODO how do we deal with units?
+    #  + theme(axis.ticks.length = unit(.85, "cm"))
+
+    # TODO characters and logicals
+    # gg iris + point Sepal.W Sepal.L + theme axis.ticks: size=1.5 legend.position: "none"
+
+    # TODO partial match for theme elements
+
+    # TODO  theme(legend.position = c(.5, .5))
+
+    # TODO recover from non-existing configuration settings
+    # gg iris + point Sepal.W Sepal.L c=Sp + theme legend : angle=45
+
+    # TODO whitespaces
+    # ggplot iris +      p       Sepal.W       Sepal.L      c     ="red" s   =5
+})

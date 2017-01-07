@@ -34,12 +34,10 @@ gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W  +  theme text: size=20 f
 ![](README-example-1.png)
 
 ``` r
-# this is the result of the above ggbash 'echo' command
+# The output of the above ggbash 'echo' command
 ggplot(iris) +
-geom_point(aes(Sepal.Width,
-               Sepal.Length,
-               colour=Species,
-               size=Petal.Width)) +
+geom_point(aes(Sepal.Width, Sepal.Length,
+               colour=Species, size=Petal.Width)) +
 theme(text=element_text(size=20, face="bold"))
 ```
 
@@ -77,16 +75,28 @@ For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash perfor
     -   `c` matches `colour`, which is the aesthetic of `geom_point`.
     -   `s` matches `size` by predefined ggbash Precedence (explained below).
 
-Note: Approximate String Match (e.g. identifying `size` by `sz`)is not supported.
+Any of the following commands return exactly the same plot.
+
+``` r
+ggplot(iris)+ geom_point(aes(x=Sepal.Width,y=Sepal.Length),colour="red",size=5)  # 79 characters
+ggplot iris + geom_point     x=Sepal.Width y=Sepal.Length  colour="red" size=5
+ggplot iris +      point     x=Sepal.Width y=Sepal.Length  colour="red" size=5
+ggplot iris +      point       Sepal.Width   Sepal.Length  colour="red" size=5
+ggplot iris +      point       Sepal.W       Sepal.L       col   ="red" siz =5
+ggplot iris +      p           Sepal.W       Sepal.L       c     ="red" s   =5
+gg     iris +      p           Sepal.W       Sepal.L       c     ="red" s   =5
+g      iris +      p           Sepal.W       Sepal.L       c     ="red" s   =5   # 38 characters
+```
 
 ### 2. Precedence
 
 Even if an unique identification is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error. Everything in `ggbash` is designed to achieve the least possible expected keystrokes.
 
+<!-- https://en.wikipedia.org/wiki/DWIM -->
 For example, if the input is `ggplot iris + p Sepal.Width Sepal.Length colour=Species`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
-While it's possible to check and define your own precedence order through `define_constant_list()`, adding one or two characters may be faster in most cases.
+While it's possible to check and define your own precedence order through `define_ggbash_constant_list()`, adding one or two characters may be faster in most cases.
 
 ### 3. Pipe Operators (`+` and `|`)
 
@@ -171,7 +181,7 @@ gg iris + p Sepal.W Sepal.L | pdf 1440x1440
 gg iris + p Sepal.W Sepal.L | png 16x9
 ```
 
-Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)`.
+Note: the default dpi (dots per inch) in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)`.
 
 <!-- ### 6. Type-specific For Loop (To Be Implemented) -->
 <!-- ```{r, eval=FALSE} -->
@@ -209,15 +219,15 @@ Note: the default dpi in ggbash is 72 (R's default) and cannot be changed. If yo
 Goals
 -----
 
-The goal of ggbash is to make plotting in ggplot2 as fast as possible. It can be categorized into two different subgoals:
+The goal of ggbash is to make ggplot2 more comfortable to write. It can be categorized into two subgoals:
 
-1.  **Better EDA experience.** Provide blazingly fast way to do Exploratory Data Analysis.
+1.  **Analyzing data at the speed of thought.** Provide blazingly fast way to do exploratory data anslysis.
 
     -   less typing by Partial Prefix Match and Precedence.
 
     -   casualy save plots with Pipe Operators and Auto-generated Filenames.
 
-2.  **Intuitive finalization (to be implemented).** Make it less stressful to finalize your plots.
+2.  **Intuitive finalization (to be implemented).** Make it more intuitive to finalize your plots.
 
     -   adjust colours or lineweights
 
@@ -246,7 +256,7 @@ About a different way to generate scatterplot matrix, `GGally::ggpairs` does the
 -   `GGally::ggpairs` output the scatterplot matrix in one plot, while `ggbash` outputs each subplot as a plot.
 -   `GGally::ggpairs` uses `ggplot2::ggsave` to save a plot with no default filename, while `ggbash` uses `| png` or `| pdf` pipe chains with auto-generated filenames.
 
-ggbash is influenced by some other higher level programming languages such as CoffeeScript.
+ggbash is influenced by some other higher level programming languages such as CoffeeScript or Ruby.
 
 Current Implementation Status
 -----------------------------
@@ -257,4 +267,7 @@ Current Implementation Status
 -   TODO:
     -   stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_...
     -   sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
--   HOW: auto completion (R's `prompt()` does not have built-in completions)
+-   HOW:
+    -   auto completion (R's `prompt()` does not have built-in completions)
+    -   new geoms/stats in ggplot2 extensions
+    -   Approximate String Match (e.g. identifying `size` by `sz`)

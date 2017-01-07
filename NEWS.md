@@ -42,8 +42,11 @@ theme text(size=5, face="bold")    line(linetype="dotted")     # function-like p
 theme text(size=5  face="bold")    line(linetype="dotted")     # without commas
 ```
 
-I could not decide which way is the best,
-but the implemented one was felt most intuitive, easy-to-learn, and easy-to-read.
+I could not decide which way is the best -- 
+for me, all of the above options look violated [principle of least astonishment](https://en.wikipedia.org/wiki/Principle_of_least_astonishment).
+
+But the implemented one lookedthe  most intuitive, easy-to-learn,
+and easy-to-read at least among them.
 This decision will be easily changed by a more appealing alternative.
 
 

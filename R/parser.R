@@ -1,3 +1,8 @@
+dbgmsg <- function(...) {
+    if (exists('ggbash_debug'))
+        message(...)
+}
+
 Ggplot2Parser <-
     R6::R6Class("Parser",
                 public = list(
@@ -12,16 +17,16 @@ Ggplot2Parser <-
                                                                  | gg_init aes_func
                                                                  | gg_init ggproto_list
                                                                  | gg_init aes_func ggproto_list", p) {
-                        message('p_expression_func')
+                        dbgmsg('p_expression_func')
 
-                        message('p_expression_func plength: ', p$length())
+                        dbgmsg('p_expression_func plength: ', p$length())
 
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                         ggbashenv$geom <- ''
 
                         if (p$length() == 2) {
-                            message('GGPLOT only ')
+                            dbgmsg('GGPLOT only ')
                             p$set(1, paste0(p$get(2), ')'))
                         } else if (p$length() == 3 && (! grepl('\\+', p$get(3)))[1] ) { # FIXME
                             p$set(1, paste0(p$get(2), ', ggplot2::aes(', p$get(3), ')'))
@@ -32,17 +37,17 @@ Ggplot2Parser <-
                         }
                         },
                     p_gg_init = function(doc="gg_init : GGPLOT", p) {
-                        message('p_gg_init')
+                        dbgmsg('p_gg_init')
                         ggbashenv$dataset_name <- gsub('ggplot2::ggplot\\(', '', p$get(2))
                         ggbashenv$dataset <- eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                         ggbashenv$conf <- list(aes=c(), non_aes=c(), geom_list=c())
-                        message('  set dataset name: ', ggbashenv$dataset_name)
+                        dbgmsg('  set dataset name: ', ggbashenv$dataset_name)
 
                         p$set(1, p$get(2))
                     },
                     p_ggproto_list = function(doc="ggproto_list : ggproto
                                               | ggproto ggproto_list", p) {
-                        message('p_ggproto_list')
+                        dbgmsg('p_ggproto_list')
                         if (p$length() == 2)
                             p$set(1, p$get(2))
                         else
@@ -53,7 +58,7 @@ Ggplot2Parser <-
                                                             | layer_init layer_raw_aes
                                                             | layer_init layer_aes layer_raw_aes
                                                             | layer_init layer_raw_aes layer_aes", p) {
-                        message('p_ggproto_layer')
+                        dbgmsg('p_ggproto_layer')
 
                         # ex: ggbashenv$geom == 'point'
                         if (p$length() == 2) {
@@ -61,7 +66,7 @@ Ggplot2Parser <-
                         }
 
                         # FIXME more general
-                        message('  3rd is : ', p$get(3))
+                        dbgmsg('  3rd is : ', p$get(3))
                         raw_is_3rd <- grepl(paste0('=([0-9\\+\\-\\*\\/\\^]+|"|', "'", ')'), p$get(3))
 
                         if (raw_is_3rd) {
@@ -80,26 +85,26 @@ Ggplot2Parser <-
                         },
                     p_layer_init = function(doc="layer_init : LAYER", p) {
                         # initialization
-                        message('p_layer_init')
-                        message('  before: ', ggbashenv$geom)
+                        dbgmsg('p_layer_init')
+                        dbgmsg('  before: ', ggbashenv$geom)
                         prev <- gsub('\\s*(\\+|\\|)\\s*(geom_)?', '', p$get(2))
                         ggbashenv$geom <- ggbashenv$const$geom_namev[find_first(prev,
                                                                                 ggbashenv$const$geom_namev,
                                                                                 ggbashenv$showWarn)]
-                        message('  after: ', ggbashenv$geom)
+                        dbgmsg('  after: ', ggbashenv$geom)
                         ggbashenv$conf$geom_list <- c(ggbashenv$conf$geom_list, ggbashenv$geom)
                         ggbashenv$aes_i <- 1
                         p$set(1, paste0(' + ggplot2::geom_', prev))
                     },
                     p_layer_aes = function(doc="layer_aes : NAME
                                                           | NAME layer_aes", p) {
-                        message('p_layer_aes')
+                        dbgmsg('p_layer_aes')
 
                         # do column-name partial match
                         single_quote <- "'"
                         double_quote <- '"'
                         # for ( obj in ls(envir=ggbashenv))
-                        #     message('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
+                        #     dbgmsg('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
 
                         colnamev <- colnames(ggbashenv$dataset)
 
@@ -143,10 +148,10 @@ Ggplot2Parser <-
                     # },
                     p_aes_func = function(doc="aes_func : NAME
                                                         | NAME aes_func", p) {
-                        message('p_aes_func')
+                        dbgmsg('p_aes_func')
 
                         # for ( obj in ls(envir=ggbashenv))
-                        #     message('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
+                        #     dbgmsg('obj ', obj, ' ', eval(as.symbol(obj), envir=ggbashenv))
 
                         colnamev <- colnames(ggbashenv$dataset)
 
@@ -157,7 +162,7 @@ Ggplot2Parser <-
                         column_name <- parse_ggbash_aes(1, p$get(2), must_aesv,
                                                         all_aesv, colnamev, ggbashenv$showWarn)
                         if (is.null(column_name)) {
-                            message('column_name is null: ', column_name)
+                            dbgmsg('column_name is null: ', column_name)
                             Sys.sleep(3)
                         }
                         # FIXME is this okay?
@@ -171,19 +176,19 @@ Ggplot2Parser <-
                     },
                     # see p_ggproto_layer
                     p_ggproto_theme = function(doc="ggproto : theme_init theme_elem_list", p) {
-                        message('p_ggproto_theme')
+                        dbgmsg('p_ggproto_theme')
                         p$set(1, paste0(p$get(2), p$get(3)))
                     },
                     p_theme_init = function(doc="theme_init : THEME", p) {
                         # initialization
-                        message('p_theme_init')
+                        dbgmsg('p_theme_init')
                         theme_str <- gsub('\\s|\\+', '', p$get(2))
 
                         p$set(1, paste0(' + ggplot2::', theme_str, '('))
                     },
                     p_theme_elem_list = function(doc="theme_elem_list : theme_elem
                                                                       | theme_elem theme_elem_list" ,p) {
-                        message('p_theme_elem_list')
+                        dbgmsg('p_theme_elem_list')
                         elem <- p$get(2)
                         if(p$length() == 2) {
                             p$set(1, paste0(elem, ')')) # close ggplot2::theme(
@@ -193,7 +198,7 @@ Ggplot2Parser <-
                         }
                     },
                     p_theme_elem = function(doc="theme_elem : THEMEELEM theme_conf_list", p) {
-                        message('p_theme_elem')
+                        dbgmsg('p_theme_elem')
                         elem_name <- gsub('\\:', '', p$get(2))
 
                         tdf <- ggbashenv$const$themedf
@@ -229,7 +234,7 @@ Ggplot2Parser <-
                                                                       | CHARAES
                                                                       | CONSTAES theme_conf_list
                                                                       | CHARAES theme_conf_list", p) {
-                        message('p_theme_conf_list')
+                        dbgmsg('p_theme_conf_list')
                         conf <- p$get(2)
                         if(p$length() == 2) {
                             # FIXME add spaces
