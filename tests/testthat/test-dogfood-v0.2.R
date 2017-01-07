@@ -8,8 +8,7 @@ p <- rly::yacc(Ggplot2Parser)
 function() {
     source('~/Dropbox/CU2016/ggbash/R/partial_match_utils.R')
     source('~/Dropbox/CU2016/ggbash/R/ggbash.R')
-    source('~/Dropbox/CU2016/ggbash/R/parser.R')
-    source('~/Dropbox/CU2016/ggbash/R/lexer.R')
+    source('~/Dropbox/CU2016/ggbash/R/ggplot2-compiler.R')
 }
 
 ee <- testthat::expect_equal
@@ -55,8 +54,30 @@ test_that('cases 2', {
     for (boolean_input in c('TRUE','FALSE','T','F','t','f','true','false','True','False'))
         g$input(boolean_input); ee(g$token()$type, 'BOOLEAN')
 
-    # TODO whitespaces
-    g$input('ggplot iris +      p       Sepal.W       Sepal.L      c     ="red" s   =5')
+    espace <- function(input, expected) {
+        l <- rly::lex(module=Ggplot2Lexer)
+        l$input(input)
+        l$token(); l$token(); l$token(); l$token();
+        ee(l$token()$value, expected)
+    }
+
+    # fixed whitespaces for CHARAES
+    espace('ggplot mtcars + p mpg cyl c="red" ',         'c="red"')
+    espace('ggplot mtcars + p mpg cyl c ="red" ',        'c ="red"')        # single space before =
+    espace('ggplot mtcars + p mpg cyl c        ="red" ', 'c        ="red"') #       spaces before =
+    espace('ggplot mtcars + p mpg cyl c= "red" ',        'c= "red"')        # single space after =
+    espace('ggplot mtcars + p mpg cyl c=        "red" ', 'c=        "red"') #       spaces after =
+    espace('ggplot mtcars + p mpg cyl c = "red" ',       'c = "red"') # both
+    espace('ggplot mtcars + p mpg cyl c  =  "red" ',     'c  =  "red"') # multi-both
+
+    # fixed whitespaces for CONSTAES
+    espace('ggplot mtcars + p mpg cyl size=5 ',         'size=5')
+    espace('ggplot mtcars + p mpg cyl size =5 ',        'size =5')        # single space before =
+    espace('ggplot mtcars + p mpg cyl size        =5 ', 'size        =5') #       spaces before =
+    espace('ggplot mtcars + p mpg cyl size= 5 ',        'size= 5')        # single space after =
+    espace('ggplot mtcars + p mpg cyl size=        5 ', 'size=        5') #       spaces after =
+    espace('ggplot mtcars + p mpg cyl size = 5 ',       'size = 5') # both
+    espace('ggplot mtcars + p mpg cyl size  =  5 ',     'size  =  5') # multi-both
 
     # TODO partial match for theme elements
 

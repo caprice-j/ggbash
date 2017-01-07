@@ -34,13 +34,20 @@ Ggplot2Lexer <-
                         t$value <- gsub('^g(g|gp|gpl|gplo|gplot)?\\s*', 'ggplot2::ggplot(', t$value)
                         return(t)
                     },
-                    t_CONSTAES = ggregex$constaes, # integers and floats
+                    t_CONSTAES = function(re='[a-z]+\\s*=\\s*[0-9\\.]+', t) { # integers and floats
+                        return(t)
+                    },
                     t_BOOLEAN = ggregex$boolean,
                     t_QUOTED = ggregex$quoted,
                     # I believe CONSTAES cannot contain +-*/^,
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)
-                    t_CHARAES = ggregex$charaes,
+                    # MAYBE LATER default arguments of functions cannot accept
+                    # global variables as defaults?
+                    # ggregex$charaes is falsely evaluated as empty string
+                    t_CHARAES = function(re='[a-z]+\\s*=\\s*("|\\\').*?("|\\\')', t) {
+                        return(t)
+                    },
                     t_THEMEELEM = function(re='[a-zA-Z_][a-zA-Z\\.]*\\s*\\:', t) {
                         t$value <- gsub(' ', '', t$value)
                         return(t)
