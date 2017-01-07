@@ -6,19 +6,6 @@ ggbash: A Simpler Syntax for ggplot2
 
 ggbash provides a bash-like REPL environment for [ggplot2](https://github.com/tidyverse/ggplot2).
 
-Installation
-------------
-
-``` r
-# install.packages("devtools")
-devtools::install_github("jimhester/fstrings")
-devtools::install_github("caprice-j/ggbash")
-```
-
--   ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
-
--   If you get `no appender.console()` error, you might need `install.packages('futile.logger'); library('futile.logger')`.
-
 Usage
 -----
 
@@ -139,20 +126,21 @@ for( i in 1:ncol(iris) )
 
 ### 4. Auto-generated Filenames
 
-The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified. That function can easily overwrite the previous plot, and users often have to set file names manually.
+<!-- The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified.
+That function can easily overwrite the previous plot,
+and users often have to set file names manually.
 
-The `png` and `pdf` commands in `ggbash` tries to generate a sensible file name based on the given dataset and aesthetic names if no file name is specified.
+The `png` and `pdf` commands in `ggbash` tries to generate
+a sensible file name based on the given dataset and
+aesthetic names if no file name is specified. -->
+With `iris` dataset which has 150 rows, the plot of `gg iris + p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.960x960.png`.
 
-For example, when you are using the `iris` dataset which has 150 rows, the output of `p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.480x480.png`.
-
-If you happen to have the different `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
+If you happen to have another `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
 
 ### 5. Order Agnostic Arguments
 
-`png` and `pdf` could receive plot size, file name, and directory name to save plots. If not specified, the default values are used.
-
-`png` and `pdf` commands interpret a single- or double-quoted token as file name (`"my-plot"` in the following example), a token with `/` suffix as directory name, and otherwise plot size.
-
+<!-- `png` and `pdf` could receive plot size, file name, and directory name to save plots.
+If not specified, the default values are used. -->
 `png` and `pdf` arguments are order-agnostic: Any of the following notations generates the same png file `"my_image/iris-150/point-my-plot.1960x1480.png"`.
 
 ``` bash
@@ -164,10 +152,15 @@ gg mtcars | p mpg cyl | png  1960x1480  "my-plot"  my_image/
 gg mtcars | p mpg cyl | png  1960x1480  my_image/  "my-plot"
 ```
 
+`png` and `pdf` commands interpret a single- or double-quoted token as file name (`"my-plot"` in the following example), a token with `/` suffix as directory name, and otherwise plot size.
+
 #### Guessing Inches or Pixels
 
 <!-- 1 inch == 2.54 cm -->
-While the `pdf` function in R only recognizes width and height as inches, the `pdf` command in ggbash recognizes both inches and pixels. **If the given `width` or `height` in `(width)x(height)` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch = 2.54 cm).**
+<!-- While the `pdf` function in R only recognizes width and height as inches, -->
+The `pdf` command in ggbash recognizes both inches and pixels.
+
+**If the given `width` or `height` in `(width)x(height)` is less than 50** (the same limit of `ggplot2::ggsave`) **, the numbers are interpreted as inches (1 inch = 2.54 cm).**
 
 ``` bash
 
@@ -216,6 +209,21 @@ Note: the default dpi (dots per inch) in ggbash is 72 (R's default) and cannot b
 <!-- Facets are ... -->
 <!-- for is by pdf extension and i values -->
 <!-- Themes are abstracted away and not encoded in file names. -->
+Installation
+------------
+
+``` r
+# install.packages("devtools")
+devtools::install_github("jimhester/fstrings")
+devtools::install_github("caprice-j/ggbash")
+```
+
+-   ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
+
+-   If you get `no appender.console()` error, you might need `install.packages('futile.logger'); library('futile.logger')`.
+
+-   This package is in its very early stage, and might have a lot of installation bugs.
+
 Goals
 -----
 
