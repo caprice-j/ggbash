@@ -40,6 +40,8 @@ devtools::install_github("caprice-j/ggbash")
 ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package,
 which is not on CRAN as of January 3, 2017.
 
+Note: if you met no `appender.console` error, you might need `install.packages('futile.logger')`.
+
 ## Usage
 
 ### Interactive

@@ -42,6 +42,8 @@ test_that('cases 2', {
 
     # TODO characters and logicals
     # gg iris + point Sepal.W Sepal.L + theme axis.ticks: size=1.5 legend.position: "none"
+    #
+    g$input('gg iris + point Sepal.W Sepal.L + theme legend.position: "none"')
 
     # TODO partial match for theme elements
 
