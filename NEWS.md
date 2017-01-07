@@ -1,4 +1,12 @@
 
+## ggbash 0.2.1
+
++ handle whitespaces of aesthetics before/after `=`
++ default themes (`theme_bw()`, `theme_classic()`, ...) works by `+ theme bw` or `+ theme_bw`
++ replace dplyr::tbl_df with more lightweight tibble::tibble
++ handle character/logical classes of theme() elements
++ refactor `lexer.R` and `parser.R` into `ggplot2-compiler.R`
+
 # ggbash 0.2
 
 ## Major Updates

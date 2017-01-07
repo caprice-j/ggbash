@@ -15,9 +15,9 @@ devtools::install_github("jimhester/fstrings")
 devtools::install_github("caprice-j/ggbash")
 ```
 
-ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
+-   ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
 
-If you met no `appender.console` error, you might need `install.packages('futile.logger')`.
+-   If you get `no appender.console()` error, you might need `install.packages('futile.logger'); library('futile.logger')`.
 
 Usage
 -----
@@ -221,7 +221,7 @@ Goals
 
 The goal of ggbash is to make ggplot2 more comfortable to write. It can be categorized into two subgoals:
 
-1.  **Plotting data at the speed of thought.** Provide blazingly fast way to do exploratory data anslysis.
+1.  **Better EDA experience.** Provide blazingly fast way to do exploratory data anslysis.
 
     -   less typing by Partial Prefix Match and Precedence.
 
