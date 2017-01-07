@@ -26,5 +26,4 @@ VignetteBuilder: knitr
 Collate:
     'ggbash.R'
     'partial_match_utils.R'
-    'lexer.R'
-    'parser.R'
+    'ggplot2-compiler.R'

@@ -2,6 +2,7 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^README-.*\.png$
+^README-.*\.gif$
 ^README_files$
 ^album$
 ^\.travis\.yml$

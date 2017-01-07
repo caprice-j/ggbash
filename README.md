@@ -280,4 +280,4 @@ Current Implementation Status
     -   interfaces to dplyr/tidyr
 
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
-<!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif) -->
+<!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/README-with-rstudio.gif) -->
