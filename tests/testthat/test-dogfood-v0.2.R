@@ -8,6 +8,8 @@ p <- rly::yacc(Ggplot2Parser)
 function() {
     source('~/Dropbox/CU2016/ggbash/R/partial_match_utils.R')
     source('~/Dropbox/CU2016/ggbash/R/ggbash.R')
+    source('~/Dropbox/CU2016/ggbash/R/parser.R')
+    source('~/Dropbox/CU2016/ggbash/R/lexer.R')
 }
 
 ee <- testthat::expect_equal
@@ -30,7 +32,10 @@ test_that('cases', {
 test_that('cases 2', {
     # TODO add theme_bw()
     # gg iris + point Sepal.W Sepal.L col=Species size=5 + theme text: size=20 family="Baskerville" face="bold" + theme_bw()
-
+    expect_equal(
+        p$parse('gg iris + point Sepal.W Sepal.L + theme_bw', g),
+        p$parse('gg iris + point Sepal.W Sepal.L + theme bw', g)
+    )
 
     # TODO how do we deal with units?
     #  + theme(axis.ticks.length = unit(.85, "cm"))

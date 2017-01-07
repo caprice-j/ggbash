@@ -175,16 +175,29 @@ Ggplot2Parser <-
                         }
                     },
                     # see p_ggproto_layer
-                    p_ggproto_theme = function(doc="ggproto : theme_init theme_elem_list", p) {
+                    p_ggproto_theme = function(doc="ggproto : theme_init
+                                                            | theme_init theme_elem_list", p) {
                         dbgmsg('p_ggproto_theme')
-                        p$set(1, paste0(p$get(2), p$get(3)))
+                        if (p$length() == 2) {
+                            p$set(1, paste0(p$get(2), ')'))
+                        } else {
+                            p$set(1, paste0(p$get(2), p$get(3)))
+                        }
                     },
-                    p_theme_init = function(doc="theme_init : THEME", p) {
+                    p_theme_init = function(doc="theme_init : THEME
+                                                            | THEME NAME", p) {
                         # initialization
                         dbgmsg('p_theme_init')
-                        theme_str <- gsub('\\s|\\+', '', p$get(2))
-
-                        p$set(1, paste0(' + ggplot2::', theme_str, '('))
+                        if (p$length() == 2) {
+                            # theme, theme_bw, theme_linedraw, ...
+                            theme_str <- gsub('\\s|\\+', '', p$get(2))
+                            p$set(1, paste0(' + ggplot2::', theme_str, '('))
+                        } else {
+                            # theme bw (no underline between the two)
+                            theme_str <- gsub('\\s|\\+', '', p$get(2))
+                            theme_str <- paste0(theme_str, '_', p$get(3))
+                            p$set(1, paste0(' + ggplot2::', theme_str, '('))
+                        }
                     },
                     p_theme_elem_list = function(doc="theme_elem_list : theme_elem
                                                                       | theme_elem theme_elem_list" ,p) {
