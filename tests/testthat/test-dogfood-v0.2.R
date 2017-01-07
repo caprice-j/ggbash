@@ -12,7 +12,7 @@ function() {
 
 ee <- testthat::expect_equal
 
-test_that('case1', {
+test_that('cases', {
     char <- 'gg iris + point Sepal.W Sepal.L col=Species + theme legend.key: colour="black"'
     g$input(char)
 
@@ -21,6 +21,10 @@ test_that('case1', {
 
     # spaces between theme element name and its configurations
     expect_error(p$parse('gg iris + point Sepal.W Sepal.L + theme text : colour="blue"', g), regexp=NA)
+
+    expect_equal(p$parse('gg mtcars + point m cyl + theme axis.ticks: size=1.5', g),
+                 "ggplot2::ggplot(mtcars) + ggplot2::geom_point(ggplot2::aes(x=mpg, y=cyl)) + ggplot2::theme(axis.ticks = ggplot2::element_line(size=1.5))")
+
 })
 
 
