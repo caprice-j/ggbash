@@ -67,7 +67,6 @@ geom_point(aes(Sepal.Width, Sepal.Length,
 theme(text=element_text(size=20, face="bold"))
 ```
 
-
 ### One-liner
 
 ```{r, eval=FALSE}
@@ -78,9 +77,6 @@ ggbash('gg iris + point Sepal.W Sepal.L', clipboard=1)
 # ... or using the %>% operator
 ggbash('gg iris + point Sepal.W Sepal.L') %>% copy_to_clipboard
 ```
-
-### With RStudio
-
 
 
 ## Features
@@ -360,3 +356,7 @@ languages such as CoffeeScript or Ruby.
     + auto completion (R's `prompt()` does not have built-in completions)
     + new geoms/stats in ggplot2 extensions
     + Approximate String Match (e.g. identifying `size` by `sz`)
+
+## Usecase: Plot in Terminal and Copy to RStudio
+
+![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif)
