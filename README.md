@@ -272,7 +272,5 @@ Current Implementation Status
     -   new geoms/stats in ggplot2 extensions
     -   Approximate String Match (e.g. identifying `size` by `sz`)
 
-Usecase: Plot in Terminal and Copy to RStudio
----------------------------------------------
-
-![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif)
+<!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
+<!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif) -->

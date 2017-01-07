@@ -40,7 +40,7 @@ devtools::install_github("caprice-j/ggbash")
 ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package,
 which is not on CRAN as of January 3, 2017.
 
-Note: if you met no `appender.console` error, you might need `install.packages('futile.logger')`.
+If you met no `appender.console` error, you might need `install.packages('futile.logger')`.
 
 ## Usage
 
@@ -358,7 +358,8 @@ languages such as CoffeeScript or Ruby.
     + auto completion (R's `prompt()` does not have built-in completions)
     + new geoms/stats in ggplot2 extensions
     + Approximate String Match (e.g. identifying `size` by `sz`)
+    + interfaces to dplyr/tidyr
 
-## Usecase: Plot in Terminal and Copy to RStudio
+<!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 
-![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif)
+<!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/with-rstudio.gif) -->

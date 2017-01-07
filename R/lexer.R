@@ -14,6 +14,10 @@ GGPLOT2_LITERALS = c() # needed?
 ggbashenv <- new.env() # Note: This is a global variable.
 
 ggbash_plus_pipe <- '(\\+|\\|)\\s*'
+ggbash_quoted_regex <- paste0('^(', "'|", '")',                   # start from a quote
+                              '[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+',
+                              "('|", '")$')                       # end by a quote
+ggbash_boolean_regex <- '^(TRUE|FALSE|T|F|t|f|true|false|True|False)$'
 
 Ggplot2Lexer <-
     R6::R6Class("Lexer",
@@ -27,10 +31,8 @@ Ggplot2Lexer <-
                         return(t)
                     },
                     t_CONSTAES = paste0('[a-z]+=[0-9\\.]+'), # integers and floats
-                    t_BOOLEAN = '(TRUE|FALSE|T|F|0|1|true|false|True|False)',
-                    t_QUOTED = paste0('^(', "'|", '")',                 # start from a quote
-                                      '[a-zA-Z0-9\\._\\+\\-\\*\\/\\^]',
-                                      "('|", '")'),                     # end by a quote
+                    t_BOOLEAN = ggbash_boolean_regex,
+                    t_QUOTED = ggbash_quoted_regex,
                     # I believe CONSTAES cannot contain +-*/^,
                     # because 'gg iris + point Sepal.W Sepal.L size=4 + smooth colour="blue"'
                     # will be interpreted as LexToken(CHARAES,colour="blue" size=4 + smooth colour="blue",1,33)

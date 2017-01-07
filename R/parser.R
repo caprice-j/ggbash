@@ -230,28 +230,36 @@ Ggplot2Parser <-
 
                         if (grepl('^element_|margin', elem_class)) {
                             modifier <- 'ggplot2::'
+                            function_name <- paste0(modifier, elem_class, '(')
                         } else if (elem_class == 'unit') {
                             modifier <- 'grid::'
+                            function_name <- paste0(modifier, elem_class, '(')
                         } else if (elem_class %in% c('logical', 'character') ){
-                            modifier <- 'as.' # as.character and as.logical
+                            function_name <- ''
                         } else {
                             print(elem_class)
                             Sys.sleep(3)
                         }
 
-                        function_name <- paste0(modifier, elem_class)
-
-                        p$set(1, paste0(elem_name, ' = ', function_name, '(', p$get(3)))
+                        p$set(1, paste0(elem_name, ' = ', function_name, p$get(3)))
                     },
                     p_theme_conf_list = function(doc="theme_conf_list : CONSTAES
                                                                       | CHARAES
+                                                                      | QUOTED
+                                                                      | BOOLEAN
                                                                       | CONSTAES theme_conf_list
                                                                       | CHARAES theme_conf_list", p) {
                         dbgmsg('p_theme_conf_list')
                         conf <- p$get(2)
                         if(p$length() == 2) {
-                            # FIXME add spaces
-                            p$set(1, paste0(conf, ')')) # close ggplot2::element_sth(
+                            if (grepl(ggbash_quoted_regex, conf)) {
+                                p$set(1, conf)
+                            } else if (grepl(ggbash_boolean_regex, conf)) {
+                                p$set(1, conf)
+                            } else {
+                                # FIXME add spaces
+                                p$set(1, paste0(conf, ')')) # close ggplot2::element_sth(
+                            }
                         } else {
                             p$set(1, paste0(conf, ', ', p$get(3)))
                         }

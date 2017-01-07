@@ -40,10 +40,20 @@ test_that('cases 2', {
     # TODO how do we deal with units?
     #  + theme(axis.ticks.length = unit(.85, "cm"))
 
-    # TODO characters and logicals
-    # gg iris + point Sepal.W Sepal.L + theme axis.ticks: size=1.5 legend.position: "none"
-    #
+    # fixed characters
     g$input('gg iris + point Sepal.W Sepal.L + theme legend.position: "none"')
+    g$token(); g$token(); g$token(); g$token(); g$token(); g$token();
+    ee(g$token()$value, '"none"')
+    ee(p$parse('gg iris + point Sepal.W Sepal.L + theme legend.position: "none"', g),
+       'ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + ggplot2::theme(legend.position = \"none\")')
+
+    # fixed logicals
+    g$input('gg iris + point Sepal.W Sepal.L + theme panel.ontop: TRUE')
+    g$token(); g$token(); g$token(); g$token(); g$token(); g$token();
+    ee(g$token()$value, 'TRUE')
+
+    for (boolean_input in c('TRUE','FALSE','T','F','t','f','true','false','True','False'))
+        g$input(boolean_input); ee(g$token()$type, 'BOOLEAN')
 
     # TODO partial match for theme elements
 
