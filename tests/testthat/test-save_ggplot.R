@@ -23,5 +23,5 @@ test_that('save png', {
         unlink(x = paste0(tmpdir,'/',datadirv[1]), recursive = TRUE)
     }
 
-    ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/')
+    # ggbash('gg iris + p Sepal.W Sepal.L col=Sp | png my_image/') # FIXME
 })

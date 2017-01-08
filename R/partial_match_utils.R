@@ -50,21 +50,21 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
 #'
 #' @param prefix A prefix to be searched
 #' @param table A character vector (typically aesthetic name list)
-#' @param showWarn Show warning if matched ambiguously. Default is TRUE.
+#' @param show_warn Show warning if matched ambiguously. Default is TRUE.
 #'
 #' @export
 find_first <- function(prefix='si',
                        table=c('x', 'y', 'size', 'shape'),
-                       showWarn=TRUE){
+                       show_warn=TRUE){
     indices <- grep(paste0('^', prefix), table)
-    if (length(indices)<1 && showWarn) {
+    if (length(indices)<1 && show_warn) {
         # FIXME refactor (colour and color)
         if (grepl('colo', prefix))
             indices <- grep(paste0('^colour'), table)
         else
             return(NULL) # stop('no such prefix: ', prefix)
     }
-    if (length(indices)>1 && showWarn &&
+    if (length(indices)>1 && show_warn &&
         (! prefix %in% c(sapply(1:5, function(i) substr('point',1,i)),
                          sapply(1:4, function(i) substr('line', 1,i))))) {
         warning('Ambiguous match. Use "', table[indices][1],
