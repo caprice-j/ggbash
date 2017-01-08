@@ -24,16 +24,15 @@
 #' @seealso \code{\link[base]{unique}}, \code{\link{show_dataset_column_indices}}
 #'
 #' @export
-partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1) {
+partial_unique <- function(
+    originalv=c("mpg", "cyl", "disp", "hp", "drat"), i = 1) {
 
-    nchar_longest <- max(sapply(originalv, nchar))
-
-    out <- rep('', length(originalv))
-    while (any(out == '')) {
-        shortened_colnamev <- sapply(originalv, function(s) substr(s,1,i))
-        dup_namev <- names(table(shortened_colnamev))[table(shortened_colnamev) > 1]
-        index <- (! shortened_colnamev %in% dup_namev) & (out == '')
-        out[index] <- shortened_colnamev[index]
+    out <- rep("", length(originalv))
+    while (any(out == "")) {
+        shortened <- sapply(originalv, function(s) substr(s, 1, i))
+        dup_namev <- names(table(shortened))[table(shortened) > 1]
+        index <- (! shortened %in% dup_namev) & (out == "")
+        out[index] <- shortened[index]
         i <- i + 1
     }
 
@@ -53,22 +52,23 @@ partial_unique <- function(originalv=c('mpg', 'cyl', 'disp', 'hp', 'drat'), i=1)
 #' @param show_warn Show warning if matched ambiguously. Default is TRUE.
 #'
 #' @export
-find_first <- function(prefix='si',
-                       table=c('x', 'y', 'size', 'shape'),
+find_first <- function(prefix="si",
+                       table=c("x", "y", "size", "shape"),
                        show_warn=TRUE){
-    indices <- grep(paste0('^', prefix), table)
-    if (length(indices)<1 && show_warn) {
+    indices <- grep(paste0("^", prefix), table)
+    if (length(indices) < 1 && show_warn) {
         # FIXME refactor (colour and color)
-        if (grepl('colo', prefix))
-            indices <- grep(paste0('^colour'), table)
+        if (grepl("colo", prefix))
+            indices <- grep(paste0("^colour"), table)
         else
-            return(NULL) # stop('no such prefix: ', prefix)
+            return(NULL)
+            # stop 'no such prefix: '
     }
-    if (length(indices)>1 && show_warn &&
-        (! prefix %in% c(sapply(1:5, function(i) substr('point',1,i)),
-                         sapply(1:4, function(i) substr('line', 1,i))))) {
-        warning('Ambiguous match. Use "', table[indices][1],
-                '" among ', paste0(table[indices], collapse=', '))
+    if (length(indices) > 1 && show_warn &&
+        (! prefix %in% c(sapply(1:5, function(i) substr("point", 1, i)),
+                         sapply(1:4, function(i) substr("line",  1, i))))) {
+        warning("Ambiguous match. Use '", table[indices][1],
+                "' among ", paste0(table[indices], collapse = ", "))
     }
     return(indices[1])
 }
@@ -100,32 +100,31 @@ define_ggbash_constant_list <- function(){
         # BUILTIN command Vectors
         # Note: the following commands are not included -- see exec_ggbash
         #       echo print quit exit
-        builtinv = c('cd', 'dir', 'dir.create', 'ls', 'list',
-                     'mkdir', 'pwd', 'rm', 'rmdir', 'setwd'),
+        builtinv = c("cd", "dir", "dir.create", "ls", "list",
+                     "mkdir", "pwd", "rm", "rmdir", "setwd"),
         # all geom in ggplot2 documents
         # the order in geom_namev is important
-        # because build_ggplot_object() uses the first element after partial matching
+        # because build_ggplot_object() uses
+        # the first element after partial matching
         # i.e. the preferable (frequently-used) geom should appear first
-        geom_namev = c('abline', 'area',
-                       'bar', 'bin2d', 'blank', 'boxplot',
-                       'count', 'curve', 'contour', 'crossbar',
-                       'density', 'density_2d', 'dotplot',
-                       'errorbar', 'errorbarh',
-                       'freqpoly',
-                       'histogram', 'hline','hex',
-                       'jitter',
-                       # 'l' matches to 'line' (the first element starting by 'l')
-                       'line', 'label', 'linerange',
-                       'map',
-                       # 'p' matches to 'point'
-                       'point', 'path', 'polygon', 'pointrange',
-                       'quantile',
-                       'rect', 'rug', 'raster', 'ribbon',
-                       'segment', 'smooth', 'step',
-                       'text', 'tile',
-                       'vline', 'violin'
+        geom_namev = c("abline", "area",
+                       "bar", "bin2d", "blank", "boxplot",
+                       "count", "curve", "contour", "crossbar",
+                       "density", "density_2d", "dotplot",
+                       "errorbar", "errorbarh",
+                       "freqpoly", "histogram", "hline", "hex", "jitter",
+                       # "l" matches "line" (the 1st element starting by "l")
+                       "line", "label", "linerange",
+                       "map",
+                       # "p" matches to "point"
+                       "point", "path", "polygon", "pointrange",
+                       "quantile",
+                       "rect", "rug", "raster", "ribbon",
+                       "segment", "smooth", "step",
+                       "text", "tile",
+                       "vline", "violin"
         ),
-        savev = c('png', 'pdf'),
+        savev = c("png", "pdf"),
         themedf = get_all_theme_aes()
         # TODO implement stat like stat_smooth
     )
@@ -198,53 +197,12 @@ get_element_tree_clone <- function() {
         strip.text.x                   strip.text.x element_text
         strip.text.y                   strip.text.y element_text
         strip.switch.pad.grid strip.switch.pad.grid         unit
-        strip.switch.pad.wrap strip.switch.pad.wrap         unit", '\\s+')[[1]], nrow=3)
+        strip.switch.pad.wrap strip.switch.pad.wrap         unit",
+        "\\s+")[[1]], nrow = 3)
 
     aes_info <- as.data.frame(t(rect_data), stringsAsFactors = FALSE)
-    colnames(aes_info) <- c('name', 'unknown', 'class')
+    colnames(aes_info) <- c("name", "unknown", "class")
     return(aes_info)
-
-    # code to obtain the above dataframe
-
-    # # retrieve each theme element's corresponding handler from default settings
-    # # (i.e. element_text(), element_rect(), ...)
-    # theme_aes <- ggplot2::theme_classic()
-    # aes_info <-
-    #     data.frame(
-    #         name = names(theme_aes),
-    #         class = sapply(theme_aes, function(aes) { class(aes)[1] } ),
-    #         stringsAsFactors = FALSE
-    #     )
-    #
-    # # 12 elements in the above theme has NULL classes --
-    # # this is because these elements inherit its values from the parent element.
-    # #   Ex. "axis.text.x" and "axis.text.y" inherits from "axis.text"
-    # #   Ex. "legend.key.height" and "legend.key.width" inherits from "legend.key.size"
-    # #
-    # # Thus, retrieve handlers from inheritance info
-    # inherit_matrix <- sapply(ggplot2:::.element_tree, function(x){x})
-    # is_child <- inherit_matrix['inherit', ] != 'NULL'
-    # is_null <- aes_info$class == 'NULL'
-    # is_aes <- colnames(inherit_matrix) %in% aes_info[is_null, ]$name
-    # child_class <- unlist(inherit_matrix['class', is_child & is_aes ])
-    # aes_info[names(child_class), 'class'] <- child_class
-    #
-    #
-    # # Still 4 elements have no handler.
-    # # This is because these are just characters.
-    # undefined <- c("legend.text.align", "legend.direction",
-    #                "legend.box", "legend.title.align")
-    # aes_info[undefined, ]$class <- 'character'
-    #
-    # # Another problem is element_blank()
-    # aes_info[aes_info$class == 'element_blank', ] <-
-    #     c('element_rect', # legend.key
-    #       'element_rect', # legend.box.background
-    #       'element_rect', # panel.border
-    #       'element_line', # panel.grid.major
-    #       'element_line'  # panel.grid.minor
-    #     )
-    #
 }
 
 get_all_theme_aes <- function(){
