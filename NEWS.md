@@ -1,4 +1,9 @@
 
+## ggbash 0.2.2 (2017-01-08)
+
++ convert `axis.ticks.length = 10 cm` into `grid::unit(10, 'cm')` in `theme()`
++ partial prefix match for theme element names
+
 ## ggbash 0.2.1
 
 + handle whitespaces of aesthetics before/after `=`
