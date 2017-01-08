@@ -220,7 +220,7 @@ devtools::install_github("caprice-j/ggbash")
 
 -   ggbash depends on [fstrings](https://github.com/jimhester/fstrings) package, which is not on CRAN as of January 3, 2017.
 
--   If you get `no appender.console()` error, you might need `install.packages('futile.logger'); library('futile.logger')`.
+-   If you get `no appender.console()` error, you might need `install.packages('rly')`. `PpackageVersion('rly')` should be 1.4.2.
 
 -   This package is in its very early stage, and might have a lot of installation bugs.
 

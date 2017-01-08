@@ -29,15 +29,11 @@ test_that('cases', {
 })
 
 test_that('cases 2', {
-    # TODO add theme_bw()
-    # gg iris + point Sepal.W Sepal.L col=Species size=5 + theme text: size=20 family="Baskerville" face="bold" + theme_bw()
+    # fixed adding theme_bw()
     expect_equal(
         p$parse('gg iris + point Sepal.W Sepal.L + theme_bw', g),
         p$parse('gg iris + point Sepal.W Sepal.L + theme bw', g)
     )
-
-    # TODO how do we deal with units?
-    #  + theme(axis.ticks.length = unit(.85, "cm"))
 
     # fixed characters
     g$input('gg iris + point Sepal.W Sepal.L + theme legend.position: "none"')
@@ -80,6 +76,14 @@ test_that('cases 2', {
     espace('ggplot mtcars + p mpg cyl size  =  5 ',     'size  =  5') # multi-both
 
     # TODO partial match for theme elements
+    expected <- 'ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + ggplot2::theme(text = ggplot2::element_text(size=3))'
+    ee(p$parse('gg iris + point Sepal.W Sepal.L + theme text: size=3', g), expected)
+    ee(p$parse('gg iris + point Sepal.W Sepal.L + theme te:   size=3', g), expected)
+
+
+    # TODO how do we deal with units?
+    #  + theme(axis.ticks.length = unit(.85, "cm"))
+
 
     # TODO  theme(legend.position = c(.5, .5))
 
