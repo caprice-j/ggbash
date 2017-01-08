@@ -80,10 +80,27 @@ test_that('cases 2', {
     ee(p$parse('gg iris + point Sepal.W Sepal.L + theme text: size=3', g), expected)
     ee(p$parse('gg iris + point Sepal.W Sepal.L + theme te:   size=3', g), expected)
 
+    gbash <- function(str) rly::yacc(Ggplot2Parser)$parse(str, rly::lex(module=Ggplot2Lexer))
 
     # TODO how do we deal with units?
     #  + theme(axis.ticks.length = unit(.85, "cm"))
+    'gg mtcars mpg cyl + point'
 
+    # gg mtcars mpg hp + point col=cyl + theme text: size = 20
+    g <- rly::lex(module=Ggplot2Lexer);
+    g$input('gg mtcars mpg hp + point + theme axis.ticks.len: .20  cm')
+    g$token(); g$token(); g$token(); g$token(); g$token();
+    ee(g$token()$value, 'axis.ticks.len:')
+    ee(g$token()$value, '.20  cm')
+    ee(gbash('gg mtcars mpg hp + point + theme axis.ticks.len: .20  cm'),
+       "ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) + ggplot2::geom_point() + ggplot2::theme(axis.ticks.length = grid::unit(.20,'cm'))")
+
+    prefix <- "ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) + ggplot2::geom_point() + ggplot2::theme(axis.ticks.length = grid::unit(3.5,'in"
+    ee(gbash('gg mtcars mpg hp + p + theme axis.ticks.l: 3.5 inches '), paste0(prefix, "ches'))"))
+    ee(gbash('gg mtcars mpg hp + p + theme axis.ticks.l: 3.5 inch   '), paste0(prefix, "ch'))"))
+    ee(gbash('gg mtcars mpg hp + p + theme axis.ticks.l: 3.5 in     '), paste0(prefix, "'))"))
+
+    # TODO gg mtcars mpg hp + point col=factor(cyl)
 
     # TODO  theme(legend.position = c(.5, .5))
 

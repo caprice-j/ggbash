@@ -1,7 +1,7 @@
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
 GGPLOT2_TOKENS = c('GGPLOT','NAME','CONSTAES','CHARAES','THEME',
-                   'LAYER','THEMEELEM','BOOLEAN','QUOTED')
+                   'LAYER','THEMEELEM','BOOLEAN','QUOTED', 'UNIT')
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -22,7 +22,8 @@ ggregex <- list(
                       "('|", '")$'),                      # end by a quote
     boolean   = '^(TRUE|FALSE|T|F|t|f|true|false|True|False)$',
     constaes  = paste0('[a-z]+=[0-9\\.]+'),
-    charaes   = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')')
+    charaes   = paste0('[a-z]+=("|', "'", ').*?("|', "'", ')'),
+    unit      = '[0-9\\.]+\\s*(cm|in|inch|inches)'
 )
 
 Ggplot2Lexer <-
@@ -75,8 +76,8 @@ Ggplot2Lexer <-
                         t$value <- paste0(' + geom_', geom_sth)
                         return(t)
                     },
-                    t_NUMBER = function(re='\\d+', t) {
-                        t$value <- strtoi(t$value)
+                    t_UNIT = function(re='[0-9\\.]+\\s*(cm|inches|inch|in)', t) {
+                        # ex. LexToken(UNIT,.20 cm,1,50)
                         return(t)
                     },
                     t_ignore = " \t",
@@ -349,6 +350,7 @@ Ggplot2Parser <-
                                          | CHARAES
                                          | QUOTED
                                          | BOOLEAN
+                                         | UNIT
                                          | CONSTAES theme_conf_list
                                          | CHARAES theme_conf_list", p) {
                 dbgmsg('p_theme_conf_list')
@@ -358,6 +360,10 @@ Ggplot2Parser <-
                         p$set(1, conf)
                     } else if (grepl(ggregex$boolean, conf)) {
                         p$set(1, conf)
+                    } else if (grepl(ggregex$unit, conf)) {
+                        number <- gsub('[^0-9\\.]', '', conf)
+                        this_unit <- gsub('[0-9\\. ]', '', conf)
+                        p$set(1, paste0(number, ",'", this_unit, "')"))
                     } else {
                         # FIXME add spaces
                         p$set(1, paste0(conf, ')')) # close ggplot2::element_sth(
