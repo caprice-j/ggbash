@@ -10,7 +10,7 @@ GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES", "CHARAES", "THEME",
 # POSITION  "PositionDodge" "Position"      "ggproto"
 # THEME "theme" "gg"
 GGPLOT2_LITERALS <- c() # needed?
-GGPLOT2INVALIDTOKEN <- " [[INVALID_TOKEN_HERE]] "
+GGPLOT2INVALIDTOKEN <- " <<INVALID_TOKEN_HERE>> "
 
 # MAYBE-LATER don't know how to pass variables between yacc's production rules
 ggbashenv <- new.env() # Note: This is a global variable.
@@ -345,12 +345,17 @@ Ggplot2Parser <-
                                                     tdf$name,
                                                     show_warn = FALSE)]
 
-                if (length(elem_class) == 0) {
-                    message("ERROR: Partial prefix matching ",
-                            "for theme element failed. ",
+                if (length(elem_class) == 0 || is.na(elem_class)) {
+                    message("COMPILE ERROR: Partial prefix matching ",
+                            "for theme element failed.\n",
                             "Did you set theme element's name ",
                             "(like axis.text) correctly? \n",
                             "The supplied string is '", p$get(2), "'")
+
+                    similar_wordv <- get_analogue(elem_name, tdf$name)
+
+                    print(similar_wordv)
+
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 } else if (length(elem_class) > 1) {
                     message("UNKNOWN ERROR in p_theme_elem: ",
