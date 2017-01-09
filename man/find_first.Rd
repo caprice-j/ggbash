@@ -5,14 +5,14 @@
 \title{return the first index which contains a given prefix}
 \usage{
 find_first(prefix = "si", table = c("x", "y", "size", "shape"),
-  showWarn = TRUE)
+  show_warn = TRUE)
 }
 \arguments{
 \item{prefix}{A prefix to be searched}
 
 \item{table}{A character vector (typically aesthetic name list)}
 
-\item{showWarn}{Show warning if matched ambiguously. Default is TRUE.}
+\item{show_warn}{Show warning if matched ambiguously. Default is TRUE.}
 }
 \description{
 find_first does a prefix partial matching.

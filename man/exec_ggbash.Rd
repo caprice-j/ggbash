@@ -4,16 +4,16 @@
 \alias{exec_ggbash}
 \title{execute raw ggbash commands}
 \usage{
-exec_ggbash(raw_input = "gg mtcars + point mpg cyl | copy", showWarn = TRUE,
-  batchMode = FALSE)
+exec_ggbash(raw_input = "gg mtcars + point mpg cyl | copy",
+  show_warn = TRUE, batch_mode = FALSE)
 }
 \arguments{
 \item{raw_input}{A ggbash command chain (might contain pipes)}
 
-\item{showWarn}{Whether to show a warning message
+\item{show_warn}{Whether to show a warning message
 when ambiguously matched. Default is TRUE.}
 
-\item{batchMode}{Default is FALSE.
+\item{batch_mode}{Default is FALSE.
 If TRUE, the resulted ggplot object is returned.}
 }
 \description{

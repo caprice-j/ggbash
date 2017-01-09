@@ -4,7 +4,7 @@
 \alias{parse_ggbash_aes}
 \title{convert given ggbash strings into ggplot2 aesthetic specifications}
 \usage{
-parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev, showWarn = TRUE)
+parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev, show_warn = TRUE)
 }
 \arguments{
 \item{i}{An integer of index}
@@ -17,7 +17,7 @@ parse_ggbash_aes(i, aesv, must_aesv, all_aesv, colnamev, showWarn = TRUE)
 
 \item{colnamev}{A vector of column names of a dataframe.}
 
-\item{showWarn}{a flag for printing warning when ambiguous match.
+\item{show_warn}{a flag for printing warning when ambiguous match.
                    Default is TRUE.
 
 must_aesv and all_aesv are built by

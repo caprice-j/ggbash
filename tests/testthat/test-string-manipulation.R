@@ -1,38 +1,39 @@
 library(ggbash)
-context('string-manipulation')
+context("string-manipulation")
 
-test_that('splitting', {
+test_that("splitting", {
     expect_equal(
-        split_by_pipe(input='gg iris | point 1 2 color=3 | copy'),
+        split_by_pipe(input = "gg iris | point 1 2 color=3 | copy"),
         c("gg iris ", " point 1 2 color=3 ", " copy")
     )
 
     expect_equal(
-        split_by_space(input='point 1 2 color=3'),
-        c('point', '1', '2', 'color=3')
+        split_by_space(input = "point 1 2 color=3"),
+        c("point", "1", "2", "color=3")
     )
 
     expect_equal(
-        split_by_space(input='  point 1 2 color=3   '),
-        c('point', '1', '2', 'color=3')
+        split_by_space(input = "  point 1 2 color=3   "),
+        c("point", "1", "2", "color=3")
     )
 })
 
-test_that('partial-match', {
+test_that("partial-match", {
     partial_unique_name <- function(strv, i) names(partial_unique(strv, i))
 
     expect_equal(
-        unlist(partial_unique(colnames(iris), i=100), use.names=FALSE),
-        c("Sepal.Length", "Sepal.Width", "Petal.Length", "Petal.Width", "Species")
+        unlist(partial_unique(colnames(iris), i = 100), use.names = FALSE),
+        c("Sepal.Length", "Sepal.Width",
+          "Petal.Length", "Petal.Width", "Species")
     )
 
     expect_equal(
-        partial_unique_name(colnames(iris), i=2),
+        partial_unique_name(colnames(iris), i = 2),
         c("Sepal.L", "Sepal.W", "Petal.L", "Petal.W", "Sp")
     )
 
     expect_equal(
-        partial_unique_name(colnames(iris), i=3),
+        partial_unique_name(colnames(iris), i = 3),
         c("Sepal.L", "Sepal.W", "Petal.L", "Petal.W", "Spe")
     )
 })
