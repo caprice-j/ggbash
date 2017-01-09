@@ -22,5 +22,9 @@ test_that("ggplot2 prefix match for theme element's configuration", {
     )
 
     # FIXME gg iris  point Sepal.W Sepal.L  theme text:
+    ee(gbash("gg mtcars + text mpg cyl"),
+       "ggplot2::ggplot(mtcars) + " %+%
+       "ggplot2::geom_text(ggplot2::aes(x=mpg, y=cyl))")
+
 
 })

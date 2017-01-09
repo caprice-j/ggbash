@@ -120,7 +120,7 @@ Ggplot2Parser <-
                                          | gg_init aes_func
                                          | gg_init ggproto_list
                                          | gg_init aes_func ggproto_list", p) {
-                dbgmsg("p_expression_func")
+                dbgmsg("p_expression_func NONTERMINAL")
 
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
@@ -167,11 +167,11 @@ Ggplot2Parser <-
             p_ggproto_layer =
                 function(doc =
                 "ggproto : layer_init
-                         | layer_init layer_aes
+                         | layer_init layer_aes_list
                          | layer_init layer_raw_aes
-                         | layer_init layer_aes layer_raw_aes
-                         | layer_init layer_raw_aes layer_aes", p) {
-                dbgmsg("p_ggproto_layer")
+                         | layer_init layer_aes_list layer_raw_aes
+                         | layer_init layer_raw_aes layer_aes_list", p) {
+                dbgmsg("p_ggproto_layer NONTERMINAL")
 
                 # ex: ggbashenv$geom is 'point'
                 if (p$length() == 2) {
@@ -217,8 +217,18 @@ Ggplot2Parser <-
                 ggbashenv$aes_i <- 1
                 p$set(1, paste0(" + ggplot2::geom_", prev))
             },
-            p_layer_aes = function(doc="layer_aes : NAME
-                                   | NAME layer_aes", p) {
+            p_layer_aes_list = function(
+                doc="layer_aes_list : layer_aes
+                                    | layer_aes layer_aes_list", p) {
+                dbgmsg("p_layer_aes_list : INTERMEDIATE")
+
+                if (p$length() == 2) {
+                    p$set(1, paste0(p$get(2), ")"))
+                } else {
+                    p$set(1, paste0(p$get(2), ", ", p$get(3)))
+                }
+            },
+            p_layer_aes = function(doc="layer_aes : NAME", p) {
                 dbgmsg("p_layer_aes")
 
                 # do column-name partial match
@@ -230,7 +240,8 @@ Ggplot2Parser <-
                 must_aesv <- get_required_aes(ggbashenv$geom)
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 # FIXME show in the right order if too-few without-equal aes
-                index <- length(must_aesv) - ggbashenv$aes_i + 1
+                #index <- length(must_aesv) - ggbashenv$aes_i + 1
+                index <- ggbashenv$aes_i
                 if (index < 1) {
                     return(p$set(1, paste0(p$get(2), ")")))
                     # error?
@@ -255,12 +266,10 @@ Ggplot2Parser <-
                     ggbashenv$aes_i <- ggbashenv$aes_i + 1
                 ggbashenv$conf$aes <- c(ggbashenv$conf$aes, column_name)
 
-                if (p$length() == 2) {
-                    p$set(1, paste0(column_name, ")"))
-                } else {
-                    p$set(1, paste0(column_name, ", ", p$get(3)))
-                }
-                },
+                dbgmsg("  ", column_name)
+
+                p$set(1, column_name)
+            },
             p_layer_raw_aes = function(
                 doc="layer_raw_aes : CHARAES
                                    | CONSTAES
@@ -280,7 +289,7 @@ Ggplot2Parser <-
             #
             # },
             p_aes_func = function(doc="aes_func : NAME
-                                  | NAME aes_func", p) {
+                                                | NAME aes_func", p) {
                 dbgmsg("p_aes_func")
 
                 colnamev <- colnames(ggbashenv$dataset)

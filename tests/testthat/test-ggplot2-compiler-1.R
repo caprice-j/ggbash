@@ -63,7 +63,7 @@ test_that("ggplot2 parser", {
            "ggplot2::geom_smooth()")
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth Sepal.W", lex),
        pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
-           "ggplot2::geom_smooth(ggplot2::aes(y=Sepal.Width))")
+           "ggplot2::geom_smooth(ggplot2::aes(x=Sepal.Width))")
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L",
                   lex),
        pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
