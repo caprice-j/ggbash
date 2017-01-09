@@ -205,10 +205,24 @@ get_element_tree_clone <- function() {
     return(aes_info)
 }
 
-get_all_theme_aes <- function(){
+get_all_theme_aes <- function() {
 
     aes_info <- get_element_tree_clone()
 
     # Now all of aes_info$class is non-NULL and not element_blank().
     return(aes_info)
+}
+
+get_theme_elem_name_conf <- function(class = "element_text") {
+    blacklist <- c("inherit.blank", "debug")
+
+    if (class == "element_text")
+        fields <- names(ggplot2::element_text())
+    else if (class == "element_rect")
+        fields <- names(ggplot2::element_rect())
+    else if (class == "element_line")
+        fields <- names(ggplot2::element_rect())
+
+    conf <- fields[! fields %in% blacklist]
+    return(conf)
 }

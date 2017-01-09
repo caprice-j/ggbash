@@ -179,7 +179,7 @@ Ggplot2Parser <-
                 }
 
                 # FIXME more general
-                dbgmsg("  3rd is : ', p$get(3")
+                dbgmsg("  3rd is : ", p$get(3))
                 raw_is_3rd <-
                     grepl(paste0("=([0-9\\+\\-\\*\\/\\^]+|\\\"|')"),
                           p$get(3))
@@ -330,19 +330,22 @@ Ggplot2Parser <-
                     p$set(1, paste0(" + ggplot2::", theme_str, "("))
                 }
                 },
-            p_theme_elem_list = function(doc="theme_elem_list : theme_elem
-                                         | theme_elem theme_elem_list", p) {
+            # FIXME the following lines are hard to read
+            p_theme_elem_list = function(
+                doc="theme_elem_list : theme_elem theme_conf_list
+                    | theme_elem theme_conf_list theme_elem_list", p) {
                 dbgmsg("p_theme_elem_list")
                 elem <- p$get(2)
-                if (p$length() == 2) {
-                    p$set(1, paste0(elem, ")")) # close ggplot2::theme(
+                if (p$length() == 3) {
+                    # last configuration
+                    p$set(1, paste0(elem, p$get(3), ")"))
+                    # close ggplot2::theme(
                 } else {
-                    p$set(1, paste0(elem, ", ", p$get(3)))
+                    p$set(1, paste0(elem, ", ", p$get(3), p$get(4)))
                     # text = element_text(...) , ...
                 }
                 },
-            p_theme_elem = function(
-                doc="theme_elem : THEMEELEM theme_conf_list", p) {
+            p_theme_elem = function(doc="theme_elem : THEMEELEM", p) {
                 dbgmsg("p_theme_elem")
                 tdf <- ggbashenv$const$themedf
 
@@ -370,13 +373,18 @@ Ggplot2Parser <-
                         )
                     show_fixit_diagnostics(errinfo)
 
+                    ggbashenv$error <- TRUE
+
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
+
                 } else if (length(elem_class) > 1) {
                     message("UNKNOWN ERROR in p_theme_elem: ",
                             paste0(elem_class, collapse = " "))
                     elem_class <- elem_class[1] # What's this error?
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 }
+
+                ggbashenv$elem_class <- elem_class
 
                 if (grepl("^element_|margin", elem_class)) {
                     modifier <- "ggplot2::"
@@ -394,7 +402,7 @@ Ggplot2Parser <-
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 }
 
-                p$set(1, paste0(elem_name, " = ", function_name, p$get(3)))
+                p$set(1, paste0(elem_name, " = ", function_name))
             },
             p_theme_conf_list = function(doc="theme_conf_list : CONSTAES
                                          | CHARAES
@@ -404,6 +412,17 @@ Ggplot2Parser <-
                                          | CONSTAES theme_conf_list
                                          | CHARAES theme_conf_list", p) {
                 dbgmsg("p_theme_conf_list")
+
+                if (! is.null(ggbashenv$error)) {
+                    ggbashenv$error <- NULL # FIXME too compicated
+                    # FIXME the error in o_theme_elem cannot stop
+                    # even if return(p$set(1, GGPLOT2_INVALIDTOKEN)).
+                    # It tries to execute this production rule,
+                    # so currently early retrun here.
+                    # There should be more elegant error handling.
+                    return(p$set(1, NULL))
+                }
+
                 conf <- p$get(2)
                 if (p$length() == 2) {
                     if (grepl(ggregex$quoted, conf)) {
@@ -415,8 +434,29 @@ Ggplot2Parser <-
                         this_unit <- gsub("[0-9\\. ]", "", conf)
                         p$set(1, paste0(number, ",'", this_unit, "')"))
                     } else {
+                        before_equal <- gsub("=.*", "", conf)
+                        after_equal  <- gsub(".*=", "", conf)
+
+                        # prefix match
+                        input <- ggbashenv$elem_class
+                        tbl <- get_theme_elem_name_conf(input)
+                        conf_name <- tbl[find_first(prefix = before_equal,
+                                                   tbl, show_warn = FALSE)]
+
+                        if (is.na(conf_name)) {
+                            errinfo <- list(
+                                id = "p_theme_conf_list:partial_match",
+                                type = paste0("Partial match for theme ",
+                                              "element configuration failed."),
+                                input = before_equal,
+                                conf_list = tbl
+                            )
+                            show_fixit_diagnostics(errinfo)
+                            return(p$set(1, GGPLOT2INVALIDTOKEN))
+                        }
+
                         # FIXME add spaces
-                        p$set(1, paste0(conf, ")"))
+                        p$set(1, paste0(conf_name, "=", after_equal, ")"))
                         # close ggplot2::element_sth(
                     }
                 } else {
@@ -450,19 +490,22 @@ show_fixit_diagnostics <- function(
     m3 <- function(...) message("      ", ...)
 
     if (err$id == "p_theme_elem:prefix_match") {
-        similar_wordv <- get_analogue(err$elem_name, err$elem_table)
+        similarv <- get_analogue(err$elem_name, err$elem_table)
 
         m1("Is your theme element's name correct?")
         m2("The supplied string is \"", err$elem_name, "\", but")
-        m3("maybe: ", paste0(similar_wordv, collapse = ", "))
+        m3("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_layer_aes:column_prefix") {
 
-        # for (obj in ls(envir = ggbashenv)) print(obj)
-
         colv <- colnames(ggbashenv$dataset)
+        similarv <- get_analogue(err$input, colv)
 
-        similar_wordv <- get_analogue(err$input, colv)
         m1("The column name \"", err$input, "\" does not exist.")
-        m2("maybe: ", paste0(similar_wordv, collapse = ", "))
+        m2("maybe: ", paste0(similarv, collapse = ", "))
+    } else if (err$id == "p_theme_conf_list:partial_match"){
+        similarv <- get_analogue(err$input, err$conf_list)
+
+        m1("The column name \"", err$input, "\" does not exist.")
+        m2("maybe: ", paste0(similarv, collapse = ", "))
     }
 }

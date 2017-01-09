@@ -13,4 +13,3 @@ test_that("fixit column name", {
     )
 
 })
-
