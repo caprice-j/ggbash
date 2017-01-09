@@ -1,4 +1,33 @@
 
+
+# ggbash 0.3.0 (2017-01-09)
+
+## Major Updates
+
+### Fixit
+
++ From this v0.3.0, ggbash incorporates a powerful feature called *fixit*.
+  It's inspired from a modern C++ compiler
+  clang's [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints).
+  Now when ggbash users input a string which contains some typos,
+  ggbash gives users useful information on
+  what might be needed to fix the compile error.
+
+    + For example, if users wrongly input
+      the column name like `gg iris + point Sepl.W Sepal.L`,
+      ggbash gives `Column name not found` error
+      and also displays that the most similar column names are
+      `Sepal.Width, Species, Sepal.Length, Petal.Width, Petal.Length`,
+      in this order.
+      This could significantly reduce the learning cost of ggplot2 and ggbash,
+      having a possibility of making ggbash suitable for new ggplot2 users
+      as well as its heavy users.
+
+### Other Bug Fixes
+
++ checked coding style according to jimhester/lintr package.
++ renamed partial_match_utils.R to prefix_match.R (more accurate)
+
 ## ggbash 0.2.2 (2017-01-08)
 
 + convert `axis.ticks.length = 10 cm` into `grid::unit(10, 'cm')` in `theme()`
