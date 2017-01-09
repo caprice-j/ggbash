@@ -43,9 +43,10 @@ test_that("ggplot2 parser", {
     ee(yacc$parse("gg iris Sepal.Width Sepal.Length + point", lex),
        "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + " %+%
        "ggplot2::geom_point()")
-    # FIXME how should I deal with non-existing column names?
-    ee(yacc$parse("gg iris SepalWidth + point", lex),
-       "ggplot2::ggplot(iris, ggplot2::aes()) + ggplot2::geom_point()")
+    expect_message(
+        yacc$parse("gg iris SepalWidth + point", lex),
+       "No such column name"
+       )
 
     pre <- "ggplot2::ggplot(iris) + ggplot2::geom_"
     ee(yacc$parse("gg iris + point", lex), pre %+% "point()")

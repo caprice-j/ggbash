@@ -78,7 +78,7 @@ Ggplot2Lexer <-
                                 t$value)
                 ggbashenv$const <- define_ggbash_constant_list()
                 # FIXME showWarn
-                ggbashenv$show_amb_warn <- TRUE
+                ggbashenv$show_amb_warn <- TRUE # FIXME adhoc
                 gv <- ggbashenv$const$geom_namev
                 geom_sth <- gv[find_first(partial, gv, ggbashenv$show_amb_warn)]
 
@@ -116,10 +116,11 @@ Ggplot2Parser <-
             # dictionary of names
             names = new.env(hash = TRUE),
             # Note: ggproto contains '+' signs in LAYER tokens
-            p_expression_func = function(doc="expression : gg_init
-                                         | gg_init aes_func
-                                         | gg_init ggproto_list
-                                         | gg_init aes_func ggproto_list", p) {
+            p_expression_func = function(
+                    doc="expression : gg_init
+                                    | gg_init aes_func
+                                    | gg_init ggproto_list
+                                    | gg_init aes_func ggproto_list", p) {
                 dbgmsg("p_expression_func NONTERMINAL")
 
                 ggbashenv$dataset_name <-
@@ -152,6 +153,7 @@ Ggplot2Parser <-
                     eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                 ggbashenv$conf <-
                     list(aes = c(), non_aes = c(), geom_list = c())
+                ggbashenv$show_amb_warn <- TRUE
                 dbgmsg("  set dataset name: ", ggbashenv$dataset_name)
 
                 p$set(1, p$get(2))
@@ -251,7 +253,7 @@ Ggplot2Parser <-
                     index, dummy_aesv, must_aesv,
                     all_aesv, colnamev, ggbashenv$show_amb_warn)
 
-                if (grepl("=$", column_name)) {
+                if (is.null(column_name)) {
                     errinfo <-
                         list(
                             id = "p_layer_aes:column_prefix",
@@ -302,8 +304,14 @@ Ggplot2Parser <-
                     parse_ggbash_aes(1, p$get(2), must_aesv,
                                     all_aesv, colnamev, ggbashenv$show_amb_warn)
                 if (is.null(column_name)) {
-                    dbgmsg("column_name is null: ', column_nam")
-                    Sys.sleep(3)
+                    errinfo <-
+                        list(
+                            id = "p_aes_func:prefix_match",
+                            type = "No such column names",
+                            input = p$get(2)
+                        )
+                    show_fixit_diagnostics(errinfo)
+                    return(p$set(1, GGPLOT2INVALIDTOKEN))
                 }
                 # FIXME is this okay?
                 column_name <- gsub("[a-z]+=", "", column_name)
@@ -511,10 +519,13 @@ show_fixit_diagnostics <- function(
 
         m1("The column name \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
-    } else if (err$id == "p_theme_conf_list:partial_match"){
+    } else if (err$id == "p_theme_conf_list:partial_match") {
         similarv <- get_analogue(err$input, err$conf_list)
 
         m1("The column name \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
+    } else if (err$id == "p_aes_func:prefix_match") {
+        m1("The column name \"", err$input, "\" does not exist.")
+        #m2("maybe: ", paste0(similarv, collapse = ", "))
     }
 }

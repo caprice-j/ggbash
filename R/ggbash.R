@@ -529,6 +529,10 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 
     if (! after_equal %in% colnamev)
         after_equal <- colnamev[find_first(after_equal, colnamev, show_warn)]
+
+    if (length(after_equal) == 0) # no such column names ...
+        return(NULL)
+
     return(paste0(before_equal, "=", after_equal))
 }
 
