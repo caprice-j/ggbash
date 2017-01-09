@@ -346,15 +346,15 @@ Ggplot2Parser <-
                                                     show_warn = FALSE)]
 
                 if (length(elem_class) == 0 || is.na(elem_class)) {
-                    message("COMPILE ERROR: Partial prefix matching ",
-                            "for theme element failed.\n",
-                            "Did you set theme element's name ",
-                            "(like axis.text) correctly? \n",
-                            "The supplied string is '", p$get(2), "'")
-
-                    similar_wordv <- get_analogue(elem_name, tdf$name)
-
-                    print(similar_wordv)
+                    err <-
+                    list(
+                        id = "p_theme_elem:prefix_match",
+                        type = "Prefix match for theme element name failed.",
+                        input = p$get(2),
+                        elem_name = elem_name,
+                        elem_table = tdf$name
+                        )
+                    show_fixit_diagnostics(err)
 
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 } else if (length(elem_class) > 1) {
@@ -415,3 +415,31 @@ Ggplot2Parser <-
             }
             )
         )
+
+#'
+#'
+#'
+show_fixit_diagnostics <- function(
+    err = list(
+        id = "p_theme_elem:prefix_match",
+        type = "Prefix match for theme element name failed.",
+        input = "axis.tx:",
+        elem_name = "axis.tx",
+        elem_table = c("axis.text", "axis.title")
+    )
+) {
+    # TODO Is it possible to get the built entire ggplot object here?
+    message("COMPILE ERROR: ", err$type)
+    m1 <- function(...) message("  ", ...)
+    m2 <- function(...) message("    ", ...)
+    m3 <- function(...) message("      ", ...)
+
+    if (err$id == "p_theme_elem:prefix_match") {
+        similar_wordv <- get_analogue(err$elem_name, err$elem_table)
+
+        m1("Did you set theme element's name ",
+           "(ex. \"axis.text\", \"legend.title\") correctly?")
+        m2("The supplied string is \"", err$input, "\"")
+        m3("Maybe: ", paste0(similar_wordv, collapse = ", "))
+    }
+}

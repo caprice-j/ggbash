@@ -2,7 +2,14 @@
 engines:
   fixme:
     enabled: true
+    config:
+      strings:
+        - FIXME
+        - TODO
+        - HACK
+        - MAYBELATER
+        - MAYBE-LATER
 ratings:
   paths: []
-exclude_paths:
-- tests/
+# exclude_paths:
+# - tests/

@@ -3,6 +3,7 @@
 export(copy_to_clipboard)
 export(exec_ggbash)
 export(find_first)
+export(get_analogue)
 export(get_possible_aes)
 export(get_required_aes)
 export(ggbash)

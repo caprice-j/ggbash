@@ -12,14 +12,13 @@
 #'
 #' @examples
 #'
-#' # the last two are empty strings
 #' \dontrun{
 #' get_analogue("axis.txt", c("axis.text", "axis.text.x", "axis.ticks"))
 #' }
-#' # returns "axis.text" "axis.text.x" "axis.ticks"  "" ""
+#' # returns "axis.text" "axis.text.x" "axis.ticks"
 #'
 #' @importFrom utils adist
-#'
+#' @export
 get_analogue <- function(fuzzy_input = "axs.txt",
                          possibilities = c("axis.text", "axis.text.x"),
                          n_top = 5, case_sensitive = FALSE) {
@@ -28,8 +27,6 @@ get_analogue <- function(fuzzy_input = "axs.txt",
                                   ignore.case = case_sensitive)
 
     indices <- sort.int(edit_distance_matrix, index.return = TRUE)$ix[1:n_top]
-    similar_strings <- ifelse(is.na(possibilities[indices]),
-                              "",
-                              possibilities[indices])
+    similar_strings <- possibilities[! is.na(possibilities[indices])]
     return(similar_strings)
 }
