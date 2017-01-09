@@ -21,7 +21,6 @@ ggregex <- list(
                       "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
                       "('|\\\")$"),                      # end by a quote
     boolean   = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
-    constaes  = paste0("[a-z]+=[0-9\\.]+"),
     charaes   = paste0("[a-z]+=('|\\\").*?('|\\\")"),
     unit      = "[0-9\\.]+\\s*(cm|in|inch|inches)"
 )
@@ -42,7 +41,7 @@ Ggplot2Lexer <-
                                 t$value)
                 return(t)
             },
-            t_CONSTAES = function(re="[a-z]+\\s*=\\s*[0-9\\.]+", t) {
+            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\.]+", t) {
                 return(t) # integers and floats
             },
             t_BOOLEAN = ggregex$boolean,
@@ -336,15 +335,15 @@ Ggplot2Parser <-
                 # 'axis.te:' will be 'axis.te'
                 elem_name_partial <- gsub("\\:", "", p$get(2))
 
-                elem_name <- tdf$name[ find_first(prefix = elem_name_partial,
-                                                  tdf$name, show_warn = FALSE) ]
+                elem_name <- tdf$name[find_first(prefix = elem_name_partial,
+                                                 tdf$name, show_warn = FALSE)]
 
                 # do partial match for theme element
                 # (ex. 'legend.t' -> 'legend.text')
                 # TODO 'l.t.x' -> 'legend.text.x'
-                elem_class <- tdf$class[ find_first(prefix = elem_name,
+                elem_class <- tdf$class[find_first(prefix = elem_name,
                                                     tdf$name,
-                                                    show_warn = FALSE) ]
+                                                    show_warn = FALSE)]
 
                 if (length(elem_class) == 0) {
                     message("ERROR: Partial prefix matching ",

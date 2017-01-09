@@ -126,11 +126,16 @@ test_that("cases 2", {
     ee(gbash(prefix1 %+% "3.5 inch   "), paste0(prefix2, "ch'))"))
     ee(gbash(prefix1 %+% "3.5 in     "), paste0(prefix2, "'))"))
 
-    # TODO gg mtcars mpg hp + point col=factor(cyl)
-
-    # TODO  theme(legend.position = c(.5, .5))
+    # multi-minus handing
+    pre <- "gg iris + point Sepal.W Sepal.L c=Sp + theme legend.text : angle="
+    grepll <- function(pre, input, pattern)
+        expect_true(grepl(pattern, pre %+% input))
+    grepll(pre, "45", "=45")
+    grepll(pre, "-45", "=-45")
+    grepll(pre, "--45", "=--45")
 
     # TODO recover from non-existing configuration settings
-    # gg iris + point Sepal.W Sepal.L c=Sp + theme legend : angle=45
 
+    # TODO gg mtcars mpg hp + point col=factor(cyl)
+    # TODO  theme(legend.position = c(.5, .5))
 })
