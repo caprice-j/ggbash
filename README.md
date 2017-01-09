@@ -46,7 +46,7 @@ Features
 
 ![ggbash Feature Overview](README-func.png)
 
-### 1. Partial Prefix Match
+### 1. Prefix Match
 
 For the above input `gg iris + point Sepal.W Sepal.L c="red" s=5`, ggbash performs partial matches six times.
 
@@ -232,7 +232,7 @@ The goal of ggbash is to make ggplot2 more comfortable to write. It can be categ
 
 1.  **Better EDA experience.** Provide blazingly fast way to do exploratory data anslysis.
 
-    -   less typing by Partial Prefix Match and Precedence.
+    -   less typing by Prefix Match and Precedence.
 
     -   casualy save plots with Pipe Operators and Auto-generated Filenames.
 

@@ -7,7 +7,7 @@ p <- rly::yacc(Ggplot2Parser)
 `%+%` <- function(left, right) paste0(left, right)
 
 function() {
-    source("~/Dropbox/CU2016/ggbash/R/partial_match_utils.R")
+    source("~/Dropbox/CU2016/ggbash/R/prefix_match.R")
     source("~/Dropbox/CU2016/ggbash/R/ggbash.R")
     source("~/Dropbox/CU2016/ggbash/R/ggplot2-compiler.R")
 }

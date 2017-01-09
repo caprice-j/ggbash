@@ -13,7 +13,12 @@
 #' @examples
 #'
 #' # the last two are empty strings
+#' \dontrun{
 #' get_analogue("axis.txt", c("axis.text", "axis.text.x", "axis.ticks"))
+#' }
+#' # returns "axis.text" "axis.text.x" "axis.ticks"  "" ""
+#'
+#' @importFrom utils adist
 #'
 get_analogue <- function(fuzzy_input = "axs.txt",
                          possibilities = c("axis.text", "axis.text.x"),

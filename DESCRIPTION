@@ -25,5 +25,6 @@ RoxygenNote: 5.0.1
 VignetteBuilder: knitr
 Collate:
     'ggbash.R'
-    'partial_match_utils.R'
+    'prefix_match.R'
+    'approx_match.R'
     'ggplot2-compiler.R'
