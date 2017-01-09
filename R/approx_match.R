@@ -27,6 +27,7 @@ get_analogue <- function(fuzzy_input = "axs.txt",
                                   ignore.case = case_sensitive)
 
     indices <- sort.int(edit_distance_matrix, index.return = TRUE)$ix[1:n_top]
-    similar_strings <- possibilities[! is.na(possibilities[indices])]
-    return(similar_strings)
+    similar_strings <- possibilities[indices]
+
+    return(similar_strings[! is.na(similar_strings)])
 }

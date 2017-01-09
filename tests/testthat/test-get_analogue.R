@@ -8,8 +8,9 @@ test_that("use case 1", {
                        "legend", "text")
     a <- get_analogue("axs.t", possibilities)
     ee(a[1], "axis.text")
-    ee(a[2], "axis.text.x")
+    ee(a[2], "text")
     ee(a[3], "axis.ticks")
-    ee(a[4], "legend")
-    ee(a[5], "text")
+    ee(a[4], "axis.text.x")
+    ee(a[5], "legend")
+
 })

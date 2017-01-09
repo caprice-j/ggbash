@@ -1,3 +1,5 @@
+
+
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
 GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES", "CHARAES", "THEME",
@@ -66,6 +68,7 @@ Ggplot2Lexer <-
             #t_COMMA = ',',
             t_THEME = "(\\+|\\|)\\s*theme", # t_THEME is preferred to t_LAYER
             t_LAYER = function(re="(\\+|\\|)\\s*[a-z_]+", t) {
+                # TODO missing geom handling here
                 if (grepl("(\\+|\\|)\\s*theme", t$value)) {
                     t$type <- "THEME"
                     return(t)
@@ -237,6 +240,17 @@ Ggplot2Parser <-
                     index, dummy_aesv, must_aesv,
                     all_aesv, colnamev, ggbashenv$show_amb_warn)
 
+                if (grepl("=$", column_name)) {
+                    errinfo <-
+                        list(
+                            id = "p_layer_aes:column_prefix",
+                            type = "Column name not found",
+                            input = p$get(2)
+                        )
+                    show_fixit_diagnostics(errinfo)
+                    return(p$set(1, GGPLOT2INVALIDTOKEN))
+                }
+
                 if (! grepl("=", p$get(2)))
                     ggbashenv$aes_i <- ggbashenv$aes_i + 1
                 ggbashenv$conf$aes <- c(ggbashenv$conf$aes, column_name)
@@ -346,15 +360,15 @@ Ggplot2Parser <-
                                                     show_warn = FALSE)]
 
                 if (length(elem_class) == 0 || is.na(elem_class)) {
-                    err <-
+                    errinfo <-
                     list(
                         id = "p_theme_elem:prefix_match",
                         type = "Prefix match for theme element name failed.",
                         input = p$get(2),
-                        elem_name = elem_name,
+                        elem_name = elem_name_partial,
                         elem_table = tdf$name
                         )
-                    show_fixit_diagnostics(err)
+                    show_fixit_diagnostics(errinfo)
 
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 } else if (length(elem_class) > 1) {
@@ -416,8 +430,9 @@ Ggplot2Parser <-
             )
         )
 
+#' Display useful debugging info for users
 #'
-#'
+#' @param err A list of error information
 #'
 show_fixit_diagnostics <- function(
     err = list(
@@ -437,9 +452,17 @@ show_fixit_diagnostics <- function(
     if (err$id == "p_theme_elem:prefix_match") {
         similar_wordv <- get_analogue(err$elem_name, err$elem_table)
 
-        m1("Did you set theme element's name ",
-           "(ex. \"axis.text\", \"legend.title\") correctly?")
-        m2("The supplied string is \"", err$input, "\"")
-        m3("Maybe: ", paste0(similar_wordv, collapse = ", "))
+        m1("Is your theme element's name correct?")
+        m2("The supplied string is \"", err$elem_name, "\", but")
+        m3("maybe: ", paste0(similar_wordv, collapse = ", "))
+    } else if (err$id == "p_layer_aes:column_prefix") {
+
+        # for (obj in ls(envir = ggbashenv)) print(obj)
+
+        colv <- colnames(ggbashenv$dataset)
+
+        similar_wordv <- get_analogue(err$input, colv)
+        m1("The column name \"", err$input, "\" does not exist.")
+        m2("maybe: ", paste0(similar_wordv, collapse = ", "))
     }
 }

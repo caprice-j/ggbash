@@ -377,6 +377,9 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
         }
     }
     if (grepl(GGPLOT2INVALIDTOKEN, ggobj)) {
+        message("\nThe built ggplot2 object is :\n  ",
+                gsub("\\+ gg", "\\+ \n    gg",
+                     gsub("ggplot2::", "", ggobj)))
         return(FALSE)
     }
     print(eval(parse(text = ggobj)))
