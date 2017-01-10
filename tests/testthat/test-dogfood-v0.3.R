@@ -19,6 +19,10 @@ test_that("dogfood v0.3", {
 
     ggbash("gg iris + point Sepal.L Sepal.W col=Sp siz=Petal.W + theme legend.pos: \"bottom\" axis.text: face=\"bold\"")
 
-    lex$input("gg iris + point Sepal.L Sepal.W col=Sp siz=Petal.W + theme legend.pos: \"bottom\" axis.text: face=\"bold\"")
+    # ee(
+    # gbash("gg iris + point Sepal.W Sepal.L + theme legend.position: \"none\""),
+    #     "ggplot2::ggplot(iris) + " %+%
+    #         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width," %+%
+    #         " y=Sepal.Length)) + ggplot2::theme(legend.position = \"none\")")
 
 })

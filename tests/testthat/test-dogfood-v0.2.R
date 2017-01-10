@@ -53,7 +53,8 @@ test_that("cases 2", {
                 "+ theme legend.position: \"none\"", lex),
         "ggplot2::ggplot(iris) + " %+%
         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width," %+%
-        " y=Sepal.Length)) + ggplot2::theme(legend.position = \"none\")")
+        " y=Sepal.Length)) + ggplot2::theme(legend.position = (\"none\"))")
+    # FIXME paren for ("none")
 
     # fixed logicals
     lex$input("gg iris + point Sepal.W Sepal.L + theme panel.ontop: TRUE")

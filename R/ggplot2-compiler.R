@@ -361,7 +361,7 @@ Ggplot2Parser <-
             # see p_ggproto_layer
             p_ggproto_theme = function(doc="ggproto : theme_init
                                        | theme_init theme_elem_list", p) {
-                dbgmsg("p_ggproto_theme")
+                dbgmsg("p_ggproto_theme -- add ) ")
                 if (p$length() == 2) {
                     end <- paste0(p$get(2), ")")
                     p$set(1, end)
@@ -372,33 +372,33 @@ Ggplot2Parser <-
             p_theme_init = function(doc="theme_init : THEME
                                     | THEME NAME", p) {
                 # initialization
-                dbgmsg("p_theme_init")
+                dbgmsg("p_theme_init -- add (")
                 if (p$length() == 2) {
                     # theme, theme_bw, theme_linedraw, ...
                     theme_str <- gsub("\\s|\\+", "", p$get(2))
-                    p$set(1, paste0(" + ggplot2::", theme_str, "("))
                 } else {
                     # theme bw (no underline between the two)
                     theme_str <- gsub("\\s|\\+", "", p$get(2))
                     theme_str <- paste0(theme_str, "_", p$get(3))
-                    p$set(1, paste0(" + ggplot2::", theme_str, "("))
                 }
+                p$set(1, paste0(" + ggplot2::", theme_str, "("))
             },
             p_theme_elem_list = function(
                 doc="theme_elem_list : theme_elem theme_conf_list
                                 | theme_elem theme_conf_list theme_elem_list",
                 p) {
-                dbgmsg("p_theme_elem_list")
+                dbgmsg("p_theme_elem_list -- add ( and ) ")
                 elem <- p$get(2)
                 if (p$length() == 3) {
                     # last configuration
-                    p$set(1, paste0(elem, p$get(3)))
-                    # close ggplot2::theme(
+                    p$set(1, paste0(elem, "(", p$get(3), ")"))
+                    # close ggplot2::element_*(
+                    # MAYBE-LATER "none" is now ("none")
                 } else {
-                    if (! ggbashenv$elem_class %in% c("logical", "character"))
-                        p$set(1, paste0(elem, p$get(3), ", ", p$get(4)))
-                    else
-                        p$set(1, paste0(elem, p$get(3), "), ", p$get(4)))
+                    #if (! ggbashenv$elem_class %in% c("logical", "character"))
+                        p$set(1, paste0(elem, "(", p$get(3), "), ", p$get(4)))
+                    #else
+                    #    p$set(1, paste0(elem, p$get(3), "), ", p$get(4)))
                     # text = element_text(...) , ... so no need to close paren
                 }
             },
@@ -444,10 +444,10 @@ Ggplot2Parser <-
 
                 if (grepl("^element_|margin", elem_class)) {
                     modifier <- "ggplot2::"
-                    function_name <- paste0(modifier, elem_class, "(")
+                    function_name <- paste0(modifier, elem_class)
                 } else if (elem_class == "unit") {
                     modifier <- "grid::"
-                    function_name <- paste0(modifier, elem_class, "(")
+                    function_name <- paste0(modifier, elem_class)
                 } else if (elem_class %in% c("logical", "character") ){
                     function_name <- ""
                 } else {
@@ -481,14 +481,17 @@ Ggplot2Parser <-
 
                 conf <- p$get(2)
                 if (p$length() == 2) {
-                    if (grepl(ggregex$quoted, conf)) {
+                    if (grepl(ggregex$quoted, conf) &&
+                        ! grepl("^element_|margin", ggbashenv$elem_class)) {
+                        message("quoted ", conf, " env$elemclass: ", ggbashenv$elem_class)
                         p$set(1, conf)
                     } else if (grepl(ggregex$boolean, conf)) {
+                        message("boolena ", conf, " env$elemclass: ", ggbashenv$elem_class)
                         p$set(1, conf)
                     } else if (grepl(ggregex$unit, conf)) {
                         number <- gsub("[^0-9\\.]", "", conf)
                         this_unit <- gsub("[0-9\\. ]", "", conf)
-                        p$set(1, paste0(number, ",'", this_unit, "')"))
+                        p$set(1, paste0(number, ",'", this_unit, "'"))
                     } else {
                         before_equal <- gsub("=.*", "", conf)
                         after_equal  <- gsub(".*=", "", conf)
@@ -512,7 +515,7 @@ Ggplot2Parser <-
                         }
 
                         # FIXME add spaces
-                        p$set(1, paste0(conf_name, "=", after_equal, ")"))
+                        p$set(1, paste0(conf_name, "=", after_equal))
                         # close ggplot2::element_sth(
                     }
                 } else {
