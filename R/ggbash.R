@@ -474,6 +474,19 @@ get_possible_aes <- function(suffix="point") {
     return(possible_aesv)
 }
 
+#' get geom parameters
+#'
+#' Some geoms like geom_text has special non-aes fields such as check_overlap.
+#'
+#' @param suffix geom suffix
+#'
+get_geom_params <- function(suffix="point") {
+    command <- paste0("ggplot2::geom_", suffix, "()")
+    expr <- parse(text = command)
+    geom_params <- eval(expr)$geom_params
+    return(names(geom_params))
+}
+
 #' convert given ggbash strings into ggplot2 aesthetic specifications
 #'
 #' @param i An integer of index
@@ -534,6 +547,9 @@ parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
 
     if (! before_equal %in% all_aesv) # partial match
         before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]
+
+    if (length(before_equal) == 0) # no such parameter
+        return(NULL)
 
     return(paste0(before_equal, "=", after_equal))
 }

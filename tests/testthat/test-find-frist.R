@@ -7,7 +7,6 @@ test_that("find_first", {
 
     expect_equal(f("a", c(     "b", "c")), NULL)
     expect_equal(f("a", c("a", "b", "c")), 1)
-    expect_warning(f("a", c("a", "aa", "c")),
-                   "Ambiguous match. Use 'a' among a, aa")
+    expect_message(f("a", c("a", "aa", "c")), "Ambiguous match.")
 
 })

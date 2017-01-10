@@ -6,4 +6,5 @@ test_that('dogfood', {
     # TODO gg iris + text Sepal.W Sepal.L Species col=Spe angle=45 check_overlap=TRUE
     # geom_text()$geom_params
     # gg iris + text Sepal.W Sepal.L Species col=Spe angle=45 + theme cl
+    ggbash(" gg iris + text Sepal.W Sepal.L Sp check_overlap=TRUE")
 })

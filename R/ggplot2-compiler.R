@@ -3,7 +3,8 @@
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
 GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES", "CHARAES", "THEME",
-                   "LAYER", "THEMEELEM", "BOOLEAN", "QUOTED", "UNIT")
+                   "LAYER", "THEMEELEM", "BOOLEAN", "QUOTED", "UNIT",
+                   "BOOLEANAES")
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
 # COORD "CoordCartesian" "Coord"          "ggproto"
@@ -18,13 +19,14 @@ GGPLOT2INVALIDTOKEN <- " <<INVALID_TOKEN_HERE>> "
 ggbashenv <- new.env() # Note: This is a global variable.
 
 ggregex <- list(
-    plus_pipe = "(\\+|\\|)\\s*",
-    quoted    = paste0("^('|\\\")",                      # start from a quote
-                      "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
-                      "('|\\\")$"),                      # end by a quote
-    boolean   = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
-    charaes   = paste0("[a-z]+=('|\\\").*?('|\\\")"),
-    unit      = "[0-9\\.]+\\s*(cm|in|inch|inches)"
+    plus_pipe  = "(\\+|\\|)\\s*",
+    quoted     = paste0("^('|\\\")",                      # start from a quote
+                        "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
+                        "('|\\\")$"),                      # end by a quote
+    booleanaes = "[a-zA-Z_][a-zA-Z_0-9\\.]\\s*=\\s*(TRUE|FALSE|T|F|t|f|true|false|True|False)",
+    boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
+    charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
+    unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)"
 )
 
 set_ggbashenv_warning <- function(){
@@ -51,7 +53,6 @@ Ggplot2Lexer <-
             t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\.]+", t) {
                 return(t) # integers and floats
             },
-            t_BOOLEAN = ggregex$boolean,
             t_QUOTED = ggregex$quoted,
             # I believe CONSTAES cannot contain +-*/^, because
             # gg iris + point Sepal.W Sepal.L size=4 + smooth colour="red"
@@ -67,7 +68,14 @@ Ggplot2Lexer <-
                 t$value <- gsub(" ", "", t$value)
                 return(t)
             },
-            t_NAME      = "[a-zA-Z_][a-zA-Z_0-9\\.=]*",
+            t_NAME      = function(re="[a-zA-Z_][a-zA-Z_0-9\\.=]*", t) {
+                if (grepl(ggregex$booleanaes, t$value)){
+                    t$type <- "BOOLEANAES"
+                } else if (grepl(ggregex$boolean, t$value)) {
+                    t$type <- "BOOLEAN"
+                }
+                return(t)
+            },
             #t_LPAREN  = '\\(',
             #t_RPAREN  = '\\)',
             #t_COMMA = ',',
@@ -278,12 +286,28 @@ Ggplot2Parser <-
             p_layer_raw_aes = function(
                 doc="layer_raw_aes : CHARAES
                                    | CONSTAES
+                                   | BOOLEANAES
                                    | CHARAES layer_raw_aes
-                                   | CONSTAES layer_raw_aes", p) {
+                                   | CONSTAES layer_raw_aes
+                                   | BOOLEANAES layer_raw_aes", p) {
                 all_aesv <- get_possible_aes(ggbashenv$geom)
-                raw_aes <- parse_ggbash_non_aes(p$get(2), all_aesv,
+                special_params <- get_geom_params(ggbashenv$geom)
+                all_rawv <- c(all_aesv, special_params)
+                raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
+
+
+                if (is.null(raw_aes)) {
+                    errinfo <- list(
+                        id = "p_layer_raw_aes:partial_match",
+                        type = "No such parameter for the geom",
+                        input = p$get(2),
+                        table = all_rawv
+                    )
+                    show_fixit_diagnostics(errinfo)
+                    return(p$set(1, GGPLOT2INVALIDTOKEN))
+                }
 
                 if (p$length() == 2)
                     p$set(1, paste0(raw_aes, ")"))
@@ -537,6 +561,10 @@ show_fixit_diagnostics <- function(
     } else if (err$id == "p_aes_func:prefix_match") {
         m1("The column name \"", err$input, "\" does not exist.")
         #m2("maybe: ", paste0(similarv, collapse = ", "))
+    } else if (err$id == "p_layer_raw_aes:partial_match") {
+        m1("The special parameter \"", err$input, "\" does not exist.")
+        similarv <- get_analogue(err$input, err$table)
+        m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_error:non_null") {
 
     } else if (err$id == "p_error:null") {
