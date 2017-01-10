@@ -127,7 +127,7 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
     } else if (argv[1] %in% c("list", "str")) {
         show_dataset_column_indices(argv[2])
     } else if (argv[1] %in% c("ls", "dir")) {
-        if(length(argv) > 1 && argv[2] == "-l")
+        if (length(argv) > 1 && argv[2] == "-l")
             message( paste(dir(getwd()), collapse = "\n") )
         else
             message( paste(dir(getwd()), collapse = "\t") )
@@ -527,9 +527,6 @@ get_geom_params <- function(suffix="point") {
 #'
 #'
 get_stat_params <- function(suffix="smooth") {
-    # ggplot(mtcars, aes(mpg,cyl)) + geom_point(stat="sum")
-    # This is a confusing point...
-
     if (suffix == "map") # FIXME
         return("")
 

@@ -1,7 +1,7 @@
 library(ggbash)
-context('dogfood-v0.3')
+context("dogfood-v0.3")
 
-test_that('dogfood', {
+test_that("dogfood v0.3", {
     expect_error(ggbash("gg iris + text Sepal.W Sepal.L"))
     # gg iris + text Sepal.W Sepal.L Species col=Spe angle=45 + theme cl
     ggbash(" gg iris + text Sepal.W Sepal.L Sp check_overlap=TRUE")

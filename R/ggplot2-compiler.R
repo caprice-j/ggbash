@@ -23,7 +23,8 @@ ggregex <- list(
     quoted     = paste0("^('|\\\")",                      # start from a quote
                         "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
                         "('|\\\")$"),                      # end by a quote
-    booleanaes = "[a-zA-Z_][a-zA-Z_0-9\\.]\\s*=\\s*(TRUE|FALSE|T|F|t|f|true|false|True|False)",
+    booleanaes = paste0("[a-zA-Z_][a-zA-Z_0-9\\.]\\s*=\\s*",
+                        "(TRUE|FALSE|T|F|t|f|true|false|True|False)"),
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
     unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)"
@@ -348,17 +349,18 @@ Ggplot2Parser <-
                 } else {
                     p$set(1, paste0(column_name, ", ", p$get(3)))
                 }
-                },
+            },
             # see p_ggproto_layer
             p_ggproto_theme = function(doc="ggproto : theme_init
                                        | theme_init theme_elem_list", p) {
                 dbgmsg("p_ggproto_theme")
                 if (p$length() == 2) {
-                    p$set(1, paste0(p$get(2), ")"))
+                    end <- paste0(p$get(2), ")")
+                    p$set(1, end)
                 } else {
                     p$set(1, paste0(p$get(2), p$get(3)))
                 }
-                },
+            },
             p_theme_init = function(doc="theme_init : THEME
                                     | THEME NAME", p) {
                 # initialization
@@ -373,7 +375,7 @@ Ggplot2Parser <-
                     theme_str <- paste0(theme_str, "_", p$get(3))
                     p$set(1, paste0(" + ggplot2::", theme_str, "("))
                 }
-                },
+            },
             p_theme_elem_list = function(
                 doc="theme_elem_list : theme_elem theme_conf_list
                                 | theme_elem theme_conf_list theme_elem_list",
@@ -388,7 +390,7 @@ Ggplot2Parser <-
                     p$set(1, paste0(elem, ", ", p$get(3), p$get(4)))
                     # text = element_text(...) , ...
                 }
-                },
+            },
             p_theme_elem = function(doc="theme_elem : THEMEELEM", p) {
                 dbgmsg("p_theme_elem")
                 tdf <- ggbashenv$const$themedf
