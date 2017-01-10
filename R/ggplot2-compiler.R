@@ -90,7 +90,6 @@ Ggplot2Lexer <-
                                 "",
                                 t$value)
                 ggbashenv$const <- define_ggbash_constant_list()
-                # FIXME showWarn
                 set_ggbashenv_warning()
                 gv <- ggbashenv$const$geom_namev
                 geom_sth <- gv[find_first(partial, gv, ggbashenv$show_amb_warn)]
@@ -147,9 +146,8 @@ Ggplot2Parser <-
                     dbgmsg("GGPLOT only ")
                     p$set(1, paste0(p$get(2), ")"))
                 } else if (p$length() == 3 && (! grepl("\\+", p$get(3)))[1] ) {
-                    # FIXME ugly
-                    p$set(1, paste0(p$get(2),
-                                    ", ggplot2::aes(", p$get(3), ")"))
+                    p$set(1,
+                          paste0(p$get(2), ", ggplot2::aes(", p$get(3), ")"))
                 } else if (p$length() == 3) {
                     p$set(1, paste0(p$get(2), ")", p$get(3)))
                 } else {
@@ -401,7 +399,6 @@ Ggplot2Parser <-
 
                 # do partial match for theme element
                 # (ex. 'legend.t' -> 'legend.text')
-                # TODO 'l.t.x' -> 'legend.text.x'
                 elem_class <- tdf$class[find_first(prefix = elem_name,
                                                     tdf$name,
                                                     show_warn = FALSE)]
@@ -534,7 +531,7 @@ show_fixit_diagnostics <- function(
         elem_table = c("axis.text", "axis.title")
     )
 ) {
-    # TODO Is it possible to get the built entire ggplot object here?
+    # MAYBE-LATER Is it possible to get the built entire ggplot object here?
     message("COMPILE ERROR: ", err$type)
     m1 <- function(...) message("  ", ...)
     m2 <- function(...) message("    ", ...)

@@ -58,7 +58,6 @@ find_first <- function(prefix="si",
     indices <- grep(paste0("^", prefix), table)
 
     if (length(indices) < 1 && show_warn) {
-        # FIXME refactor (colour and color)
         if (grepl("colo", prefix))
             indices <- grep(paste0("^colour"), table)
         else

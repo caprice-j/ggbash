@@ -274,8 +274,6 @@ you could consider `ggplot2::ggsave(..., dpi=...)`.
 
 <!-- (Note: boolean variables will also be iterated in `i` and `n` cases.) -->
 
-<!-- #### TODO how can we encode scales/facets/themes differences? -->
-
 <!-- Scales are ... -->
 <!-- Facets are ... -->
 <!-- for is by pdf extension and i values -->

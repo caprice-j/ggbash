@@ -95,7 +95,6 @@ test_that("cases 2", {
     espace("size = 5 ",       "size = 5")       # both
     espace("size  =  5 ",     "size  =  5")     # multi and both
 
-    # TODO partial match for theme elements
     expected <- "ggplot2::ggplot(iris) + " %+%
         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length))" %+%
         " + ggplot2::theme(text = ggplot2::element_text(size=3))"
@@ -133,7 +132,5 @@ test_that("cases 2", {
     # fixed non-existing column name
     gbash("gg iris + point Sepal.WWWWWWW Sepal.L")
 
-    # TODO recover from non-existing configuration settings
-    # TODO gg mtcars mpg hp + point col=factor(cyl)
     # TODO  theme(legend.position = c(.5, .5))
 })

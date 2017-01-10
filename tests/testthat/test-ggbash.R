@@ -33,6 +33,4 @@ test_that("ggbash", {
     expect_equal(out,
                  paste0("ggplot(mtcars, aes(mpg, cyl)) + ",
                         "geom_point() + geom_smooth()"))
-    # TODO gg mtcars x=mpg y=cyl + point worked,
-    # TODO gg mtcars   mpg   cyl + point should work
 })

@@ -55,9 +55,6 @@ test_that("ggplot2 parser", {
     ee(yacc$parse("gg iris + rect Sepal.W Sepal.L Petal.L Petal.W", lex),
        pre %+% "rect(ggplot2::aes(xmin=Sepal.Width, xmax=Sepal.Length, " %+%
            "ymin=Petal.Length, ymax=Petal.Width))")
-    #ee(yacc$parse("gg iris + rect Sepal.W Sepal.L", lex),
-    #   "rect(ggplot2::aes(ymin=Sepal.Width, ymax=Sepal.Length))")
-    # FIXME only last 2 aes are specified
 
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth", lex),
        pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
