@@ -353,6 +353,10 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
             stop("unknown command is supplied")
         }
     }
+
+    if (is.null(ggobj))
+        return(FALSE) # ggobj is NULL when p_error() is called
+
     if (grepl(GGPLOT2INVALIDTOKEN, ggobj)) {
         message("\nThe built ggplot2 object is :\n  ",
                 gsub("\\+ gg", "\\+ \n    gg",

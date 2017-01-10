@@ -484,8 +484,15 @@ Ggplot2Parser <-
                 }
                 },
             p_error = function(p) {
-                if (is.null(p)) cat("Syntax error at EOF")
-                else            cat(sprintf("Syntax error at '%s' ", p$value))
+                if (is.null(p)) {
+                    errinfo <- list( id = "p_error:null",
+                                     type = "Syntax error at EOF")
+                } else {
+                    errinfo <- list( id = "p_error:non_null",
+                                     type = paste0("Syntax error at \"",
+                                                   p$value, "\""))
+                }
+                show_fixit_diagnostics(errinfo)
             }
             )
         )
@@ -530,5 +537,9 @@ show_fixit_diagnostics <- function(
     } else if (err$id == "p_aes_func:prefix_match") {
         m1("The column name \"", err$input, "\" does not exist.")
         #m2("maybe: ", paste0(similarv, collapse = ", "))
+    } else if (err$id == "p_error:non_null") {
+
+    } else if (err$id == "p_error:null") {
+
     }
 }
