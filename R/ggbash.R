@@ -52,9 +52,21 @@ build_prompt <- function() {
     return(ggbash_prompt)
 }
 
+show_prev_colnames <- function() {
+    pre2full <- partial_unique(ggbashenv$colname)
+    prefix <- names(pre2full)
+    suffix <- c()
+    for (i in seq_along(prefix))
+        suffix <- c(suffix, gsub(paste0("^", prefix[i]),'', pre2full[[i]]))
+    colnamev <- paste0(prefix, "(", suffix, ")")
+    message("cols: ", paste0(colnamev, collapse="\t"))
+}
+
 #' show ggbash prompt
 #'
 show_prompt <- function() {
+    if (! is.null(ggbashenv$colname))
+        show_prev_colnames()
     # MAYBE-LATER how can I test functions having readline()?
     return(readline(prompt = build_prompt()))
 }
@@ -324,6 +336,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
         argv <- split_by_space(cmd)
         if (grepl(paste0("^", argv[1]), "ggplot2")) {
             dataset <- set_ggbash_dataset(argv[2])
+            ggbashenv$colname <- colnames(dataset)
             if (show_warn)
                 ggbashenv$show_amb_warn <- TRUE
             else

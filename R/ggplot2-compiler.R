@@ -20,9 +20,9 @@ ggbashenv <- new.env() # Note: This is a global variable.
 
 ggregex <- list(
     plus_pipe  = "(\\+|\\|)\\s*",
-    quoted     = paste0("^('|\\\")",                      # start from a quote
+    quoted     = paste0("('|\\\")",                      # start from a quote
                         "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
-                        "('|\\\")$"),                      # end by a quote
+                        "('|\\\")"),                      # end by a quote
     booleanaes = paste0("[a-zA-Z_][a-zA-Z_0-9\\.]\\s*=\\s*",
                         "(TRUE|FALSE|T|F|t|f|true|false|True|False)"),
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
@@ -54,7 +54,6 @@ Ggplot2Lexer <-
             t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\.]+", t) {
                 return(t) # integers and floats
             },
-            t_QUOTED = ggregex$quoted,
             # I believe CONSTAES cannot contain +-*/^, because
             # gg iris + point Sepal.W Sepal.L size=4 + smooth colour="red"
             # will be interpreted as
@@ -69,11 +68,18 @@ Ggplot2Lexer <-
                 t$value <- gsub(" ", "", t$value)
                 return(t)
             },
-            t_NAME      = function(re="[a-zA-Z_][a-zA-Z_0-9\\.=]*", t) {
+            t_NAME      = function(re="(\\\"|')?[a-zA-Z_][a-zA-Z_0-9\\.=]*(\\\"|')?", t) {
                 if (grepl(ggregex$booleanaes, t$value)){
+                    dbgmsg("t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
                 } else if (grepl(ggregex$boolean, t$value)) {
+                    dbgmsg("t_NAME: BOOLEAN ", t$value)
                     t$type <- "BOOLEAN"
+                } else if (grepl(ggregex$quoted, t$value)) {
+                    dbgmsg("t_NAME: QUOTED ", t$value)
+                    t$type <- "QUOTED"
+                } else {
+                    dbgmsg("t_NAME: ", t$value)
                 }
                 return(t)
             },
@@ -360,7 +366,7 @@ Ggplot2Parser <-
                     end <- paste0(p$get(2), ")")
                     p$set(1, end)
                 } else {
-                    p$set(1, paste0(p$get(2), p$get(3)))
+                    p$set(1, paste0(p$get(2), p$get(3), ")"))
                 }
             },
             p_theme_init = function(doc="theme_init : THEME
@@ -386,11 +392,14 @@ Ggplot2Parser <-
                 elem <- p$get(2)
                 if (p$length() == 3) {
                     # last configuration
-                    p$set(1, paste0(elem, p$get(3), ")"))
+                    p$set(1, paste0(elem, p$get(3)))
                     # close ggplot2::theme(
                 } else {
-                    p$set(1, paste0(elem, ", ", p$get(3), p$get(4)))
-                    # text = element_text(...) , ...
+                    if (! ggbashenv$elem_class %in% c("logical", "character"))
+                        p$set(1, paste0(elem, p$get(3), ", ", p$get(4)))
+                    else
+                        p$set(1, paste0(elem, p$get(3), "), ", p$get(4)))
+                    # text = element_text(...) , ... so no need to close paren
                 }
             },
             p_theme_elem = function(doc="theme_elem : THEMEELEM", p) {

@@ -17,4 +17,8 @@ test_that("dogfood v0.3", {
     expect_match(gbash(" gg iris + text Sepal.W Sepal.L Sp chk=TRUE"),
                  "INVALID_TOKEN_HERE")
 
+    ggbash("gg iris + point Sepal.L Sepal.W col=Sp siz=Petal.W + theme legend.pos: \"bottom\" axis.text: face=\"bold\"")
+
+    lex$input("gg iris + point Sepal.L Sepal.W col=Sp siz=Petal.W + theme legend.pos: \"bottom\" axis.text: face=\"bold\"")
+
 })
