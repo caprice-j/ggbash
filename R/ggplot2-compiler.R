@@ -241,8 +241,6 @@ Ggplot2Parser <-
 
                 must_aesv <- get_required_aes(ggbashenv$geom)
                 all_aesv <- get_possible_aes(ggbashenv$geom)
-                # FIXME show in the right order if too-few without-equal aes
-                #index <- length(must_aesv) - ggbashenv$aes_i + 1
                 index <- ggbashenv$aes_i
                 if (index < 1) {
                     return(p$set(1, paste0(p$get(2), ")")))
@@ -313,7 +311,7 @@ Ggplot2Parser <-
                     show_fixit_diagnostics(errinfo)
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 }
-                # FIXME is this okay?
+
                 column_name <- gsub("[a-z]+=", "", column_name)
 
                 if (p$length() == 2) {
@@ -347,10 +345,10 @@ Ggplot2Parser <-
                     p$set(1, paste0(" + ggplot2::", theme_str, "("))
                 }
                 },
-            # FIXME the following lines are hard to read
             p_theme_elem_list = function(
                 doc="theme_elem_list : theme_elem theme_conf_list
-                    | theme_elem theme_conf_list theme_elem_list", p) {
+                                | theme_elem theme_conf_list theme_elem_list",
+                p) {
                 dbgmsg("p_theme_elem_list")
                 elem <- p$get(2)
                 if (p$length() == 3) {
