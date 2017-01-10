@@ -1,6 +1,12 @@
 # ggbash 0.3.1 (2017-01-09)
 
-+ 
+## Bug Fixes
+
++ error handlings
+    + missing required geoms `gg mtcars + text mpg cyl`
+        + needed to rewrite production rules
+    + special geom parameters (`check_overlap`, etc.)
+    + general p_error
 
 # ggbash 0.3.0
 
