@@ -292,7 +292,9 @@ Ggplot2Parser <-
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 special_params <- get_geom_params(ggbashenv$geom)
                 stat_params <- get_stat_params(ggbashenv$geom)
-                all_rawv <- c(all_aesv, special_params, stat_params)
+                layer_params <- c("stat", "position")
+                all_rawv <- c(all_aesv, special_params,
+                              stat_params, layer_params)
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
