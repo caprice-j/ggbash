@@ -471,6 +471,10 @@ get_possible_aes <- function(suffix="point") {
     possible_aesv <- unique(c(geom$required_aes,
                               geom$non_missing_aes,
                               names(geom$default_aes)))
+
+    if(suffix == "bar") # FIXME adhoc
+        possible_aesv <- c(possible_aesv, "weight")
+
     return(possible_aesv)
 }
 
@@ -535,6 +539,7 @@ get_stat_params <- function(suffix="smooth") {
     stat_params <- eval(expr)$stat_params
     # na.rm is duplicated within
     # geom_point()$geom_params and geom_point()$stat_params
+
     return(names(stat_params))
 }
 
