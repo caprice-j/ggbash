@@ -1,6 +1,8 @@
+# ggbash 0.3.1 (2017-01-09)
 
++ 
 
-# ggbash 0.3.0 (2017-01-09)
+# ggbash 0.3.0
 
 ## Major Updates
 
