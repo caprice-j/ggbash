@@ -166,36 +166,6 @@ set_ggbash_dataset <- function(dataset_name="iris"){
     return(dataset)
 }
 
-#' set ggplot() aesthetics arguments
-#'
-#' @param dataset A data frame
-#' @param aesv A vector of aesthetics
-#'
-set_ggplot_default_aes <-
-    function(dataset, aesv = c("x=mpg", "y=cyl", "c=am")) {
-
-    # ggplot2::ggplot() seems only interptets aes (but no non-aes)
-    if (length(aesv) == 0) {
-        attr(dataset, "ggbash_ggplot2") <- ""
-        return(dataset)
-    }
-
-    aes_str <- ""
-    all_aesv <- get_possible_aes("point") # FIXME all geoms
-
-    for (i in seq_along(aesv)) {
-        aes_str <- paste0(aes_str, ifelse(i > 1, ", ", ""),
-                          parse_ggbash_aes(i, aesv,
-                                           all_aesv,
-                                           must_aesv = c(),
-                                           colnamev = colnames(dataset)))
-    }
-
-    attr(dataset, "ggbash_ggplot2") <- paste0("aes(", aes_str, ")")
-
-    return(dataset)
-}
-
 #' copy a given string to clipboard
 #'
 #' \code{copy_to_clipboard} invokes OS-specific routine to copy a character to clipboard.
@@ -288,7 +258,8 @@ parse_plot_attributes <- function(
             out$w <- ifelse(size[1] > 50, size[1] / dpi, size[1])
             out$h <- ifelse(size[2] > 50, size[2] / dpi, size[2])
         } else {
-            index <- find_first(a, c("small", "big"))
+            # I believe no one need warning for png preset
+            index <- find_first(a, c("small", "big"), show_warn = FALSE)
             selected <-
                 list(small   = list(w =  480, h =  480),
                      big     = list(w = 1960, h = 1440))[[ index ]]
@@ -353,6 +324,10 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
         argv <- split_by_space(cmd)
         if (grepl(paste0("^", argv[1]), "ggplot2")) {
             dataset <- set_ggbash_dataset(argv[2])
+            if (show_warn)
+                ggbashenv$show_amb_warn <- TRUE
+            else
+                ggbashenv$show_amb_warn <- FALSE
             ggobj <- rly::yacc(Ggplot2Parser)$parse(
                         cmd, rly::lex(Ggplot2Lexer)
                     )

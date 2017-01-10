@@ -27,6 +27,11 @@ ggregex <- list(
     unit      = "[0-9\\.]+\\s*(cm|in|inch|inches)"
 )
 
+set_ggbashenv_warning <- function(){
+    if (is.null(ggbashenv$show_amb_warn))
+        ggbashenv$show_amb_warn <- TRUE
+}
+
 Ggplot2Lexer <-
     R6::R6Class(
         "Lexer",
@@ -78,7 +83,7 @@ Ggplot2Lexer <-
                                 t$value)
                 ggbashenv$const <- define_ggbash_constant_list()
                 # FIXME showWarn
-                ggbashenv$show_amb_warn <- TRUE # FIXME adhoc
+                set_ggbashenv_warning()
                 gv <- ggbashenv$const$geom_namev
                 geom_sth <- gv[find_first(partial, gv, ggbashenv$show_amb_warn)]
 
@@ -153,7 +158,7 @@ Ggplot2Parser <-
                     eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
                 ggbashenv$conf <-
                     list(aes = c(), non_aes = c(), geom_list = c())
-                ggbashenv$show_amb_warn <- TRUE
+                set_ggbashenv_warning()
                 dbgmsg("  set dataset name: ", ggbashenv$dataset_name)
 
                 p$set(1, p$get(2))
@@ -222,7 +227,7 @@ Ggplot2Parser <-
             p_layer_aes_list = function(
                 doc="layer_aes_list : layer_aes
                                     | layer_aes layer_aes_list", p) {
-                dbgmsg("p_layer_aes_list : INTERMEDIATE")
+                dbgmsg("p_layer_aes_list : NONTERMINAL")
 
                 if (p$length() == 2) {
                     p$set(1, paste0(p$get(2), ")"))

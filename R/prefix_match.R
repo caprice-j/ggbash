@@ -68,8 +68,10 @@ find_first <- function(prefix="si",
     if (length(indices) > 1 && show_warn &&
         (! prefix %in% c(sapply(1:5, function(i) substr("point", 1, i)),
                          sapply(1:4, function(i) substr("line",  1, i))))) {
-        warning("Ambiguous match. Use '", table[indices][1],
-                "' among ", paste0(table[indices], collapse = ", "))
+        message("  WARNING: Ambiguous match. Use \"",
+                table[indices][1], "\"\n",
+                "           among ", paste0(table[indices], collapse = ", ")
+                )
     }
     return(indices[1])
 }
