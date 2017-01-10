@@ -89,7 +89,7 @@ Ggplot2Lexer <-
                 partial <- gsub(paste0(ggregex$plus_pipe, "(geom_)?"),
                                 "",
                                 t$value)
-                ggbashenv$const <- define_ggbash_constant_list()
+                ggbashenv$const <- define_ggbash_constants()
                 set_ggbashenv_warning()
                 gv <- ggbashenv$const$geom_namev
                 geom_sth <- gv[find_first(partial, gv, ggbashenv$show_amb_warn)]
@@ -290,7 +290,8 @@ Ggplot2Parser <-
                                    | BOOLEANAES layer_raw_aes", p) {
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 special_params <- get_geom_params(ggbashenv$geom)
-                all_rawv <- c(all_aesv, special_params)
+                stat_params <- get_stat_params(ggbashenv$geom)
+                all_rawv <- c(all_aesv, special_params, stat_params)
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
@@ -333,7 +334,8 @@ Ggplot2Parser <-
                         list(
                             id = "p_aes_func:prefix_match",
                             type = "No such column names",
-                            input = p$get(2)
+                            input = p$get(2),
+                            cols = colnamev
                         )
                     show_fixit_diagnostics(errinfo)
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
@@ -557,7 +559,8 @@ show_fixit_diagnostics <- function(
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_aes_func:prefix_match") {
         m1("The column name \"", err$input, "\" does not exist.")
-        #m2("maybe: ", paste0(similarv, collapse = ", "))
+        similarv <- get_analogue(err$input, err$cols)
+        m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_layer_raw_aes:partial_match") {
         m1("The special parameter \"", err$input, "\" does not exist.")
         similarv <- get_analogue(err$input, err$table)

@@ -12,4 +12,16 @@ get_geom_params(suffix = "point")
 \description{
 Some geoms like geom_text has special non-aes fields such as check_overlap.
 }
+\examples{
+
+\dontrun{ get_geom_params("point") }
+# returns "na.rm"
+
+\dontrun{ get_geom_params("text") }
+# returns "parse" "check_overlap" "na.rm"
+
+}
+\seealso{
+\code{\link{get_stat_params}}
+}
 

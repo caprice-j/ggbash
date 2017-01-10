@@ -124,7 +124,7 @@ according to the above predefined order of precedence
 (the first one, `geom_point`, is selected in this example).
 
 While it's possible to check and define your own precedence order
-through `define_ggbash_constant_list()`,
+through `define_ggbash_constants()`,
 adding one or two characters may be faster in most cases.
 
 ### 3. Pipe Operators (`+` and `|`)

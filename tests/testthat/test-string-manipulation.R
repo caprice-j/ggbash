@@ -37,3 +37,10 @@ test_that("partial-match", {
         c("Sepal.L", "Sepal.W", "Petal.L", "Petal.W", "Spe")
     )
 })
+
+test_that("parse_ggbash_non_aes", {
+    ee(parse_ggbash_non_aes("xinter=5", c("xintercept", "linetype", "size")),
+       "xintercept=5")
+    ee(parse_ggbash_non_aes("xinter = 5", c("xintercept", "linetype", "size")),
+       "xintercept=5")
+})

@@ -78,10 +78,10 @@ find_first <- function(prefix="si",
 
 #' define constant values used in ggbash
 #'
-#' \code{define_ggbash_constant_list} has no side effect.
+#' \code{define_ggbash_constants} has no side effect.
 #' It is similar with the 'const' modifier in C or C++.
 #'
-#' One thing to note is \code{define_ggbash_constant_list} set implicitly
+#' One thing to note is \code{define_ggbash_constants} set implicitly
 #' the preference order of geom_name in ggplot2.
 #' For example, 'p' ambiguously matches to \code{\link[ggplot2]{geom_point}}
 #' and \code{\link[ggplot2]{geom_pointrange}},
@@ -96,7 +96,7 @@ find_first <- function(prefix="si",
 #' @seealso The preference order is used
 #'          when doing partial match in GgplotParser.
 #'
-define_ggbash_constant_list <- function(){
+define_ggbash_constants <- function(){
     list(
         first_wd = getwd(),
         # BUILTIN command Vectors

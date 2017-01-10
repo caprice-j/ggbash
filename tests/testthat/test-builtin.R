@@ -3,7 +3,7 @@ context("ggbash-builtin")
 
 test_that("builtins", {
     e <- execute_ggbash_builtins
-    const <- define_ggbash_constant_list()
+    const <- define_ggbash_constants()
     oldwd <- getwd()
     rmdir <- function(dir) unlink(dir, recursive = TRUE)
     # Can I assume some particular directory here?

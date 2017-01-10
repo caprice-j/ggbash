@@ -100,7 +100,7 @@ add_input_to_history <- function(input="point 2 3"){
 #' @param raw_input A character of ggbash command chain (might contain pipes)
 #' @param argv A character vector
 #' @param const A list of ggbash constants
-#'              returned by \{code{define_ggbash_constant_list}.
+#'              returned by \{code{define_ggbash_constants}.
 #'
 execute_ggbash_builtins <- function(raw_input, argv, const){
     if (argv[1] %in% c("pwd", "getwd")) {
@@ -159,7 +159,7 @@ set_ggbash_dataset <- function(dataset_name="iris"){
     if (! exists(dataset_name))
         stop("[E001] No such dataset: ", dataset_name)
     rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
-    if (class(rect_data) == "matrix")
+    if (class(rect_data)[1] == "matrix")
         rect_data <- as.data.frame(rect_data)
     dataset <- tibble::as_data_frame(rect_data)
     attr(dataset, "ggbash_datasetname") <- dataset_name
@@ -317,7 +317,7 @@ save_ggplot <- function(
 #' @export
 exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                         show_warn=TRUE, batch_mode=FALSE){
-    const <- define_ggbash_constant_list()
+    const <- define_ggbash_constants()
     commandv <- split_by_pipe(raw_input)
     ggobj <- ""
     for (cmd in commandv) {
@@ -480,11 +480,65 @@ get_possible_aes <- function(suffix="point") {
 #'
 #' @param suffix geom suffix
 #'
+#' @seealso \code{\link{get_stat_params}}
+#'
+#' @examples
+#'
+#' \dontrun{ get_geom_params("point") }
+#' # returns "na.rm"
+#'
+#' \dontrun{ get_geom_params("text") }
+#' # returns "parse" "check_overlap" "na.rm"
+#'
 get_geom_params <- function(suffix="point") {
     command <- paste0("ggplot2::geom_", suffix, "()")
     expr <- parse(text = command)
     geom_params <- eval(expr)$geom_params
     return(names(geom_params))
+}
+
+#' return stat params
+#'
+#' Some geoms such as \code{geom_smooth} or \code{geom_histogram}
+#' often set stat parameters (\code{method="lm"} or \code{binwidth}).
+#' The stat parameters is not stored in \code{geom_*()$geom_params},
+#' cannot be obtained by \code{\link{get_geom_params}}
+#' thus retrieve here by another procedure
+#'
+#' @param suffix geom suffix
+#'
+#' @seealso \code{\link{get_geom_params}}
+#'
+#' @examples
+#'
+#' \dontrun{ get_stat_params("histogram") }
+#' # returns "binwidth" "bins" "na.rm" "pad"
+#'
+#' \dontrun{ get_stat_params("smooth") }
+#' # returns "na.rm" "method" "formula" "se"
+#'
+#' \dontrun{ get_stat_params("violin") }
+#' # returns "trim" "scale" "na.rm"
+#'
+#' \dontrun{
+#' for (geom in define_ggbash_constants()$geom_namev)
+#'     message(geom, " ", paste0(get_stat_params(geom), collapse=" "))
+#' }
+#'
+#'
+get_stat_params <- function(suffix="smooth") {
+    # ggplot(mtcars, aes(mpg,cyl)) + geom_point(stat="sum")
+    # This is a confusing point...
+
+    if (suffix == "map") # FIXME
+        return("")
+
+    command <- paste0("ggplot2::geom_", suffix, "()")
+    expr <- parse(text = command)
+    stat_params <- eval(expr)$stat_params
+    # na.rm is duplicated within
+    # geom_point()$geom_params and geom_point()$stat_params
+    return(names(stat_params))
 }
 
 #' convert given ggbash strings into ggplot2 aesthetic specifications
@@ -542,8 +596,8 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #'
 parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
                                  show_warn=TRUE){
-    before_equal <- gsub("=.*", "", non_aes)
-    after_equal  <- gsub(".*=", "", non_aes)
+    before_equal <- gsub("\\s*=.*", "", non_aes)
+    after_equal  <- gsub(".*=\\s*", "", non_aes)
 
     if (! before_equal %in% all_aesv) # partial match
         before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]

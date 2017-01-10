@@ -84,7 +84,7 @@ Even if an unique identification is not possible, `ggbash` anyway tries to execu
 For example, if the input is `ggplot iris + p Sepal.Width Sepal.Length`, `p` ambiguously matches four different geoms, `geom_point`, `geom_path`, `geom_polygon`, and `geom_pointrange`.
 Among these geoms, `ggbash` determines the geom to use according to the above predefined order of precedence (the first one, `geom_point`, is selected in this example).
 
-While it's possible to check and define your own precedence order through `define_ggbash_constant_list()`, adding one or two characters may be faster in most cases.
+While it's possible to check and define your own precedence order through `define_ggbash_constants()`, adding one or two characters may be faster in most cases.
 
 ### 3. Pipe Operators (`+` and `|`)
 
@@ -205,7 +205,6 @@ Note: the default dpi (dots per inch) in ggbash is 72 (R's default) and cannot b
 <!-- +  `for i in 1:5` : **I**nteger variables among five columns will be iterated. -->
 <!-- +  `for n in 1:5` : **N**umeric variables among five columns will be iterated. -->
 <!-- (Note: boolean variables will also be iterated in `i` and `n` cases.) -->
-<!-- #### TODO how can we encode scales/facets/themes differences? -->
 <!-- Scales are ... -->
 <!-- Facets are ... -->
 <!-- for is by pdf extension and i values -->

@@ -12,7 +12,7 @@ execute_ggbash_builtins(raw_input, argv, const)
 \item{argv}{A character vector}
 
 \item{const}{A list of ggbash constants
-returned by \{code{define_ggbash_constant_list}.}
+returned by \{code{define_ggbash_constants}.}
 }
 \description{
 execute ggbash builtins
