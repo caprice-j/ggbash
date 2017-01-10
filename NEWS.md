@@ -1,3 +1,20 @@
+# ggbash 0.3.2 (2017-01-10)
+
+## Bug Fixes
+
++ get stats (`method="lm"` in geom_smooth, `binwidth=30` in geom_histogram)
+  by `get_stat_params`
++ get special flags like `weight` in geom_bar
++ start docs test of `geom_abline` and `geom_bar`
++ show colnames of previously-used data frame
++ fix parentheses mismatch
+    + one problem is unnecessary parentheses (`legend.position = ("none")` or
+      `panel.ontop = (TRUE)`)...
+    + This is deceptively simple but hard to solve because of
+      the current parsing production rules.
+    + some rules can't know if `element_text` is
+      placed before the current token.
+
 # ggbash 0.3.1 (2017-01-09)
 
 ## Bug Fixes
