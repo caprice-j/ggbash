@@ -127,8 +127,10 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
     } else if (argv[1] %in% c("list", "str")) {
         show_dataset_column_indices(argv[2])
     } else if (argv[1] %in% c("ls", "dir")) {
-        message( paste(dir(getwd()), collapse = "\t") )
-        # TODO ls -l
+        if(length(argv) > 1 && argv[2] == "-l")
+            message( paste(dir(getwd()), collapse = "\n") )
+        else
+            message( paste(dir(getwd()), collapse = "\t") )
     } else if (argv[1] %in% c("cd", "setwd")) {
         if (length(argv) < 2)
             setwd(const$first_wd)
