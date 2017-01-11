@@ -3,6 +3,7 @@ context("ggplot2-docs-2.1.0")
 
 assign('mpg', ggplot2::mpg, envir = .GlobalEnv)
 assign("diamonds", ggplot2::diamonds, envir = .GlobalEnv)
+assign("faithfuld", ggplot2::faithfuld, envir = .GlobalEnv)
 
 test_that("geom_abline", {
     # p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
@@ -79,7 +80,7 @@ test_that("geom_bin2d", {
 
 test_that("geom_boxplot", {
     ggbash("gg mpg x=class,y=hwy + box")
-    ggbash("gg mpg x=class,y=hwy + box + jitter width=.2")
+    #ggbash("gg mpg x=class,y=hwy + box + jitter width=.2")
     # FIXME p + geom_boxplot() + coord_flip()
     #ggbash("gg mpg x=class,y=hwy + box notch=TRUE") # FIXME non-aes
     #ggbash("gg mpg x=class,y=hwy + box varwidth=TRUE") # FIXME non-aes
@@ -113,7 +114,27 @@ test_that("geom_boxplot", {
 })
 
 test_that("geom_contour", {
+    # ggbash("gg faithfuld waiting eruptions z=density + contour") # FIXME
+    # ggplot(faithfuld, aes(waiting, eruptions, z = density)) + geom_contour()
 
+    ggbash("gg faithful waiting eruptions + density_2d")
+    # v + geom_contour(bins = 2)
+    # v + geom_contour(bins = 10)
+    # v + geom_contour(binwidth = 0.01)
+    # v + geom_contour(binwidth = 0.001)
+    # v + geom_contour(aes(colour = ..level..))
+    # v + geom_contour(colour = "red")
+    # v + geom_raster(aes(fill = density)) + geom_contour(colour = "white")
+    #
+})
+
+test_that("geom_count", {
+    ggbash("gg mpg x=cty, y=hwy + point")
+    ggbash("gg mpg x=cty, y=hwy + count")
+    # ggbash("gg mpg x=cty, y=hwy + count") # + scale_size_area
+
+    #ggbash("gg diamonds x=cut, y=clarity + count size=..prop.. ")
+    #ggbash("gg diamonds x=cut, y=clarity + count size = ..prop.. group=1")
 })
 
 # nolint end

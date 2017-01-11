@@ -586,7 +586,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
                              colnamev, show_warn=TRUE){
     # TODO as.factor as.character cut substr
     if (grepl("=", aesv[i])) {
-        before_equal <- gsub("=.*", "", aesv[i])
+        before_equal <- gsub("\\s*=.*", "", aesv[i])
     } else {
         # no aes specification like geom_point(aes(my_x, my_y))
         before_equal <- must_aesv[i]
@@ -596,18 +596,27 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
                  "Required aesthetics (in order) are: ",
                  paste0(must_aesv, collapse = ", "))
     }
-    after_equal  <- gsub(".*=",     "", aesv[i])
+    after_equal  <- gsub(".*=\\s*", "", aesv[i])
 
     if (! before_equal %in% all_aesv)
         before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]
 
+    if (grepl("group", before_equal))
+        return(paste0(before_equal, "=", after_equal))
+
     if (! after_equal %in% colnamev)
-        after_equal <- colnamev[find_first(after_equal, colnamev, show_warn)]
+        after_eq <- colnamev[find_first(after_equal, colnamev, show_warn)]
+    else
+        after_eq <- after_equal
 
-    if (length(after_equal) == 0) # no such column names ...
-        return(NULL)
+    if (length(after_eq) == 0) {
+        if (grepl("\\.\\..*\\.\\.", after_equal))
+            after_eq <- after_equal
+        else
+            return(NULL)
+    }
 
-    return(paste0(before_equal, "=", after_equal))
+    return(paste0(before_equal, "=", after_eq))
 }
 
 #'  convert given ggbash strings into ggplot2 non-aesthetic (constant) specifications
