@@ -87,7 +87,8 @@ Ggplot2Lexer <-
             #t_RPAREN  = '\\)',
             #t_COMMA = ',',
             t_THEME = "(\\+|\\|)\\s*theme", # t_THEME is preferred to t_LAYER
-            t_LAYER = function(re="(\\+|\\|)\\s*[a-z_]+", t) {
+            t_LAYER = function(re="(\\+|\\|)\\s*[a-z_2]+", t) {
+                # "2" for bin2d
                 # TODO missing geom handling here
                 if (grepl("(\\+|\\|)\\s*theme", t$value)) {
                     t$type <- "THEME"
@@ -298,9 +299,10 @@ Ggplot2Parser <-
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 special_params <- get_geom_params(ggbashenv$geom)
                 stat_params <- get_stat_params(ggbashenv$geom)
-                layer_params <- c("stat", "position")
+                layer_params <- c("stat", "position", "group")
                 all_rawv <- c(all_aesv, special_params,
                               stat_params, layer_params)
+                all_rawv <- unique(all_rawv)
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)

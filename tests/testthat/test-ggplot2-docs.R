@@ -65,4 +65,12 @@ test_that("geom_bar", {
 
 })
 
+test_that("geom_bin2d", {
+    assign("diamonds", ggplot2::diamonds, envir = .GlobalEnv)
+    ggbash("gg diamonds x y + bin2d")
+    # FIXME no xlim ylim
+
+    ggbash("gg diamonds x y + bin2d bins=10")
+})
+
 # nolint end

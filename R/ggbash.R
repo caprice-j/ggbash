@@ -553,6 +553,14 @@ get_stat_params <- function(suffix="smooth") {
     # na.rm is duplicated within
     # geom_point()$geom_params and geom_point()$stat_params
 
+    stat_list <- ls(pattern = "^stat_",
+                    envir = asNamespace("ggplot2"))
+    stat_sth  <- paste0("stat_", suffix)
+    if (stat_sth %in% stat_list) {
+        command <- paste0("ggplot2::stat_", suffix, "()")
+        expr <- parse(text = command)
+        stat_params <- c(stat_params, eval(expr)$stat_params)
+    }
     return(names(stat_params))
 }
 
