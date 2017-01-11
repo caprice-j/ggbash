@@ -303,6 +303,10 @@ Ggplot2Parser <-
                 all_rawv <- c(all_aesv, special_params,
                               stat_params, layer_params)
                 all_rawv <- unique(all_rawv)
+
+                if (ggbashenv$geom == "jitter") # FIXME adhoc
+                    all_rawv <- c(all_rawv, "width", "height")
+
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
