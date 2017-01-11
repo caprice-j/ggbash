@@ -341,6 +341,9 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                 ggbashenv$show_amb_warn <- TRUE
             else
                 ggbashenv$show_amb_warn <- FALSE
+            # sometimes people input commas
+            # due to daily habits
+            cmd <- gsub(",", " ", cmd)
             ggobj <- rly::yacc(Ggplot2Parser)$parse(
                         cmd, rly::lex(Ggplot2Lexer)
                     )

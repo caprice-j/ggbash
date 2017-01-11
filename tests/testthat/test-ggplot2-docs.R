@@ -71,6 +71,8 @@ test_that("geom_bin2d", {
     # FIXME no xlim ylim
 
     ggbash("gg diamonds x y + bin2d bins=10")
+    ggbash("gg diamonds x y + bin2d bins=30")
+    ggbash("gg diamonds x,y + bin2d bins=30")
 })
 
 # nolint end
