@@ -114,18 +114,22 @@ test_that("geom_boxplot", {
 })
 
 test_that("geom_contour", {
-    # ggbash("gg faithfuld waiting eruptions z=density + contour") # FIXME
-    # ggplot(faithfuld, aes(waiting, eruptions, z = density)) + geom_contour()
+    gbash("gg faithfuld waiting eruptions z=density + contour") # defaultZproblem
 
     ggbash("gg faithful waiting eruptions + density_2d")
-    # v + geom_contour(bins = 2)
-    # v + geom_contour(bins = 10)
-    # v + geom_contour(binwidth = 0.01)
-    # v + geom_contour(binwidth = 0.001)
+    gbash("gg faithfuld waiting eruptions z=density + contour bins=2")
+    gbash("gg faithfuld waiting eruptions z=density + contour bins=10")
+    gbash("gg faithfuld waiting eruptions z=density + contour binwidth=0.01")
+    gbash("gg faithfuld waiting eruptions z=density + contour binw=0.001")
+
     # v + geom_contour(aes(colour = ..level..))
-    # v + geom_contour(colour = "red")
-    # v + geom_raster(aes(fill = density)) + geom_contour(colour = "white")
-    #
+
+    gbash("gg faithfuld waiting eruptions z=density + contour colour = 'red'")
+    ee(bash("gg faithfuld w e z=d + rast fill=d + contour c = 'white'"),
+       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %+%
+        "geom_raster(aes(fill=density)) + geom_contour(colour='white')"
+       )
+
 })
 
 test_that("geom_count", {

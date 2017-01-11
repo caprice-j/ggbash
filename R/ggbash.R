@@ -555,7 +555,7 @@ get_stat_params <- function(suffix="smooth") {
 
     command <- paste0("ggplot2::geom_", suffix, "()")
     expr <- parse(text = command)
-    stat_params <- eval(expr)$stat_params
+    stat_params <- names(eval(expr)$stat_params)
     # na.rm is duplicated within
     # geom_point()$geom_params and geom_point()$stat_params
 
@@ -565,9 +565,11 @@ get_stat_params <- function(suffix="smooth") {
     if (stat_sth %in% stat_list) {
         command <- paste0("ggplot2::stat_", suffix, "()")
         expr <- parse(text = command)
-        stat_params <- c(stat_params, eval(expr)$stat_params)
+        stat_params <- c(stat_params,
+                         names(eval(expr)$stat_params),
+                         eval(expr)$stat$parameters(TRUE))
     }
-    return(names(stat_params))
+    return(stat_params)
 }
 
 get_layer_params <- function(suffix="bin2d") {
