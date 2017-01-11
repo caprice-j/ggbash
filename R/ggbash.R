@@ -318,6 +318,14 @@ save_ggplot <- function(
     message("saved: ", attrl$filepath)
 }
 
+coat_adhoc_syntax_sugar <- function(
+    cmd = "gg mtcars mpg,hwy + point size     = gear   shape    = 16"
+){
+    out <- gsub(",", " ", cmd)
+    out <- gsub("\\s*=\\s*", "=", out)
+    return(out)
+}
+
 #' execute raw ggbash commands
 #'
 #' @param raw_input A ggbash command chain (might contain pipes)
@@ -343,7 +351,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                 ggbashenv$show_amb_warn <- FALSE
             # sometimes people input commas
             # due to daily habits
-            cmd <- gsub(",", " ", cmd)
+            cmd <- coat_adhoc_syntax_sugar(cmd)
             ggobj <- rly::yacc(Ggplot2Parser)$parse(
                         cmd, rly::lex(Ggplot2Lexer)
                     )
