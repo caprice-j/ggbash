@@ -10,3 +10,4 @@
 ^.codeclimate.yml$
 ^cran-comments.md$
 ^NEWS\.md$
+^.lintr$
