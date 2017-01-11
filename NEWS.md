@@ -1,3 +1,12 @@
+# ggbash 0.3.3 (2017-01-11)
+
+## Bug Fixes
+
++ locate `bin2d bins=10`
++ add syntax sugars (remove habitual commas and spaces)
++ defaultZproblem (see by grep)
++ start docs test of `geom_countour`, `geom_point`, and so on
+
 # ggbash 0.3.2 (2017-01-10)
 
 ## Bug Fixes
