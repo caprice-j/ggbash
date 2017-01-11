@@ -297,11 +297,8 @@ Ggplot2Parser <-
                                    | CONSTAES layer_raw_aes
                                    | BOOLEANAES layer_raw_aes", p) {
                 all_aesv <- get_possible_aes(ggbashenv$geom)
-                special_params <- get_geom_params(ggbashenv$geom)
-                stat_params <- get_stat_params(ggbashenv$geom)
-                layer_params <- c("stat", "position", "group")
-                all_rawv <- c(all_aesv, special_params,
-                              stat_params, layer_params)
+                layer_params <- get_layer_params(ggbashenv$geom)
+                all_rawv <- c(all_aesv, layer_params)
                 all_rawv <- unique(all_rawv)
 
                 if (ggbashenv$geom == "jitter") # FIXME adhoc
@@ -338,6 +335,11 @@ Ggplot2Parser <-
                 colnamev <- colnames(ggbashenv$dataset)
 
                 geom_tmp <- "point" # FIXME more general
+                # FIXME defaultZproblem - z should not be removed
+                # StatContour$required_aes has "z" as well as "x" and "y"
+                # But how p_aes_func can know
+                # the following geom is geom_contour()?
+                # Currently adhoc fix in parse_ggbash_aes
                 must_aesv <- get_required_aes(geom_tmp)
                 all_aesv <- get_possible_aes(geom_tmp)
 
@@ -356,7 +358,10 @@ Ggplot2Parser <-
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
                 }
 
-                column_name <- gsub("[a-z]+=", "", column_name)
+                # FIXME defaultZproblem - z should not be removed
+                if (! grepl("z=", column_name))
+                    column_name <- gsub("[a-z]+=", "", column_name)
+
 
                 if (p$length() == 2) {
                     p$set(1, paste0(column_name, ")"))

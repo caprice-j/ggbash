@@ -511,6 +511,9 @@ get_possible_aes <- function(suffix="point") {
 #' # returns "parse" "check_overlap" "na.rm"
 #'
 get_geom_params <- function(suffix="point") {
+    if (suffix == "map") # FIXME
+        return("")
+
     command <- paste0("ggplot2::geom_", suffix, "()")
     expr <- parse(text = command)
     geom_params <- eval(expr)$geom_params
@@ -567,6 +570,14 @@ get_stat_params <- function(suffix="smooth") {
     return(names(stat_params))
 }
 
+get_layer_params <- function(suffix="bin2d") {
+    # FIXME should read layer.R
+    specials <- get_geom_params(suffix)
+    stats <- get_stat_params(suffix)
+    wrappers <- c("stat", "position", "group")
+    return(unique(c(specials, stats, wrappers)))
+}
+
 #' convert given ggbash strings into ggplot2 aesthetic specifications
 #'
 #' @param i An integer of index
@@ -601,22 +612,30 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
     if (! before_equal %in% all_aesv)
         before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]
 
+    if (length(before_equal) == 0 && substr(aesv[i],1,1) == "z") {
+        # FIXME defaultZproblem - z should not be removed
+        before_equal <- "z"
+        # knowing "z" is needed for this geom is super hard...
+        # must_aesv should contain "z" for geom_contour
+        # but should not for geom_point...
+    }
+
     if (grepl("group", before_equal))
         return(paste0(before_equal, "=", after_equal))
 
     if (! after_equal %in% colnamev)
-        after_eq <- colnamev[find_first(after_equal, colnamev, show_warn)]
+        aftr <- colnamev[find_first(after_equal, colnamev, show_warn)]
     else
-        after_eq <- after_equal
+        aftr <- after_equal
 
-    if (length(after_eq) == 0) {
+    if (length(aftr) == 0) {
         if (grepl("\\.\\..*\\.\\.", after_equal))
-            after_eq <- after_equal
+            aftr <- after_equal
         else
             return(NULL)
     }
 
-    return(paste0(before_equal, "=", after_eq))
+    return(paste0(before_equal, "=", aftr))
 }
 
 #'  convert given ggbash strings into ggplot2 non-aesthetic (constant) specifications
