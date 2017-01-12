@@ -357,6 +357,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                     )
         } else if (argv[1] == "show") {
             print(tibble::as_data_frame(eval(as.symbol(argv[2]))))
+            ggbashenv$colname <- colnames(eval(as.symbol(argv[2])))
             return(FALSE)
         } else if (argv[1] %in% c("echo", "print")) {
             if (ggobj != "")

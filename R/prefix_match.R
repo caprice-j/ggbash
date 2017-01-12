@@ -146,6 +146,7 @@ get_element_tree_clone <- function() {
         "line                                   line element_line
         rect                                   rect element_rect
         text                                   text element_text
+        axis.title                       axis.title element_text
         axis.title.x                   axis.title.x element_text
         axis.title.x.top           axis.title.x.top element_text
         axis.title.y                   axis.title.y element_text

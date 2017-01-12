@@ -21,13 +21,30 @@
 #' @export
 get_analogue <- function(fuzzy_input = "axs.txt",
                          possibilities = c("axis.text", "axis.text.x"),
-                         n_top = 5, case_sensitive = FALSE) {
+                         n_top = 5, case_sensitive = FALSE,
+                         cost = c(
+                             "insertions" = .25,
+                             "deletions" = 3,
+                             "substitutions" = 2
+                         )) {
+
+    if (length(possibilities) == 0)
+        return(NULL)
 
     edit_distance_matrix <- adist(fuzzy_input, possibilities,
-                                  ignore.case = case_sensitive)
+                                  ignore.case = case_sensitive,
+                                  costs = cost)
+    sorted <- sort.int(edit_distance_matrix, index.return = TRUE)
+    indices <- sorted$ix[1:n_top]
+    with_NA <-
+        data.frame(name = possibilities[indices],
+                   cost = sorted$x[1:n_top],
+                   nchar = nchar(possibilities[indices]),
+                   stringsAsFactors = FALSE)
+    # if tie, prefer longer string
+    # (prefer "axis.text.x" than "axis.text")
+    with_NA <- with(with_NA, with_NA[order(cost, -nchar), ])
+    similar_string_df <- na.omit(with_NA)
 
-    indices <- sort.int(edit_distance_matrix, index.return = TRUE)$ix[1:n_top]
-    similar_strings <- possibilities[indices]
-
-    return(similar_strings[! is.na(similar_strings)])
+    return(similar_string_df)
 }

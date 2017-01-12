@@ -350,9 +350,9 @@ Ggplot2Parser <-
                     errinfo <-
                         list(
                             id = "p_aes_func:prefix_match",
-                            type = "No such column names",
+                            type = "No such column names\n",
                             input = p$get(2),
-                            cols = colnamev
+                            table = colnamev
                         )
                     show_fixit_diagnostics(errinfo)
                     return(p$set(1, GGPLOT2INVALIDTOKEN))
@@ -434,9 +434,9 @@ Ggplot2Parser <-
                     list(
                         id = "p_theme_elem:prefix_match",
                         type = "Prefix match for theme element name failed.",
-                        input = p$get(2),
-                        elem_name = elem_name_partial,
-                        elem_table = tdf$name
+                        raw = p$get(2),
+                        input = elem_name_partial,
+                        table = tdf$name
                         )
                     show_fixit_diagnostics(errinfo)
 
@@ -519,7 +519,7 @@ Ggplot2Parser <-
                                 type = paste0("Partial match for theme ",
                                               "element configuration failed."),
                                 input = before_equal,
-                                conf_list = tbl
+                                table = tbl
                             )
                             show_fixit_diagnostics(errinfo)
                             return(p$set(1, GGPLOT2INVALIDTOKEN))
@@ -566,31 +566,27 @@ show_fixit_diagnostics <- function(
     m2 <- function(...) message("    ", ...)
     m3 <- function(...) message("      ", ...)
 
+    similarv <- get_analogue(err$input, err$table)$name
+
     if (err$id == "p_theme_elem:prefix_match") {
-        similarv <- get_analogue(err$elem_name, err$elem_table)
 
         m1("Is your theme element's name correct?")
-        m2("The supplied string is \"", err$elem_name, "\", but")
+        m2("The supplied string is \"", err$raw, "\", but")
         m3("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_layer_aes:column_prefix") {
-
         colv <- colnames(ggbashenv$dataset)
-        similarv <- get_analogue(err$input, colv)
+        similarv <- get_analogue(err$input, colv)$name
 
         m1("The column name \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_theme_conf_list:partial_match") {
-        similarv <- get_analogue(err$input, err$conf_list)
-
         m1("The column name \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_aes_func:prefix_match") {
         m1("The column name \"", err$input, "\" does not exist.")
-        similarv <- get_analogue(err$input, err$cols)
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_layer_raw_aes:partial_match") {
         m1("The special parameter \"", err$input, "\" does not exist.")
-        similarv <- get_analogue(err$input, err$table)
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_error:non_null") {
 
