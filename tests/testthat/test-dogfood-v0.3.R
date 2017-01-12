@@ -23,4 +23,5 @@ test_that("dogfood v0.3", {
     #         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width," %+%
     #         " y=Sepal.Length)) + ggplot2::theme(legend.position = \"none\")")
 
+    # MAYBE-LATER bash("gg iris Sepal.W Sepal.L + poitn")
 })

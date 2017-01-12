@@ -88,7 +88,8 @@ split_by_pipe <- function(input="point x=3 y=4 color=5 | copy"){
 #' @export
 split_by_space <- function(input="    point x=3 y=4 color=5 "){
     # remove preceding/trailing spaces
-    argv <- strsplit(input, " ")[[1]]
+    noparen <- gsub("\\(|\\)", " ", input)
+    argv <- strsplit(noparen, " ")[[1]]
     return(argv[nchar(argv) > 0])
 }
 
@@ -167,7 +168,10 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
 #' attr(newdf, 'ggbash_datasetname')  # 'iris'
 #'
 #' @export
-set_ggbash_dataset <- function(dataset_name="iris"){
+set_ggbash_dataset <- function(dataset_name="iris+point"){
+
+    dataset_name <- gsub("\\+.*", "", dataset_name)
+
     if (! exists(dataset_name))
         stop("[E001] No such dataset: ", dataset_name)
     rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
@@ -321,9 +325,22 @@ save_ggplot <- function(
 coat_adhoc_syntax_sugar <- function(
     cmd = "gg mtcars mpg,hwy + point size     = gear   shape    = 16"
 ){
-    out <- gsub(",", " ", cmd)
+    out <- gsub(",", " ", cmd) # no comma
+    out <- gsub("\\(|\\)", " ", out) # no parentheses
     out <- gsub("\\s*=\\s*", "=", out)
     return(out)
+}
+
+#' the core function of ggbash
+#'
+#' compile_ggbash returns a built ggplot object.
+#'
+compile_ggbash <- function(cmd){
+    cmd <- coat_adhoc_syntax_sugar(cmd)
+    ggobj <- rly::yacc(Ggplot2Parser)$parse(
+        cmd, rly::lex(Ggplot2Lexer)
+    )
+    return(ggobj)
 }
 
 #' execute raw ggbash commands
@@ -351,10 +368,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                 ggbashenv$show_amb_warn <- FALSE
             # sometimes people input commas
             # due to daily habits
-            cmd <- coat_adhoc_syntax_sugar(cmd)
-            ggobj <- rly::yacc(Ggplot2Parser)$parse(
-                        cmd, rly::lex(Ggplot2Lexer)
-                    )
+            ggobj <- compile_ggbash(cmd)
         } else if (argv[1] == "show") {
             print(tibble::as_data_frame(eval(as.symbol(argv[2]))))
             ggbashenv$colname <- colnames(eval(as.symbol(argv[2])))

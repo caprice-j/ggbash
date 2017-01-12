@@ -41,11 +41,11 @@ ggbash() # start a ggbash session
 ```
 
 ```{bash, eval=FALSE}
-gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W  +  theme text: size=20 face="bold" |  echo
+gg(iris) + point(Sepal.W, Sepal.L, col=Spec, sz=7) +  theme(text: size=20, face="bold") | echo
 ```
 
 ```{r example, echo=FALSE}
-ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=Petal.Width))+theme(text=element_text(size=20,face="bold"))
+ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=5))+theme(text=element_text(size=20,face="bold"))
 # gg iris + point Sepal.W Sepal.L col=Spec siz=Petal.W + theme text: size=20 face="bold"
 ```
 
@@ -54,9 +54,16 @@ ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=Petal.W
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width, Sepal.Length,
-               colour=Species, size=Petal.Width)) +
+               colour=Species, size=7)) +
 theme(text=element_text(size=20, face="bold"))
 ```
+
+If you prefer the short command,
+
+```{r, eval=FALSE}
+g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme t: sz=20 f="bold" | echo # 
+```
+
 
 ### One-liner
 
@@ -98,6 +105,7 @@ ggbash performs partial matches six times.
 <!-- * __theme element name__ -->
 
 Any of the following commands return exactly the same plot.
+
 ```{r, eval=FALSE}
 ggplot(iris)+ geom_point(aes(x=Sepal.Width,y=Sepal.Length),colour="red",size=5)  # 79 characters
 ggplot iris + geom_point     x=Sepal.Width y=Sepal.Length  colour="red" size=5

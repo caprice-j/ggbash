@@ -590,7 +590,9 @@ show_fixit_diagnostics <- function(
         m1("The special parameter \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_error:non_null") {
-
+        m1("Did you specify a geom before aesthetics?")
+        m2(" BAD: gg mtcars + mpg cyl")
+        m2("GOOD: gg mtcars + point mpg cyl")
     } else if (err$id == "p_error:null") {
 
     }
