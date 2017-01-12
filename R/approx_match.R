@@ -6,6 +6,7 @@
 #'                      is assumed to be pointed by fuzzy_input.
 #' @param n_top An integer specifying the number of returned strings.
 #' @param case_sensitive Default is FALSE.
+#' @param cost A named vector
 #'
 #' \code{get_analogue} is a key function
 #' for returning useful compile error message.
@@ -18,6 +19,7 @@
 #' # returns "axis.text" "axis.text.x" "axis.ticks"
 #'
 #' @importFrom utils adist
+#' @importFrom stats na.omit
 #' @export
 get_analogue <- function(fuzzy_input = "axs.txt",
                          possibilities = c("axis.text", "axis.text.x"),
@@ -40,6 +42,7 @@ get_analogue <- function(fuzzy_input = "axs.txt",
         data.frame(name = possibilities[indices],
                    cost = sorted$x[1:n_top],
                    nchar = nchar(possibilities[indices]),
+                   index = indices,
                    stringsAsFactors = FALSE)
     # if tie, prefer longer string
     # (prefer "axis.text.x" than "axis.text")

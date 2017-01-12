@@ -271,7 +271,7 @@ parse_plot_attributes <- function(
             out$h <- ifelse(size[2] > 50, size[2] / dpi, size[2])
         } else {
             # I believe no one need warning for png preset
-            index <- find_first(a, c("small", "big"), show_warn = FALSE)
+            index <- find_first_index(a, c("small", "big"), show_warn = FALSE)
             selected <-
                 list(small   = list(w =  480, h =  480),
                      big     = list(w = 1960, h = 1440))[[ index ]]
@@ -620,22 +620,25 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
     }
     after_equal  <- gsub(".*=\\s*", "", aesv[i])
 
-    if (! before_equal %in% all_aesv)
-        before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]
-
-    if (length(before_equal) == 0 && substr(aesv[i],1,1) == "z") {
+    if (substr(aesv[i],1,1) == "z") {
         # FIXME defaultZproblem - z should not be removed
         before_equal <- "z"
         # knowing "z" is needed for this geom is super hard...
         # must_aesv should contain "z" for geom_contour
         # but should not for geom_point...
+    } else {
+        if (! before_equal %in% all_aesv)
+            before_equal <- all_aesv[find_first_index(before_equal, all_aesv, show_warn)]
+
     }
 
     if (grepl("group", before_equal))
         return(paste0(before_equal, "=", after_equal))
 
+    # design decision: column name only by prefix match?
     if (! after_equal %in% colnamev)
-        aftr <- colnamev[find_first(after_equal, colnamev, show_warn)]
+        aftr <- colnamev[find_first_by_prefix(after_equal,
+                                              colnamev, show_warn)]
     else
         aftr <- after_equal
 
@@ -665,7 +668,7 @@ parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
     after_equal  <- gsub(".*=\\s*", "", non_aes)
 
     if (! before_equal %in% all_aesv) # partial match
-        before_equal <- all_aesv[find_first(before_equal, all_aesv, show_warn)]
+        before_equal <- all_aesv[find_first_index(before_equal, all_aesv, show_warn)]
 
     if (length(before_equal) == 0) # no such parameter
         return(NULL)

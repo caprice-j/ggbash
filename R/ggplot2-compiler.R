@@ -100,7 +100,8 @@ Ggplot2Lexer <-
                 ggbashenv$const <- define_ggbash_constants()
                 set_ggbashenv_warning()
                 gv <- ggbashenv$const$geom_namev
-                geom_sth <- gv[find_first(partial, gv, ggbashenv$show_amb_warn)]
+                geom_sth <- gv[find_first_by_prefix(partial, gv,
+                                                    ggbashenv$show_amb_warn)]
 
                 t$value <- paste0(" + geom_", geom_sth)
                 return(t)
@@ -227,12 +228,12 @@ Ggplot2Parser <-
             p_layer_init = function(doc="layer_init : LAYER", p) {
                 # initialization
                 dbgmsg("p_layer_init")
-                dbgmsg("  before: ', ggbashenv$geo")
+                dbgmsg("  before: ", ggbashenv$geom)
                 prev <- gsub("\\s*(\\+|\\|)\\s*(geom_)?", "", p$get(2))
                 gv <- ggbashenv$const$geom_namev
                 ggbashenv$geom <-
-                    gv[find_first(prev, gv, ggbashenv$show_amb_warn)]
-                dbgmsg("  after: ', ggbashenv$geo")
+                    gv[find_first_by_prefix(prev, gv, ggbashenv$show_amb_warn)]
+                dbgmsg("  after: ", ggbashenv$geom)
                 ggbashenv$conf$geom_list <-
                     c(ggbashenv$conf$geom_list, ggbashenv$geom)
                 ggbashenv$aes_i <- 1
@@ -420,14 +421,14 @@ Ggplot2Parser <-
                 # 'axis.te:' will be 'axis.te'
                 elem_name_partial <- gsub("\\:", "", p$get(2))
 
-                elem_name <- tdf$name[find_first(prefix = elem_name_partial,
+                elem_name <- tdf$name[find_first_index(elem_name_partial,
                                                  tdf$name, show_warn = FALSE)]
 
                 # do partial match for theme element
                 # (ex. 'legend.t' -> 'legend.text')
-                elem_class <- tdf$class[find_first(prefix = elem_name,
-                                                    tdf$name,
-                                                    show_warn = FALSE)]
+                elem_class <- tdf$class[find_first_index(elem_name,
+                                                   tdf$name,
+                                                   show_warn = FALSE)]
 
                 if (length(elem_class) == 0 || is.na(elem_class)) {
                     errinfo <-
@@ -510,7 +511,7 @@ Ggplot2Parser <-
                         # prefix match
                         input <- ggbashenv$elem_class
                         tbl <- get_theme_elem_name_conf(input)
-                        conf_name <- tbl[find_first(prefix = before_equal,
+                        conf_name <- tbl[find_first_index(before_equal,
                                                    tbl, show_warn = FALSE)]
 
                         if (is.na(conf_name)) {

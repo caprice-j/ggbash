@@ -9,6 +9,7 @@
 #' This function can display how many characters
 #' are needed to uniquely identify each given character element.
 #'
+#'
 #' @param originalv a character vector to construct partial strings.
 #' @param i The smallest character of the resulted partial strings.
 #'          Sometimes too small i loses readability
@@ -45,16 +46,22 @@ partial_unique <- function(
 
 #' return the first index which contains a given prefix
 #'
-#' find_first does a prefix partial matching.
+#' find_first_by_prefix does a prefix partial matching.
+#' ggbash tries to interpolate user's input by one of the following mechanism:
+#' prefix match, partial match, or precedence-based guessing.
 #'
 #' @param prefix A prefix to be searched
 #' @param table A character vector (typically aesthetic name list)
 #' @param show_warn Show warning if matched ambiguously. Default is TRUE.
 #'
+#'
+#' @return An integer representing index
+#'
 #' @export
-find_first <- function(prefix="si",
-                       table=c("x", "y", "size", "shape"),
-                       show_warn=TRUE){
+find_first_by_prefix <-
+    function(prefix="si",
+             table=c("x", "y", "size", "shape"),
+             show_warn=TRUE){
     indices <- grep(paste0("^", prefix), table)
 
     if (length(indices) < 1 && show_warn) {
@@ -75,6 +82,19 @@ find_first <- function(prefix="si",
     return(indices[1])
 }
 
+find_first_index <- function(
+    pattern = "sz",
+    table = c("x", "y", "size", "shape", "colour", "fill", "alpha", "stroke"),
+    show_warn = TRUE
+){
+    # defaultZproblem
+    if (substr(pattern,1,1) == "z")
+        return(pattern)
+
+    matched_df <- get_analogue(pattern, table)
+    best_matched <- matched_df[1, ]
+    return(best_matched$index)
+}
 
 #' define constant values used in ggbash
 #'

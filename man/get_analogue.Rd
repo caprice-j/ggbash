@@ -5,7 +5,8 @@
 \title{return resulted strings of approximate string match}
 \usage{
 get_analogue(fuzzy_input = "axs.txt", possibilities = c("axis.text",
-  "axis.text.x"), n_top = 5, case_sensitive = FALSE)
+  "axis.text.x"), n_top = 5, case_sensitive = FALSE, cost = c(insertions =
+  0.25, deletions = 3, substitutions = 2))
 }
 \arguments{
 \item{fuzzy_input}{A character. Typically user input.}
@@ -15,7 +16,9 @@ is assumed to be pointed by fuzzy_input.}
 
 \item{n_top}{An integer specifying the number of returned strings.}
 
-\item{case_sensitive}{Default is FALSE.
+\item{case_sensitive}{Default is FALSE.}
+
+\item{cost}{A named vector
 
 \code{get_analogue} is a key function
 for returning useful compile error message.}
