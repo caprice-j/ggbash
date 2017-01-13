@@ -24,10 +24,11 @@ knitr::opts_chunk$set(
 [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).  
+ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).     
+
 More specifically, it's a collection of a language (ggbash language), a compiler (ggbash compiler),
 and an execution environment (ggbash session).
-ggbash compiler interprets commands written in ggbash language written within ggbash session
+ggbash compiler interprets commands written in ggbash language
 and output an "executable" ggplot2 object.
 
 ```{r, echo=FALSE}
@@ -73,7 +74,7 @@ gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) +  theme(lgnd.txt: size=20,
 If you prefer a much shorter one,
 
 ```{r, eval=FALSE}
-g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt: sz=20 f="bold" | echo # 
+g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
 ```
 
 will produce exactly the same plot.

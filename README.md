@@ -5,7 +5,8 @@ ggbash
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues) [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
 ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).
-More specifically, it's a collection of a language (ggbash language), a compiler (ggbash compiler), and an execution environment (ggbash session). ggbash compiler interprets commands written in ggbash language written within ggbash session and output an "executable" ggplot2 object.
+
+More specifically, it's a collection of a language (ggbash language), a compiler (ggbash compiler), and an execution environment (ggbash session). ggbash compiler interprets commands written in ggbash language and output an "executable" ggplot2 object.
 
 Usage
 -----
@@ -42,7 +43,7 @@ gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) +  theme(lgnd.txt: size=20,
 If you prefer a much shorter one,
 
 ``` r
-g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt: sz=20 f="bold" | echo # 
+g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
 ```
 
 will produce exactly the same plot.
