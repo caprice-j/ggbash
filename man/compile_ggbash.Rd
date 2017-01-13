@@ -6,7 +6,12 @@
 \usage{
 compile_ggbash(cmd)
 }
+\arguments{
+\item{cmd}{A character
+
+compile_ggbash returns a built ggplot object.}
+}
 \description{
-compile_ggbash returns a built ggplot object.
+the core function of ggbash
 }
 

@@ -1,3 +1,26 @@
+# ggbash 0.4.0.9000
+
+## Major Updates
+
+### Approximate String Matching
++ Approximate String Matching reduces programmer's stress because
+  we usually type tokens only by its consonants.
+    - aesthetics (`size` by `sz`)
+    - theme configuration (`legend.key` by `l.key`, or `legend.box.background` by `l.b.b`)
+
+### Interface to other ggplot2 extensions
+
++ The main scope of ggbash is to make a compiler for default ggplot2 functions.
+  Handling ggplot2 extension libraries within `ggbash()` arguments
+  should increase complexity
+  and might significantly slows down the development process.
+  As a remedy, `ggbash()` now returns a ggplot2 object (not a string) by `ggbash()`,
+  and can chain other geom_ or theme_ objects by the normal `+` operator in ggplot2.
+  - Ex. `ggbash("gg(iris, Sepal.W, Sepal.L) + point(col=Spec, size=5) ") + geom_text_repel(aes(label=Species))`
+  
+## Bug Fixes
++ add docs tests of various geoms
+
 # ggbash 0.3.3 (2017-01-11)
 
 ## Bug Fixes

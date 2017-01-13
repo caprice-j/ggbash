@@ -334,6 +334,8 @@ coat_adhoc_syntax_sugar <- function(
 
 #' the core function of ggbash
 #'
+#' @param cmd A character
+#'
 #' compile_ggbash returns a built ggplot object.
 #'
 compile_ggbash <- function(cmd){
