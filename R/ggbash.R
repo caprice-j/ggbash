@@ -475,14 +475,14 @@ ggbash_ <- function(batch="", clipboard=NULL,
         if (! is.null(clipboard))
             raw_input <- ifelse(grepl(raw_input, "|\\s*copy"),
                                 raw_input, paste0(raw_input, " | copy"))
-        return(exec_ggbash(fstrings::fstring(raw_input),
+        return(exec_ggbash(raw_input,
                            show_warn, batch_mode = TRUE,
                            as_string = as_string))
     }
     while (TRUE) {
         tryCatch({
             raw_input <- show_prompt()
-            if (exec_ggbash(fstrings::fstring(raw_input), show_warn))
+            if (exec_ggbash(raw_input, show_warn))
                 break
         },
           error = function(err) advice_on_error(err, raw_input), # by stop()
@@ -508,7 +508,8 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #'
 ggbash <- function(ggbash_symbols, clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE){
-    raw_cmd <- deparse(substitute(ggbash_symbols))
+    raw_cmd <- deparse(substitute(ggbash_symbols),
+                       width.cutoff = 500) # arbitrary large
     quotes <- c("\"", "'")
     if (substr(raw_cmd, 1, 1) %in% quotes) {
         # Sometimes people use ggbash instead of ggbash_
@@ -517,6 +518,7 @@ ggbash <- function(ggbash_symbols, clipboard=NULL,
     } else {
         cmd <- raw_cmd
     }
+    dbgmsg(cmd)
     return(ggbash_(cmd, clipboard = clipboard,
                    show_warn = show_warn, as_string = as_string))
 }
