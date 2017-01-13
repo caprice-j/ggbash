@@ -7,6 +7,10 @@
 #' @param n_top An integer specifying the number of returned strings.
 #' @param case_sensitive Default is FALSE.
 #' @param cost A named vector
+#' @param threshold If costs are more than threshold,
+#'                  remove them from the result
+#'                  even if they are within top \code{n_top}.
+#'                  Default is 6.
 #'
 #' \code{get_analogue} is a key function
 #' for returning useful compile error message.
@@ -28,7 +32,8 @@ get_analogue <- function(fuzzy_input = "axs.txt",
                              "insertions" = .25,
                              "deletions" = 3,
                              "substitutions" = 2
-                         )) {
+                         ),
+                         threshold = 6) {
 
     if (length(possibilities) == 0)
         return(NULL)
@@ -49,5 +54,5 @@ get_analogue <- function(fuzzy_input = "axs.txt",
     with_NA <- with(with_NA, with_NA[order(cost, -nchar), ])
     similar_string_df <- na.omit(with_NA)
 
-    return(similar_string_df)
+    return(similar_string_df[similar_string_df$cost < threshold, ])
 }

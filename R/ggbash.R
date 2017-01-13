@@ -250,7 +250,7 @@ build_ggbash_filename <- function(
 #' @param conf A list of aesthetic and non-aesthetic assignments
 #' @param dataset_string A character representing a dataset directory
 parse_plot_attributes <- function(
-    argv = c("png", "'myname'", "900x640", "my_plot_dir/"),
+    argv = c("png", "'myname'", "900*640", "my_plot_dir"),
     conf = list(aes = list("x=cyl", "y=mpg"),
             non_aes = list("color='blue'", "shape=18"),
             geom_list = c("point", "smooth")),
@@ -268,20 +268,12 @@ parse_plot_attributes <- function(
             out$filename <-
                 paste0(gsub(paste0(single_quote, "|", double_quote), "", a),
                        ".", argv[1])
-        } else if (grepl("/", a)) {
-            out$dir <- paste0(out$dir, a)
-        } else if (grepl("[0-9]", a) && grepl("x", a)) {
-            size <- as.numeric(strsplit(a, "x")[[1]])
+        } else if (grepl("\\*", a)) {
+            size <- as.numeric(strsplit(a, "\\*")[[1]])
             out$w <- ifelse(size[1] > 50, size[1] / dpi, size[1])
             out$h <- ifelse(size[2] > 50, size[2] / dpi, size[2])
         } else {
-            # I believe no one need warning for png preset
-            index <- find_first_index(a, c("small", "big"), show_warn = FALSE)
-            selected <-
-                list(small   = list(w =  480, h =  480),
-                     big     = list(w = 1960, h = 1440))[[ index ]]
-            out$w <- selected$w / dpi
-            out$h <- selected$h / dpi
+            out$dir <- paste0(out$dir, a)
         }
     }
 
@@ -289,7 +281,7 @@ parse_plot_attributes <- function(
         out$filename <- build_ggbash_filename(conf, out, argv[1])
     # FIXME multiple same aes (i.e. point x=Pt | smooth x=Age )
 
-    out$filepath <- paste0(out$dir, dataset_string, "/", out$filename)
+    out$filepath <- paste0(out$dir, "/", dataset_string, "/", out$filename)
 
     return(out)
 }
@@ -308,7 +300,7 @@ save_ggplot <- function(
     dataset_string = "mtcars-32",
     ggstr = "ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length))",
     conf = list(aes = c("x=cyl", "y=mpg"), non_aes = c(), geom_list = "point"),
-    argv = c("png", "200x500", "'my-file-name'", "my_plot_dir/")
+    argv = c("png", "200*500", "'my-file-name'", "my_plot_dir")
 ){
     attrl <- parse_plot_attributes(argv, conf, dataset_string)
     dir.create(attrl$dir, showWarnings = FALSE)

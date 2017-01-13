@@ -2,8 +2,9 @@
 
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
-GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES", "CHARAES", "THEME",
-                   "LAYER", "BOOLEAN", "QUOTED", "UNIT",
+GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES",
+                    "CHARAES", "THEME", "LAYER",
+                    "BOOLEAN", "QUOTED", "UNIT",
                    "BOOLEANAES")
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
@@ -66,16 +67,16 @@ Ggplot2Lexer <-
             },
             t_NAME      = function(re="(\\\"|')?[a-zA-Z_][a-zA-Z_0-9\\.=]*(\\\"|')?", t) {
                 if (grepl(ggregex$booleanaes, t$value)){
-                    dbgmsg("t_NAME: BOOLEANAES ", t$value)
+                    dbgmsg("  t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
                 } else if (grepl(ggregex$boolean, t$value)) {
-                    dbgmsg("t_NAME: BOOLEAN ", t$value)
+                    dbgmsg("  t_NAME: BOOLEAN ", t$value)
                     t$type <- "BOOLEAN"
                 } else if (grepl(ggregex$quoted, t$value)) {
-                    dbgmsg("t_NAME: QUOTED ", t$value)
+                    dbgmsg("  t_NAME: QUOTED ", t$value)
                     t$type <- "QUOTED"
                 } else {
-                    dbgmsg("t_NAME: ", t$value)
+                    dbgmsg("  t_NAME: ", t$value)
                 }
                 return(t)
             },
@@ -138,7 +139,7 @@ Ggplot2Parser <-
                                     | gg_init aes_func
                                     | gg_init ggproto_list
                                     | gg_init aes_func ggproto_list", p) {
-                dbgmsg("p_expression_func NONTERMINAL")
+                dbgmsg("p_expression_func LAST")
 
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
@@ -162,7 +163,7 @@ Ggplot2Parser <-
                 }
                 },
             p_gg_init = function(doc="gg_init : GGPLOT", p) {
-                dbgmsg("p_gg_init")
+                dbgmsg("p_gg_init: ", p$get(2))
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
                 ggbashenv$dataset <-
@@ -176,7 +177,7 @@ Ggplot2Parser <-
             },
             p_ggproto_list = function(doc="ggproto_list : ggproto
                                       | ggproto ggproto_list", p) {
-                dbgmsg("p_ggproto_list")
+                dbgmsg("p_ggproto_list: ", p$get(2))
                 if (p$length() == 2)
                     p$set(1, p$get(2))
                 else
@@ -189,7 +190,7 @@ Ggplot2Parser <-
                          | layer_init layer_raw_aes
                          | layer_init layer_aes_list layer_raw_aes
                          | layer_init layer_raw_aes layer_aes_list", p) {
-                dbgmsg("p_ggproto_layer NONTERMINAL")
+                dbgmsg("p_ggproto_layer: ", p$get(2), " NONTERMINAL")
 
                 # ex: ggbashenv$geom is 'point'
                 if (p$length() == 2) {
@@ -231,13 +232,13 @@ Ggplot2Parser <-
                 },
             p_layer_init = function(doc="layer_init : LAYER", p) {
                 # initialization
-                dbgmsg("p_layer_init")
-                dbgmsg("  before: ", ggbashenv$geom)
+                dbgmsg("p_layer_init: ", p$get(2))
+                dbgmsg("  ggbashenv$geom(before): ", ggbashenv$geom)
                 prev <- gsub("\\s*(\\+|\\|)\\s*(geom_)?", "", p$get(2))
                 gv <- ggbashenv$const$geom_namev
                 ggbashenv$geom <-
                     gv[find_first_by_prefix(prev, gv, ggbashenv$show_amb_warn)]
-                dbgmsg("  after: ", ggbashenv$geom)
+                dbgmsg("  ggbashenv$geom(after): ", ggbashenv$geom)
                 ggbashenv$conf$geom_list <-
                     c(ggbashenv$conf$geom_list, ggbashenv$geom)
                 ggbashenv$aes_i <- 1
@@ -246,7 +247,7 @@ Ggplot2Parser <-
             p_layer_aes_list = function(
                 doc="layer_aes_list : layer_aes
                                     | layer_aes layer_aes_list", p) {
-                dbgmsg("p_layer_aes_list : NONTERMINAL")
+                dbgmsg("p_layer_aes_list: ", p$get(2), " NONTERMINAL")
 
                 if (p$length() == 2) {
                     p$set(1, paste0(p$get(2), ")"))
@@ -255,7 +256,7 @@ Ggplot2Parser <-
                 }
             },
             p_layer_aes = function(doc="layer_aes : NAME", p) {
-                dbgmsg("p_layer_aes")
+                dbgmsg("p_layer_aes: ", p$get(2))
 
                 # do column-name partial match
                 single_quote <- "'"
@@ -290,7 +291,7 @@ Ggplot2Parser <-
                     ggbashenv$aes_i <- ggbashenv$aes_i + 1
                 ggbashenv$conf$aes <- c(ggbashenv$conf$aes, column_name)
 
-                dbgmsg("  ", column_name)
+                dbgmsg("  parsed: ", column_name)
 
                 p$set(1, column_name)
             },
@@ -301,6 +302,7 @@ Ggplot2Parser <-
                                    | CHARAES layer_raw_aes
                                    | CONSTAES layer_raw_aes
                                    | BOOLEANAES layer_raw_aes", p) {
+                dbgmsg("p_layer_raw_aes: ", p$get(2))
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 layer_params <- get_layer_params(ggbashenv$geom)
                 all_rawv <- c(all_aesv, layer_params)
@@ -335,7 +337,7 @@ Ggplot2Parser <-
             # },
             p_aes_func = function(doc="aes_func : NAME
                                                 | NAME aes_func", p) {
-                dbgmsg("p_aes_func")
+                dbgmsg("p_aes_func: ", p$get(2))
 
                 colnamev <- colnames(ggbashenv$dataset)
 
@@ -352,11 +354,12 @@ Ggplot2Parser <-
                     parse_ggbash_aes(1, p$get(2), must_aesv,
                                     all_aesv, colnamev, ggbashenv$show_amb_warn)
                 if (is.null(column_name)) {
+                    input <- gsub("[a-z]+=", "", p$get(2))
                     errinfo <-
                         list(
                             id = "p_aes_func:prefix_match",
                             type = "No such column names\n",
-                            input = p$get(2),
+                            input = input,
                             table = colnamev
                         )
                     show_fixit_diagnostics(errinfo)
@@ -377,7 +380,7 @@ Ggplot2Parser <-
             # see p_ggproto_layer
             p_ggproto_theme = function(doc="ggproto : theme_init
                                        | theme_init theme_elem_list", p) {
-                dbgmsg("p_ggproto_theme -- add ) ")
+                dbgmsg("p_ggproto_theme: ", p$get(2), " -- add ) ")
                 if (p$length() == 2) {
                     end <- paste0(p$get(2), ")")
                     p$set(1, end)
@@ -387,7 +390,7 @@ Ggplot2Parser <-
             },
             p_theme_init = function(doc="theme_init : THEME", p) {
                 # initialization
-                dbgmsg("p_theme_init -- add (")
+                dbgmsg("p_theme_init: ", p$get(2), " -- add (")
                 # theme, theme_bw, theme_linedraw, ...
                 theme_str <- gsub("\\s|\\+", "", p$get(2))
                 p$set(1, paste0(" + ggplot2::", theme_str, "("))
@@ -396,7 +399,8 @@ Ggplot2Parser <-
                 doc="theme_elem_list : theme_elem theme_conf_list
                                 | theme_elem theme_conf_list theme_elem_list",
                 p) {
-                dbgmsg("p_theme_elem_list -- add ( and ) ")
+                dbgmsg("p_theme_elem_list", p$get(2), " ",
+                       p$get(3), " -- add ( and ) ")
                 elem <- p$get(2)
                 if (p$length() == 3) {
                     # last configuration
@@ -412,7 +416,7 @@ Ggplot2Parser <-
                 }
             },
             p_theme_elem = function(doc="theme_elem : NAME", p) {
-                dbgmsg("p_theme_elem")
+                dbgmsg("p_theme_elem: ", p$get(2))
                 tdf <- ggbashenv$const$themedf
 
                 # 'axis.te:' will be 'axis.te'
@@ -477,7 +481,7 @@ Ggplot2Parser <-
                                          | UNIT
                                          | CONSTAES theme_conf_list
                                          | CHARAES theme_conf_list", p) {
-                dbgmsg("p_theme_conf_list")
+                dbgmsg("p_theme_conf_list: ", p$get(2))
 
                 if (! is.null(ggbashenv$error)) {
                     ggbashenv$error <- NULL # FIXME too compicated
@@ -490,7 +494,6 @@ Ggplot2Parser <-
                 }
 
                 conf <- p$get(2)
-                dbgmsg("  p$get(2): ", conf)
 
                 if (grepl(ggregex$quoted, conf) &&
                     ! grepl("^element_|margin", ggbashenv$elem_class)) {
