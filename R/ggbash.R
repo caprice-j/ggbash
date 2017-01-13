@@ -502,11 +502,19 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #' 2. can only interpret the with-parentheses and with-commas case
 #' because of R's default token constraints.
 #'
+#' @param ggbash_symbols Non-evaluated R symbols or
+#'                       a character representing ggbash commands.
+#'                       If no ggbash_symbols are specified,
+#'                       enter into an interactive ggbash session.
+#' @param clipboard Default is NULL.
+#'                  If non-null, copy the resulted string to clipboard.
+#' @param show_warn If ambiguously matched, display warning. Default is TRUE.
+#' @param as_string Return a string instead of a ggplot2 object.
+#'                  Default is FALSE.
 #'
 #'
 #'
-#'
-ggbash <- function(ggbash_symbols, clipboard=NULL,
+ggbash <- function(ggbash_symbols="", clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE){
     raw_cmd <- deparse(substitute(ggbash_symbols),
                        width.cutoff = 500) # arbitrary large

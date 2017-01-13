@@ -2,60 +2,35 @@
 % Please edit documentation in R/ggbash.R
 \name{ggbash}
 \alias{ggbash}
-\title{Enter into a ggbash session.}
+\title{Tell ggbash to execute a given ggbash command}
 \usage{
-ggbash(batch = "", clipboard = NULL, show_warn = TRUE,
+ggbash(ggbash_symbols = "", clipboard = NULL, show_warn = TRUE,
   as_string = FALSE)
 }
 \arguments{
-\item{batch}{A character. If given, \code{ggbash()} will exit
-just after executing the given command.}
+\item{ggbash_symbols}{Non-evaluated R symbols or
+a character representing ggbash commands.
+If no ggbash_symbols are specified,
+enter into an interactive ggbash session.}
 
-\item{clipboard}{Default is NULL
-    If batch is non-empty and clipboard is non-NULL,
-    ggbash copies a resulted ggplot2 object to clipboard.
-just after executing the given command.}
+\item{clipboard}{Default is NULL.
+If non-null, copy the resulted string to clipboard.}
 
-\item{show_warn}{Whether to show a warning message
-when ambiguously matched. Default is TRUE.}
+\item{show_warn}{If ambiguously matched, display warning. Default is TRUE.}
 
-\item{as_string}{Return the resulted ggplot2 object as a string
-                 not as a ggplot2 object. Default is FALSE.
-                 Ignored when non-batch mode.
-
-\describe{
-    \item{Geom name:}{the geom most frequently used (based on my experiences)}
-    \item{Column name:}{the column with the smallest column index}
-    \item{Aesthetics:}{required (x, y), non-missing (shape, size), default (alpha, stroke) }
-}}
-}
-\value{
-nothing
+\item{as_string}{Return a string instead of a ggplot2 object.
+Default is FALSE.}
 }
 \description{
-\code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+\code{ggbash()} is used in the following three different ways:
+1. ggbash("gg mtcars + point mpg cyl") : with a character argument
+2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a pseudo-ggplot2 command
+3. ggbash() : with no argument (enter into an interactive ggbash session)
 }
 \details{
-ggbash provides concise aliases for ggplot2 functions.
-By calling ggbash(), your R session goes into a ggbash session,
-which only interprets predefined ggbash commands.
-Some basic commands like setwd() or pwd() works in ggbash session,
-but most of the usual R grammars are disabled.
-Instead, a variety of ggbash commands are enabled
-for writing ggplot2 script as faster as possible.
-
-If you give a string as a first argument of `ggbash`,
-ggbash will exit just after executing the command. Useful for a one-liner.
-}
-\examples{
-\dontrun{ ggbash() # enter into an interactive ggbash session
-
-# plot a ggplot2 figure
-ggbash("gg iris + point Petal.Width Petal.Length")
-
-#' # plot a ggplot2 figure and copy the result
-ggbash("gg iris + point Petal.Width Petal.Length", 1)
-}
-
+While ggbash can interpret "with- and without- parentheses" and
+"with- and without- commas" commands in 1 and 3,
+2. can only interpret the with-parentheses and with-commas case
+because of R's default token constraints.
 }
 
