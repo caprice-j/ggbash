@@ -5,6 +5,7 @@
 ^README-.*\.gif$
 ^README_files$
 ^album$
+^lab$
 ^\.travis\.yml$
 ^appveyor.yml$
 ^.codeclimate.yml$
