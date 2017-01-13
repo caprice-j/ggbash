@@ -3,7 +3,7 @@
 # CONSTAES : Constant Aesthetics
 # CHARAES : Character Aesthetics
 GGPLOT2_TOKENS <- c("GGPLOT", "NAME", "CONSTAES", "CHARAES", "THEME",
-                   "LAYER", "THEMEELEM", "BOOLEAN", "QUOTED", "UNIT",
+                   "LAYER", "BOOLEAN", "QUOTED", "UNIT",
                    "BOOLEANAES")
 # SCALE "ScaleDiscrete" "Scale"         "ggproto"
 # GEOM/STAT "LayerInstance" "Layer"         "ggproto"
@@ -62,10 +62,6 @@ Ggplot2Lexer <-
             # global variables as defaults?
             # ggregex$charaes is falsely evaluated as empty string
             t_CHARAES = function(re="[a-z]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
-                return(t)
-            },
-            t_THEMEELEM = function(re="[a-zA-Z_][a-zA-Z\\.]*\\s*\\:", t) {
-                t$value <- gsub(" ", "", t$value)
                 return(t)
             },
             t_NAME      = function(re="(\\\"|')?[a-zA-Z_][a-zA-Z_0-9\\.=]*(\\\"|')?", t) {
@@ -208,17 +204,25 @@ Ggplot2Parser <-
 
                 if (raw_is_3rd) {
                     if (p$length() == 3) {
+                        dbgmsg("    len==3 and raw_is_3rd: ",
+                               p$get(2), " ", p$get(3))
                         p$set(1, paste0(p$get(2), "(", p$get(3)))
                     } else {
+                        dbgmsg("    len!=3 and raw_is_3rd: ",
+                               p$get(2), " ", p$get(3), " ", p$get(4))
                         p$set(1, paste0(p$get(2), "(", p$get(3),
                             ", ggplot2::aes(", p$get(4), ")"))
                     }
                 } else {
                     if (p$length() == 3) {
+                        dbgmsg("    len==3 and raw != 3rd: ",
+                               p$get(2), " ", p$get(3))
                         p$set(1,
                             paste0(p$get(2),
                                 "(ggplot2::aes(", p$get(3), ")"))
                     } else {
+                        dbgmsg("    len==3 and raw != 3rd: ",
+                               p$get(2), " ", p$get(3), " ", p$get(4))
                         p$set(1,
                             paste0(p$get(2),
                                 "(ggplot2::aes(", p$get(3), ", ", p$get(4)))
@@ -381,18 +385,11 @@ Ggplot2Parser <-
                     p$set(1, paste0(p$get(2), p$get(3), ")"))
                 }
             },
-            p_theme_init = function(doc="theme_init : THEME
-                                    | THEME NAME", p) {
+            p_theme_init = function(doc="theme_init : THEME", p) {
                 # initialization
                 dbgmsg("p_theme_init -- add (")
-                if (p$length() == 2) {
-                    # theme, theme_bw, theme_linedraw, ...
-                    theme_str <- gsub("\\s|\\+", "", p$get(2))
-                } else {
-                    # theme bw (no underline between the two)
-                    theme_str <- gsub("\\s|\\+", "", p$get(2))
-                    theme_str <- paste0(theme_str, "_", p$get(3))
-                }
+                # theme, theme_bw, theme_linedraw, ...
+                theme_str <- gsub("\\s|\\+", "", p$get(2))
                 p$set(1, paste0(" + ggplot2::", theme_str, "("))
             },
             p_theme_elem_list = function(
@@ -414,12 +411,13 @@ Ggplot2Parser <-
                     # text = element_text(...) , ... so no need to close paren
                 }
             },
-            p_theme_elem = function(doc="theme_elem : THEMEELEM", p) {
+            p_theme_elem = function(doc="theme_elem : NAME", p) {
                 dbgmsg("p_theme_elem")
                 tdf <- ggbashenv$const$themedf
 
                 # 'axis.te:' will be 'axis.te'
-                elem_name_partial <- gsub("\\:", "", p$get(2))
+                #elem_name_partial <- gsub("\\:", "", p$get(2))
+                elem_name_partial <- p$get(2)
 
                 elem_name <- tdf$name[find_first_index(elem_name_partial,
                                                  tdf$name, show_warn = FALSE)]

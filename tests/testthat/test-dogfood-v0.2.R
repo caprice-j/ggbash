@@ -15,7 +15,7 @@ ee <- testthat::expect_equal
 test_that("cases", {
     char <-
         "gg iris + point Sepal.W Sepal.L col=Species " %+%
-        "+ theme legend.key: colour='black'"
+        "+ theme legend.key colour='black'"
     lex$input(char)
 
     ee(yacc$parse(char, lex),
@@ -26,10 +26,10 @@ test_that("cases", {
 
     # spaces between theme element name and its configurations
     expect_error(yacc$parse("gg iris + point Sepal.W Sepal.L" %+%
-                         " + theme text : colour='blue'", lex), regexp = NA)
+                         " + theme text colour='blue'", lex), regexp = NA)
 
     expect_equal(
-        yacc$parse("gg mtcars + point m cyl + theme axis.ticks: size=1.5", lex),
+        yacc$parse("gg mtcars + point m cyl + theme axis.ticks size=1.5", lex),
         "ggplot2::ggplot(mtcars) + " %+%
         "ggplot2::geom_point(ggplot2::aes(x=mpg, y=cyl)) + " %+%
         "ggplot2::theme(axis.ticks = ggplot2::element_line(size=1.5))")
@@ -40,24 +40,25 @@ test_that("cases 2", {
     # fixed adding theme_bw()
     expect_equal(
         yacc$parse("gg iris + point Sepal.W Sepal.L + theme_bw", lex),
-        yacc$parse("gg iris + point Sepal.W Sepal.L + theme bw", lex)
+        "ggplot2::ggplot(iris) + ggplot2::geom_point(ggplot2::aes(" %+%
+            "x=Sepal.Width, y=Sepal.Length)) + ggplot2::theme_bw()"
     )
 
     # fixed characters
-    lex$input("gg iris + point Sepal.W Sepal.L + theme legend.pos: \"none\"")
+    lex$input("gg iris + point Sepal.W Sepal.L + theme legend.pos \"none\"")
     lex$token(); lex$token(); lex$token();
     lex$token(); lex$token(); lex$token();
     ee(lex$token()$value, "\"none\"")
     ee(
         yacc$parse("gg iris + point Sepal.W Sepal.L " %+%
-                "+ theme legend.position: \"none\"", lex),
+                "+ theme legend.position \"none\"", lex),
         "ggplot2::ggplot(iris) + " %+%
         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width," %+%
         " y=Sepal.Length)) + ggplot2::theme(legend.position = (\"none\"))")
     # FIXME paren for ("none")
 
     # fixed logicals
-    lex$input("gg iris + point Sepal.W Sepal.L + theme panel.ontop: TRUE")
+    lex$input("gg iris + point Sepal.W Sepal.L + theme panel.ontop TRUE")
     lex$token(); lex$token(); lex$token();
     lex$token(); lex$token(); lex$token();
     ee(lex$token()$value, "TRUE")
@@ -100,20 +101,20 @@ test_that("cases 2", {
         "ggplot2::geom_point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length))" %+%
         " + ggplot2::theme(text = ggplot2::element_text(size=3))"
     prefix <- "gg iris + point Sepal.W Sepal.L + "
-    ee(yacc$parse(prefix %+% "theme text: size=3", lex), expected)
-    ee(yacc$parse(prefix %+% "theme te:   size=3", lex), expected)
+    ee(yacc$parse(prefix %+% "theme text size=3", lex), expected)
+    ee(yacc$parse(prefix %+% "theme te   size=3", lex), expected)
 
     # fixed units handling
-    lex$input("gg mtcars mpg hp + point + theme axis.ticks.len: .20  cm")
+    lex$input("gg mtcars mpg hp + point + theme axis.ticks.len .20  cm")
     lex$token(); lex$token(); lex$token(); lex$token(); lex$token();
-    ee(lex$token()$value, "axis.ticks.len:")
+    ee(lex$token()$value, "axis.ticks.len")
     ee(lex$token()$value, ".20  cm")
-    ee(gbash("gg mtcars mpg hp + point + theme axis.ticks.len: .20  cm"),
+    ee(gbash("gg mtcars mpg hp + point + theme axis.ticks.len .20  cm"),
         "ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp))" %+%
         " + ggplot2::geom_point()" %+%
         " + ggplot2::theme(axis.ticks.length = grid::unit(.20,'cm'))")
 
-    prefix1 <- "gg mtcars mpg hp + p + theme axis.ticks.l: "
+    prefix1 <- "gg mtcars mpg hp + p + theme axis.ticks.l "
     prefix2 <-
         "ggplot2::ggplot(mtcars, ggplot2::aes(mpg, hp)) + " %+%
         "ggplot2::geom_point()" %+%
@@ -123,7 +124,7 @@ test_that("cases 2", {
     ee(gbash(prefix1 %+% "3.5 in     "), paste0(prefix2, "'))"))
 
     # multi-minus handing
-    pre <- "gg iris + point Sepal.W Sepal.L c=Sp + theme legend.text : angle="
+    pre <- "gg iris + point Sepal.W Sepal.L c=Sp + theme legend.text angle="
     grepll <- function(pre, input, pattern)
         expect_true(grepl(pattern, pre %+% input))
     grepll(pre, "45", "=45")

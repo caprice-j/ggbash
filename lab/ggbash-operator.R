@@ -15,5 +15,5 @@ gggbash <- function(x) {
     substitute(x)
 }
 
-gggbash(gg(iris) + point(x=Sepal.W, y=Sepal.L) + theme(text(size=20), l.t.x(size=15)))
+gggbash(gg(iris) + point(x=, y=Sepal.L) + theme(text(size=20), l.t.x(size=15)))
 

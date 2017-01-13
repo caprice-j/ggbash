@@ -92,17 +92,17 @@ test_that("ggplot2 parser", {
 })
 
 test_that("ggplot2 tokenize theme", {
-    lex$input("gg mtcars + point cyl mpg + theme text: colour=\"blue\"")
+    lex$input("gg mtcars + point cyl mpg + theme text colour=\"blue\"")
     lex$token()
 })
 
 my_pattern <-
   "ggplot2::ggplot\\(iris\\) \\+ ggplot2::theme\\(text = ggplot2::element_text"
 test_that("ggplot2 parse theme", {
-    lex$input("gg iris + theme text: size=4")
+    lex$input("gg iris + theme text size=4")
     expect_true(grepl(my_pattern,
-                      yacc$parse("gg iris + theme text: size=4", lex)))
+                      yacc$parse("gg iris + theme text size=4", lex)))
     expect_true(
         grepl(my_pattern,
-              yacc$parse("gg iris + theme text: size=4 color=\"red\"", lex)))
+              yacc$parse("gg iris + theme text size=4 color=\"red\"", lex)))
 })

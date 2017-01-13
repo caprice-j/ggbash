@@ -425,7 +425,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 
 #' Enter into a ggbash session.
 #'
-#' \code{ggbash} executes a new ggbash session for faster ggplot2 plotting.
+#' \code{ggbash_} executes a new ggbash session for faster ggplot2 plotting.
 #'
 #' ggbash provides concise aliases for ggplot2 functions.
 #' By calling ggbash(), your R session goes into a ggbash session,
@@ -438,7 +438,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #' If you give a string as a first argument of `ggbash`,
 #' ggbash will exit just after executing the command. Useful for a one-liner.
 #'
-#' @param batch A character. If given, \code{ggbash()} will exit
+#' @param batch A character. If given, \code{ggbash_()} will exit
 #'              just after executing the given command.
 #' @param clipboard Default is NULL
 #'                  If batch is non-empty and clipboard is non-NULL,
@@ -461,14 +461,14 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #' \dontrun{ ggbash() # enter into an interactive ggbash session
 #'
 #' # plot a ggplot2 figure
-#' ggbash("gg iris + point Petal.Width Petal.Length")
+#' ggbash_("gg iris + point Petal.Width Petal.Length")
 #'
 #' #' # plot a ggplot2 figure and copy the result
-#' ggbash("gg iris + point Petal.Width Petal.Length", 1)
+#' ggbash_("gg iris + point Petal.Width Petal.Length", 1)
 #' }
 #'
 #' @export
-ggbash <- function(batch="", clipboard=NULL,
+ggbash_ <- function(batch="", clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE) {
     if (batch != "") {
         raw_input <- batch
@@ -488,6 +488,37 @@ ggbash <- function(batch="", clipboard=NULL,
           error = function(err) advice_on_error(err, raw_input), # by stop()
         finally = add_input_to_history(raw_input) # add even if failed
     )}
+}
+
+#' Tell ggbash to execute a given ggbash command
+#'
+#' \code{ggbash()} is used in the following three different ways:
+#' 1. ggbash("gg mtcars + point mpg cyl") : with a character argument
+#' 2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a pseudo-ggplot2 command
+#' 3. ggbash() : with no argument (enter into an interactive ggbash session)
+#'
+#' While ggbash can interpret "with- and without- parentheses" and
+#' "with- and without- commas" commands in 1 and 3,
+#' 2. can only interpret the with-parentheses and with-commas case
+#' because of R's default token constraints.
+#'
+#'
+#'
+#'
+#'
+ggbash <- function(ggbash_symbols, clipboard=NULL,
+                   show_warn=TRUE, as_string = FALSE){
+    raw_cmd <- deparse(substitute(ggbash_symbols))
+    quotes <- c("\"", "'")
+    if (substr(raw_cmd, 1, 1) %in% quotes) {
+        # Sometimes people use ggbash instead of ggbash_
+        # So preprocess here to work like correctly specified
+        cmd <- gsub("^\\\"|^'|\\\"$|'$", "", raw_cmd)
+    } else {
+        cmd <- raw_cmd
+    }
+    return(ggbash_(cmd, clipboard = clipboard,
+                   show_warn = show_warn, as_string = as_string))
 }
 
 #' print useful debug advice according to the given error message
