@@ -4,7 +4,7 @@
 \alias{parse_plot_attributes}
 \title{parse given plot settings}
 \usage{
-parse_plot_attributes(argv = c("png", "'myname'", "900x640", "my_plot_dir/"),
+parse_plot_attributes(argv = c("png", "'myname'", "900*640", "my_plot_dir"),
   conf = list(aes = list("x=cyl", "y=mpg"), non_aes = list("color='blue'",
   "shape=18"), geom_list = c("point", "smooth")),
   dataset_string = "mtcars-32")

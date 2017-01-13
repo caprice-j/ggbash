@@ -6,7 +6,7 @@
 \usage{
 get_analogue(fuzzy_input = "axs.txt", possibilities = c("axis.text",
   "axis.text.x"), n_top = 5, case_sensitive = FALSE, cost = c(insertions =
-  0.25, deletions = 3, substitutions = 2))
+  0.25, deletions = 3, substitutions = 2), threshold = 6)
 }
 \arguments{
 \item{fuzzy_input}{A character. Typically user input.}
@@ -18,7 +18,12 @@ is assumed to be pointed by fuzzy_input.}
 
 \item{case_sensitive}{Default is FALSE.}
 
-\item{cost}{A named vector
+\item{cost}{A named vector}
+
+\item{threshold}{If costs are more than threshold,
+                 remove them from the result
+                 even if they are within top \code{n_top}.
+                 Default is 6.
 
 \code{get_analogue} is a key function
 for returning useful compile error message.}

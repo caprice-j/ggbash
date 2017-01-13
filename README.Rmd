@@ -56,8 +56,7 @@ ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species),size=5)+the
 ```{r, eval = FALSE}
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
-geom_point(aes(Sepal.Width, Sepal.Length,
-               colour = Species), size = 5) +
+geom_point(aes(Sepal.Width, Sepal.Length, colour = Species), size = 5) +
 theme(legend.text = element_text(size = 20, face = "bold"))
 ```
 
@@ -97,8 +96,7 @@ Even if the unique identification of specified elements
 (geoms, aesthetics, column names, theme element names, etc.)
 is not possible,
 `ggbash` anyway tries to execute its best guess
-instead of bluntly returning an error by Partial Match
-(prefix match and fuzzy match).
+instead of bluntly returning an error.
 
 For the above ggbash input `gg iris + point Sepal.W Sepal.L c="red" sz=5`,
 ggbash performs partial matches six times.
@@ -151,10 +149,8 @@ The built ggplot2 object is :
 
 ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as misspecification of elements (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
 
-#### Pipe for Adding Layers (`+`)
-
 ```{r, eval=FALSE}
-ggbash(gg(diamonds, x=carat, y=price) + point + smooth)
+ggbash(gg(diamonds, x=carat, y=price) + point + smooth) # without typo
 ```
 
 ```{r pipe_example, echo=FALSE}

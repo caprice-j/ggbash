@@ -7,7 +7,7 @@
 save_ggplot(dataset_string = "mtcars-32",
   ggstr = "ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length))",
   conf = list(aes = c("x=cyl", "y=mpg"), non_aes = c(), geom_list = "point"),
-  argv = c("png", "200x500", "'my-file-name'", "my_plot_dir/"))
+  argv = c("png", "200*500", "'my-file-name'", "my_plot_dir"))
 }
 \arguments{
 \item{dataset_string}{A character. Used as a directory.}
