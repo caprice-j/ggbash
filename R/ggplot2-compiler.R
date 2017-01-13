@@ -492,48 +492,51 @@ Ggplot2Parser <-
                 }
 
                 conf <- p$get(2)
-                if (p$length() == 2) {
-                    if (grepl(ggregex$quoted, conf) &&
-                        ! grepl("^element_|margin", ggbashenv$elem_class)) {
-                        message("quoted ", conf, " env$elemclass: ", ggbashenv$elem_class)
-                        p$set(1, conf)
-                    } else if (grepl(ggregex$boolean, conf)) {
-                        message("boolena ", conf, " env$elemclass: ", ggbashenv$elem_class)
-                        p$set(1, conf)
-                    } else if (grepl(ggregex$unit, conf)) {
-                        number <- gsub("[^0-9\\.]", "", conf)
-                        this_unit <- gsub("[0-9\\. ]", "", conf)
-                        p$set(1, paste0(number, ",'", this_unit, "'"))
-                    } else {
-                        before_equal <- gsub("=.*", "", conf)
-                        after_equal  <- gsub(".*=", "", conf)
+                dbgmsg("  p$get(2): ", conf)
 
-                        # prefix match
-                        input <- ggbashenv$elem_class
-                        tbl <- get_theme_elem_name_conf(input)
-                        conf_name <- tbl[find_first_index(before_equal,
-                                                   tbl, show_warn = FALSE)]
-
-                        if (is.na(conf_name)) {
-                            errinfo <- list(
-                                id = "p_theme_conf_list:partial_match",
-                                type = paste0("Partial match for theme ",
-                                              "element configuration failed."),
-                                input = before_equal,
-                                table = tbl
-                            )
-                            show_fixit_diagnostics(errinfo)
-                            return(p$set(1, GGPLOT2INVALIDTOKEN))
-                        }
-
-                        # FIXME add spaces
-                        p$set(1, paste0(conf_name, "=", after_equal))
-                        # close ggplot2::element_sth(
-                    }
-                } else {
-                    p$set(1, paste0(conf, ", ", p$get(3)))
+                if (grepl(ggregex$quoted, conf) &&
+                    ! grepl("^element_|margin", ggbashenv$elem_class)) {
+                    message("quoted ", conf, " env$elemclass: ", ggbashenv$elem_class)
+                    return(p$set(1, conf))
+                } else if (grepl(ggregex$boolean, conf)) {
+                    message("boolean ", conf, " env$elemclass: ", ggbashenv$elem_class)
+                    return(p$set(1, conf))
+                } else if (grepl(ggregex$unit, conf)) {
+                    number <- gsub("[^0-9\\.]", "", conf)
+                    this_unit <- gsub("[0-9\\. ]", "", conf)
+                    return(p$set(1, paste0(number, ",'", this_unit, "'")))
                 }
-                },
+
+                before_equal <- gsub("=.*", "", conf)
+                after_equal  <- gsub(".*=", "", conf)
+
+                # prefix match
+                input <- ggbashenv$elem_class
+                tbl <- get_theme_elem_name_conf(input)
+                conf_name <- tbl[find_first_index(before_equal,
+                                                  tbl, show_warn = FALSE)]
+
+                if (is.na(conf_name)) {
+                    errinfo <- list(
+                        id = "p_theme_conf_list:partial_match",
+                        type = paste0("Partial match for theme ",
+                                      "element configuration failed."),
+                        input = before_equal,
+                        table = tbl
+                    )
+                    show_fixit_diagnostics(errinfo)
+                    return(p$set(1, GGPLOT2INVALIDTOKEN))
+                }
+
+                a_conf <- paste0(conf_name, "=", after_equal)
+
+                if (p$length() == 2) {
+                    # FIXME add spaces
+                    p$set(1, a_conf)
+                } else {
+                    p$set(1, paste0(a_conf, ", ", p$get(3)))
+                }
+            },
             p_error = function(p) {
                 if (is.null(p)) {
                     errinfo <- list( id = "p_error:null",

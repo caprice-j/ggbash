@@ -4,7 +4,8 @@
 \alias{ggbash}
 \title{Enter into a ggbash session.}
 \usage{
-ggbash(batch = "", clipboard = NULL, show_warn = TRUE)
+ggbash(batch = "", clipboard = NULL, show_warn = TRUE,
+  as_string = FALSE)
 }
 \arguments{
 \item{batch}{A character. If given, \code{ggbash()} will exit
@@ -16,7 +17,12 @@ just after executing the given command.}
 just after executing the given command.}
 
 \item{show_warn}{Whether to show a warning message
-                   when ambiguously matched. Default is TRUE.
+when ambiguously matched. Default is TRUE.}
+
+\item{as_string}{Return the resulted ggplot2 object as a string
+                 not as a ggplot2 object. Default is FALSE.
+                 Ignored when non-batch mode.
+
 \describe{
     \item{Geom name:}{the geom most frequently used (based on my experiences)}
     \item{Column name:}{the column with the smallest column index}

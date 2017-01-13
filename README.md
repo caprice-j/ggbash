@@ -17,7 +17,7 @@ ggbash() # start a ggbash session
 ```
 
 ``` bash
-gg(iris) + point(Sepal.W, Sepal.L, col=Spec, sz=7) +  theme(text: size=20, face="bold") | echo
+gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) +  theme(lgnd.txt: size=20, face="bold") | echo
 ```
 
 ![](README-example-1.png)
@@ -26,15 +26,17 @@ gg(iris) + point(Sepal.W, Sepal.L, col=Spec, sz=7) +  theme(text: size=20, face=
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width, Sepal.Length,
-               colour=Species, size=7)) +
-theme(text=element_text(size=20, face="bold"))
+               colour = Species, size = 7)) +
+theme(legend.text = element_text(size = 20, face = "bold"))
 ```
 
-If you prefer the short command,
+If you prefer a much shorter one,
 
 ``` r
-g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme t: sz=20 f="bold" | echo # 
+g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt: sz=20 f="bold" | echo # 
 ```
+
+will produce exactly the same plot.
 
 ### One-liner
 

@@ -4,7 +4,7 @@
 \alias{set_ggbash_dataset}
 \title{build a data frame from a data frame name}
 \usage{
-set_ggbash_dataset(dataset_name = "iris")
+set_ggbash_dataset(dataset_name = "iris+point")
 }
 \arguments{
 \item{dataset_name}{a character representing a data frame.

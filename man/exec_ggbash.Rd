@@ -5,7 +5,7 @@
 \title{execute raw ggbash commands}
 \usage{
 exec_ggbash(raw_input = "gg mtcars + point mpg cyl | copy",
-  show_warn = TRUE, batch_mode = FALSE)
+  show_warn = TRUE, batch_mode = FALSE, as_string = FALSE)
 }
 \arguments{
 \item{raw_input}{A ggbash command chain (might contain pipes)}
@@ -15,6 +15,9 @@ when ambiguously matched. Default is TRUE.}
 
 \item{batch_mode}{Default is FALSE.
 If TRUE, the resulted ggplot object is returned.}
+
+\item{as_string}{Return the resulted ggplot2 object as a string
+not as a ggplot2 object. Default is FALSE.}
 }
 \description{
 execute raw ggbash commands

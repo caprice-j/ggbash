@@ -1,6 +1,6 @@
 library(ggbash)
 library(futile.logger)
-context("ggbash-REPL")
+context("test-ggbash")
 
 test_that("ggbash", {
     expect_equal(exec_ggbash("exit"), TRUE)
@@ -18,7 +18,7 @@ test_that("ggbash", {
     expect_equal(exec_ggbash("gg iris + p Sepal.W Sepal.L | copy"), FALSE)
     expect_equal(exec_ggbash("gg iris + p Sepal.W Sepal.L"), FALSE)
 
-    out <- ggbash("gg iris + point Sepal.W Sepal.L + line Sepal.W Sepal.L")
+    out <- ggbash("gg iris + point Sepal.W Sepal.L + line Sepal.W Sepal.L", as_string = TRUE)
     expect_equal(
         out,
         paste0(
@@ -29,7 +29,7 @@ test_that("ggbash", {
         ggbash("gg iris + point Petal.Width Petal.Length", clipboard = 1),
         "copied to clipboard")
 
-    out <- ggbash("gg mtcars x=mpg y=cyl + point + smooth")
+    out <- ggbash("gg mtcars x=mpg y=cyl + point + smooth", as_string = TRUE)
     expect_equal(out,
                  paste0("ggplot(mtcars, aes(mpg, cyl)) + ",
                         "geom_point() + geom_smooth()"))

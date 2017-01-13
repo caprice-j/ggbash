@@ -171,6 +171,7 @@ execute_ggbash_builtins <- function(raw_input, argv, const){
 set_ggbash_dataset <- function(dataset_name="iris+point"){
 
     dataset_name <- gsub("\\+.*", "", dataset_name)
+    dataset_name <- gsub(",", "", dataset_name)
 
     if (! exists(dataset_name))
         stop("[E001] No such dataset: ", dataset_name)
@@ -350,10 +351,13 @@ compile_ggbash <- function(cmd){
 #'                    when ambiguously matched. Default is TRUE.
 #' @param batch_mode Default is FALSE.
 #'                  If TRUE, the resulted ggplot object is returned.
+#' @param as_string Return the resulted ggplot2 object as a string
+#'                  not as a ggplot2 object. Default is FALSE.
 #'
 #' @export
 exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
-                        show_warn=TRUE, batch_mode=FALSE){
+                        show_warn=TRUE, batch_mode=FALSE,
+                        as_string = FALSE){
     const <- define_ggbash_constants()
     commandv <- split_by_pipe(raw_input)
     ggobj <- ""
@@ -402,9 +406,17 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                      gsub("ggplot2::", "", ggobj)))
         return(FALSE)
     }
-    print(eval(parse(text = ggobj)))
-    if (batch_mode)
-        return(gsub("ggplot2::", "", ggobj))
+
+    built_ggplot2_obj <- eval(parse(text = ggobj))
+
+    if (batch_mode) {
+        if (as_string)
+            return(gsub("ggplot2::", "", ggobj))
+        else
+            return(built_ggplot2_obj)
+    } else {
+        print(built_ggplot2_obj)
+    }
 
     return(FALSE)
 }
@@ -432,6 +444,10 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #'              just after executing the given command.
 #' @param show_warn Whether to show a warning message
 #'                    when ambiguously matched. Default is TRUE.
+#' @param as_string Return the resulted ggplot2 object as a string
+#'                  not as a ggplot2 object. Default is FALSE.
+#'                  Ignored when non-batch mode.
+#'
 #' \describe{
 #'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
 #'     \item{Column name:}{the column with the smallest column index}
@@ -450,14 +466,16 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #' }
 #'
 #' @export
-ggbash <- function(batch="", clipboard=NULL, show_warn=TRUE) {
+ggbash <- function(batch="", clipboard=NULL,
+                   show_warn=TRUE, as_string = FALSE) {
     if (batch != "") {
         raw_input <- batch
         if (! is.null(clipboard))
             raw_input <- ifelse(grepl(raw_input, "|\\s*copy"),
                                 raw_input, paste0(raw_input, " | copy"))
         return(exec_ggbash(fstrings::fstring(raw_input),
-                           show_warn, batch_mode = TRUE))
+                           show_warn, batch_mode = TRUE,
+                           as_string = as_string))
     }
     while (TRUE) {
         tryCatch({
