@@ -5,6 +5,7 @@ ggbash
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues) [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
 ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).
+More specifically, it's a collection of a language (ggbash language), a compiler (ggbash compiler), and an execution environment (ggbash session). ggbash compiler interprets commands written in ggbash language written within ggbash session and output an "executable" ggplot2 object.
 
 Usage
 -----
@@ -12,7 +13,7 @@ Usage
 ### One-liner
 
 ``` r
-ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) + theme(legend.text(size=20, face="bold")) | echo)
+ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=5) + theme(legend.text(size=20, face="bold")) | echo)
 ```
 
 ![](README-example-1.png)
@@ -21,7 +22,7 @@ ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) + theme(legend.text(
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width, Sepal.Length,
-               colour = Species, size = 7)) +
+               colour = Species, size = 5)) +
 theme(legend.text = element_text(size = 20, face = "bold"))
 ```
 
@@ -275,7 +276,7 @@ About a different way to generate scatterplot matrix,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
 
 -->
-ggbash is influenced by some other higher level programming languages such as CoffeeScript or Ruby.
+ggbash is influenced by some other higher level programming languages such as Bash, CoffeeScript or Ruby.
 
 Current Implementation Status
 -----------------------------

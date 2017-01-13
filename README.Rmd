@@ -24,7 +24,11 @@ knitr::opts_chunk$set(
 [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).
+ggbash is a simpler syntax for [ggplot2](https://github.com/tidyverse/ggplot2).  
+More specifically, it's a collection of a language (ggbash language), a compiler (ggbash compiler),
+and an execution environment (ggbash session).
+ggbash compiler interprets commands written in ggbash language written within ggbash session
+and output an "executable" ggplot2 object.
 
 ```{r, echo=FALSE}
 library(ggplot2)
@@ -35,11 +39,11 @@ library(ggplot2)
 ### One-liner
 
 ```{r, eval=FALSE}
-ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=7) + theme(legend.text(size=20, face="bold")) | echo)
+ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=5) + theme(legend.text(size=20, face="bold")) | echo)
 ```
 
 ```{r example, echo=FALSE}
-ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=5))+theme(legend.text=element_text(size=20,face="bold"))
+ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species),size=5)+theme(legend.text=element_text(size=20,face="bold"))
 # gg iris + point Sepal.W Sepal.L col=Spec siz=Petal.W + theme text: size=20 face="bold"
 ```
 
@@ -48,7 +52,7 @@ ggplot(iris)+geom_point(aes(Sepal.Width,Sepal.Length,colour=Species,size=5))+the
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
 geom_point(aes(Sepal.Width, Sepal.Length,
-               colour = Species, size = 7)) +
+               colour = Species, size = 5)) +
 theme(legend.text = element_text(size = 20, face = "bold"))
 ```
 
@@ -357,7 +361,7 @@ About a different way to generate scatterplot matrix,
 -->
 
 ggbash is influenced by some other higher level programming
-languages such as CoffeeScript or Ruby.
+languages such as Bash, CoffeeScript or Ruby.
 
 ## Current Implementation Status
 
