@@ -6,9 +6,9 @@ ggbash
 
 ggbash is a higher-level language for [ggplot2](https://github.com/tidyverse/ggplot2) and provides a simpler syntax to write ggplot2 objects.
 
-The goal of ggbash is to make ggplot2 more comfortable to write for every ggplot2 user.
+The goal of ggbash is to make ggplot2 more comfortable to write for every user, from beginners to professionals.
 
-ggbash features a strong partial match for experienced ggplot2 users and helpful error messages for beginners. It also features handy builtin commands such as `copy` or `png`.
+ggbash features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
 
 Usage
 -----
@@ -24,8 +24,7 @@ ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=5) + theme(legend.text(
 ``` r
 # The output of the above ggbash 'echo' command
 ggplot(iris) +
-geom_point(aes(Sepal.Width, Sepal.Length,
-               colour = Species), size = 5) +
+geom_point(aes(Sepal.Width, Sepal.Length, colour = Species), size = 5) +
 theme(legend.text = element_text(size = 20, face = "bold"))
 ```
 
@@ -59,7 +58,7 @@ Features
 
 ### 1. Partial Match
 
-Even if the unique identification of specified elements (geoms, aesthetics, column names, theme element names, etc.) is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error by Partial Match (prefix match and fuzzy match).
+Even if the unique identification of specified elements (geoms, aesthetics, column names, theme element names, etc.) is not possible, `ggbash` anyway tries to execute its best guess instead of bluntly returning an error.
 
 For the above ggbash input `gg iris + point Sepal.W Sepal.L c="red" sz=5`, ggbash performs partial matches six times.
 
@@ -107,10 +106,8 @@ The built ggplot2 object is :
 
 ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as misspecification of elements (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
 
-#### Pipe for Adding Layers (`+`)
-
 ``` r
-ggbash(gg(diamonds, x=carat, y=price) + point + smooth)
+ggbash(gg(diamonds, x=carat, y=price) + point + smooth) # without typo
 ```
 
 ![](README-pipe_example-1.png)
@@ -264,7 +261,7 @@ About a different way to generate scatterplot matrix,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
 
 -->
-ggbash is influenced by some other higher level programming languages such as Bash, CoffeeScript or Ruby. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
+ggbash is influenced by some other higher level programming languages such as Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
 Current Implementation Status
 -----------------------------
