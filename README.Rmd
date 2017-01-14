@@ -26,12 +26,11 @@ knitr::opts_chunk$set(
 
 ggbash is a higher-level language for [ggplot2](https://github.com/tidyverse/ggplot2)
 and provides a simpler syntax to write ggplot2 objects.
+ggbash features a strong partial match, helpful error messages,
+and handy builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user,
 from beginners to professionals.
-
-ggbash features a strong partial match, helpful error messages,
-and handy builtin commands such as `copy` or `png`.
 
 
 ```{r, echo=FALSE}
@@ -160,6 +159,24 @@ ggplot(mtcars) + geom_point(aes(x=mpg, y=wt)) + geom_smooth(aes(x=mpg, y=wt), me
 
 
 ### 3. Builtin ggbash Commands 
+
+#### `echo`
+
+Print the built ggplot2 object as a string.
+Useful for learning ggplot2 original grammar iteratively.
+
+```{bash, eval=FALSE}
+gg iris + point Sepal.W Sepal.L size=7 + theme lgnd.txt face="bold" | echo
+```
+
+
+```{r, eval = FALSE}
+# The output of ggbash 'echo' command
+ggplot(iris) +
+geom_point(aes(Sepal.Width, Sepal.Length), size = 7) +
+theme(legend.text = element_text(face = "bold"))
+```
+
 
 #### `copy`
 
