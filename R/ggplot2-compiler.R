@@ -28,6 +28,7 @@ ggregex <- list(
                         "(TRUE|FALSE|true|false|True|False)"),
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
+    constaes   = "[a-z]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
     unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)"
 )
 
@@ -67,10 +68,13 @@ Ggplot2Lexer <-
             t_CHARAES = function(re="[a-z]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
                 return(t)
             },
-            t_NAME      = function(re="(\\\"|')?[a-zA-Z_\\(\\)][a-zA-Z_0-9\\.=\\(\\)]*(\\\"|')?", t) {
+            t_NAME      = function(re="(\\\"|')?[a-zA-Z_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?", t) {
                 if (grepl(ggregex$booleanaes, t$value)){
                     dbgmsg("  t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
+                } else if (grepl(ggregex$constaes, t$value)) {
+                    dbgmsg("  t_NAME: CONSTAES ", t$value)
+                    t$type <- "CONSTAES"
                 } else if (grepl(ggregex$boolean, t$value)) {
                     dbgmsg("  t_NAME: BOOLEAN ", t$value)
                     t$type <- "BOOLEAN"
@@ -217,7 +221,8 @@ Ggplot2Parser <-
                 dbgmsg("  3rd is : ", p$get(3))
                 raw_is_3rd <-
                     grepl("=([0-9\\+\\-\\*\\/\\^]+|\\\"|')", p$get(3)) ||
-                    grepl(ggregex$booleanaes, p$get(3))
+                    grepl(ggregex$booleanaes, p$get(3)) ||
+                    grepl(ggregex$constaes, p$get(3))
 
                 if (raw_is_3rd) {
                     if (p$length() == 3) {

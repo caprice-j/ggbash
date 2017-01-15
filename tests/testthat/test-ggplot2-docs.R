@@ -11,8 +11,8 @@ assign("mtcars2",
 test_that("geom_abline", {
     gbash("gg mtcars wt mpg + point + vline xintercept = 5")
 
-    # TODO p + geom_vline(xintercept = 1:5)
-    ggbash(gg(mtcars,wt,mpg) + point + vline(xintercept = 1:5))
+    ee(bash(gg(mtcars,wt,mpg) + point + vline(xintercept = 1:5)),
+       "ggplot(mtcars, aes(wt, mpg)) + geom_point() + geom_vline(xintercept=1:5)")
 
     gbash("gg mtcars wt mpg + point + hline yintercept = 20")
 
@@ -77,8 +77,9 @@ test_that("geom_bin2d", {
 
     gbash("gg diamonds x y + bin2d bins=10")
     gbash("gg diamonds x y + bin2d bins=30")
-    #
-    # d + geom_bin2d(binwidth = c(0.1, 0.1))
+    # FIXME
+    ee(bash(gg(diamonds,x,y) + bin2d(binwidth=c(.1,.1))),
+       "ggplot(diamonds, aes(x, y)) + geom_bin2d(binwidth=c(0.1,0.1))")
 })
 
 test_that("geom_boxplot", {
@@ -116,8 +117,11 @@ test_that("geom_boxplot", {
     #
 })
 
+# COMPLETED geom_contour
 test_that("geom_contour", {
-    gbash("gg faithfuld waiting eruptions z=density + contour") # defaultZproblem
+    # defaultZproblem
+    ee(bash("gg faithfuld waiting eruptions z=density + contour"),
+        "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + geom_contour()")
 
     gbash("gg faithful waiting eruptions + density_2d")
     gbash("gg faithfuld waiting eruptions z=density + contour bins=2")
@@ -126,6 +130,10 @@ test_that("geom_contour", {
     gbash("gg faithfuld waiting eruptions z=density + contour binw=0.001")
 
     # v + geom_contour(aes(colour = ..level..))
+    ee(bash(gg(faithfuld, waiting, eruptions, z=density) +
+                contour(colour=..level..)),
+       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %+%
+           "geom_contour(aes(colour=..level..))")
 
     gbash("gg faithfuld waiting eruptions z=density + contour colour = 'red'")
     ee(bash("gg faithfuld w e z=d + rast fill=d + contour c = 'white'"),

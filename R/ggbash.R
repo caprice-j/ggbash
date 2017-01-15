@@ -315,11 +315,27 @@ save_ggplot <- function(
     message("saved: ", attrl$filepath)
 }
 
-remove_unnecessary_parentheses <- function(
+#' remove parentheses and marks
+#'
+#' ggbash have to handle two types of parentheses and tyo types of commas.
+#' One is unnecessary and the other is necessary for correct parsing.
+#' For example, in \code{gg(iris) + bin2d(x, y, binwidth=c(.1, .1))},
+#' all parentheses and commas before "binwidth" are unnecessary.
+#' So this should be replaced by
+#' \code{gg iris  + bin2d x  y  binwidth=c(.1, .1) },
+#' which can be parsed by ggplot2 compiler.
+#'
+#' This is because while ggbash does not rely on commas and parens for
+#' parsing, R relies on them.
+#'
+#' @input A character
+#'
+#' @export
+remove_unnecessary_marks <- function(
     # FIXME parentheses for no equal case
     input = "gg(mtcars, x=factor(cyl), mpg) + text(label=paste0('label:', wt))"
 ){
-    paren2space <- function(input, i)
+    replace_with_space <- function(input, i)
         paste0(substr(input, 1, i - 1), " ",
                substr(input, i + 1, nchar(input)))
     n_paren <- 0
@@ -335,16 +351,21 @@ remove_unnecessary_parentheses <- function(
 
             # nested equals are ignored
 
+            if (n_paren == 0 && this == ",")
+                input <- replace_with_space(input, i)
+
             if (n_paren < 0) {
                 is_after <- FALSE
                 n_paren <- n_paren + 1
-                input <- paren2space(input, i)
+                input <- replace_with_space(input, i)
             }
         } else {
             if (this == "(")
-                input <- paren2space(input, i)
+                input <- replace_with_space(input, i)
             else if (this == ")")
-                input <- paren2space(input, i)
+                input <- replace_with_space(input, i)
+            else if (this == ",")
+                input <- replace_with_space(input, i)
             else if (this == "=")
                 is_after <- TRUE
         }
@@ -356,13 +377,13 @@ remove_unnecessary_parentheses <- function(
 coat_adhoc_syntax_sugar <- function(
     cmd = "gg(mtcars,mpg,hwy) + point(size = xyz(gear) +1, shape = 16 / 3 * 4)"
 ){
-    out <- gsub(",", " ", cmd) # no comma
+    out <- gsub("\\s*,\\s*", ",", cmd) # no comma
     out <- gsub("\\s*=\\s*", "=", out)
-    out <- gsub("\\s*\\+\\s*", "\\+", out)
-    out <- gsub("\\s*\\*\\s*", "\\*", out)
     out <- gsub("\\s*-\\s*", "-", out)
     out <- gsub("\\s*/\\s*", "/", out)
-    out <- remove_unnecessary_parentheses(out)
+    out <- gsub("\\s*\\+\\s*", "\\+", out)
+    out <- gsub("\\s*\\*\\s*", "\\*", out)
+    out <- remove_unnecessary_marks(out)
     return(out)
 }
 

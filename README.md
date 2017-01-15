@@ -103,7 +103,7 @@ The built ggplot2 object is :
   ggplot(diamonds, aes( <<INVALID_TOKEN_HERE>> ) + geom_point() + geom_smooth()
 ```
 
-ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as element misspecifications (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
+ggbash has a compiler (ggbash compiler) which converts given ggbash "source code" into an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as element misspecifications (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
 
 ``` r
 ggbash(gg(diamonds, x=carat, y=price) + point + smooth) # without typo
