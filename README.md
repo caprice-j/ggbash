@@ -14,7 +14,7 @@ Usage
 ### One-liner
 
 ``` r
-ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, size=5) + theme(legend.text(size=20, face="bold")) | echo)
+ggbash(gg(iris) + point(Sepal.W, Sepal.L, col=Spec, sz=5) + theme(legend.txt(sz=20, face="bold")) | echo)
 ```
 
 ![](README-example-1.png)
@@ -42,7 +42,7 @@ gg iris + point Sepal.W Sepal.L col=Spec size=7 + theme lgnd.txt size=20 face="b
 ```
 
 <!-- If you prefer much less typing, -->
-If you prefer an extreme short code,
+If you prefer an extremely short code,
 
 ``` r
 g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
@@ -158,19 +158,6 @@ for( i in 1:ncol(iris) )
 
 ![Auto-generated Files](README-image-dir.png)
 
-##### Auto-generated Filenames
-
-<!-- The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified.
-That function can easily overwrite the previous plot,
-and users often have to set file names manually.
-
-The `png` and `pdf` commands in `ggbash` tries to generate
-a sensible file name based on the given dataset and
-aesthetic names if no file name is specified. -->
-With `iris` dataset which has 150 rows, the plot of `gg iris + p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.960x960.png`.
-
-If you happen to have another `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
-
 ##### Order Agnostic Arguments
 
 <!-- `png` and `pdf` could receive plot size, file name, and directory name to save plots.
@@ -212,6 +199,19 @@ gg iris + p Sepal.W Sepal.L | png 16*9
 ```
 
 Note: the default dpi (dots per inch) in ggbash is 72 (R's default) and cannot be changed. If you would like to change the dpi, you could consider `ggplot2::ggsave(..., dpi=...)`.
+
+##### Auto-generated Filenames
+
+<!-- The `png` and `pdf` functions in R save a plot in `Rplot001.{png|pdf}` if no file name is specified.
+That function can easily overwrite the previous plot,
+and users often have to set file names manually.
+
+The `png` and `pdf` commands in `ggbash` tries to generate
+a sensible file name based on the given dataset and
+aesthetic names if no file name is specified. -->
+With `iris` dataset which has 150 rows, the plot of `gg iris + p Sepal.W Sepal.L | png` is saved in `iris-150/point_x-Sepal.Width_y-Sepal.Length.960x960.png`.
+
+If you happen to have another `iris` dataset which has a different number of rows (say 33), the same command result is saved in `iris-33/` directory.
 
 <!-- Scales are ... -->
 <!-- Facets are ... -->
@@ -275,7 +275,7 @@ About a different way to generate scatterplot matrix,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
 
 -->
-ggbash is influenced by some other higher level programming languages such as Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
+ggbash is influenced by some other higher level programming languages including Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
 Current Implementation Status
 -----------------------------

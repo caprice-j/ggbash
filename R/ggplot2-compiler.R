@@ -52,7 +52,7 @@ Ggplot2Lexer <-
                                 t$value)
                 return(t)
             },
-            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+]*[0-9]", t) {
+            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+:]*[0-9]", t) {
                 # last [0-9] is needed to interpret
                 # size=7 + theme as "size=7" and "+ theme"
                 return(t) # integers and floats
@@ -168,8 +168,22 @@ Ggplot2Parser <-
                 dbgmsg("p_gg_init: ", p$get(2))
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
-                ggbashenv$dataset <-
-                    eval(as.symbol(ggbashenv$dataset_name), envir = .GlobalEnv)
+                ggbashenv$dataset <- tryCatch( {
+
+                        eval(as.symbol(ggbashenv$dataset_name),
+                             envir = .GlobalEnv)
+                }, error = function(err) {"error"} )
+
+                if (class(ggbashenv$dataset)[1] == "character") {
+                    errinfo <-
+                        list(id = "p_gg_init:dataset",
+                             type = "No dataset found",
+                             input = ggbashenv$dataset_name)
+                    show_fixit_diagnostics(errinfo)
+                    return(p$set(1, GGPLOT2INVALIDTOKEN))
+                    # FIXME doesn't stop
+                }
+
                 ggbashenv$conf <-
                     list(aes = c(), non_aes = c(), geom_list = c())
                 set_ggbashenv_warning()
@@ -597,6 +611,8 @@ show_fixit_diagnostics <- function(
     } else if (err$id == "p_layer_raw_aes:partial_match") {
         m1("The special parameter \"", err$input, "\" does not exist.")
         m2("maybe: ", paste0(similarv, collapse = ", "))
+    } else if (err$id == "p_gg_init:dataset") {
+        m1("Is your data frame name correct?")
     } else if (err$id == "p_error:non_null") {
         m1("Did you specify a geom before aesthetics?")
         m2(" BAD: gg mtcars + mpg cyl")

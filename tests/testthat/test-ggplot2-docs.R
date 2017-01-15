@@ -9,12 +9,10 @@ assign("mtcars2",
        envir = .GlobalEnv)
 
 test_that("geom_abline", {
-    # p <- ggplot(mtcars, aes(wt, mpg)) + geom_point()
-
     gbash("gg mtcars wt mpg + point + vline xintercept = 5")
 
     # TODO p + geom_vline(xintercept = 1:5)
-    # ggbash("gg mtcars wt mpg + point + vline xintercept = 1:5")
+    ggbash(gg(mtcars,wt,mpg) + point + vline(xintercept = 1:5))
 
     gbash("gg mtcars wt mpg + point + hline yintercept = 20")
 
@@ -27,16 +25,14 @@ test_that("geom_abline", {
     ee(bash("gg mtcars wt mpg + point + smooth method='lm' se=FALSE"),
        "ggplot(mtcars, aes(wt, mpg)) + geom_point() + geom_smooth(method='lm', se=FALSE)")
 
-    # ggplot(mtcars, aes(mpg, wt, colour = wt)) +
-    #     geom_point() +
-    #     geom_hline(aes(yintercept = wt, colour = wt), mean_wt) +
-    #     facet_wrap(~ cyl)
     mean_wt <- data.frame(cyl = c(4, 6, 8),
                           wt = c(2.28, 3.11, 4.00))
-    # ggbash("gg mtcars wt mpg + point + hline yint = wt")
+    # ggbash(gg(mtcars,wt,mpg) + point + hline(yint = wt, mean_wt) ) + facet_wrap(~ cyl)
+    # TODO data frame
 
 })
 
+# GEOMBAR COMPLETED
 test_that("geom_bar", {
     gbash("g mpg x=class + bar")
 
@@ -63,10 +59,14 @@ test_that("geom_bar", {
     ee(bash("gg mpg class + bar fill=drv position='dodge'"),
        "ggplot(mpg, aes(class)) + geom_bar(aes(fill=drv), position='dodge')")
 
-#reorder_size <- function(x) {
-#    factor(x, levels = names(sort(table(x))))
-#}
-#ggplot(mpg, aes(reorder_size(class))) + geom_bar()
+    gbash(gg(mpg, class) + bar(fill=drv, position="fill"))
+
+    reorder_size <- function(x) {
+       factor(x, levels = names(sort(table(x))))
+    }
+    ee(gbash(gg(mpg, x=reorder_size(class)) + bar),
+       "ggplot(mpg, aes(reorder_size(class))) + geom_bar()")
+    # FIXME = should be optional
 
 })
 
