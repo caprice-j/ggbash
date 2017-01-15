@@ -185,6 +185,25 @@ test_that("geom_density", {
     #
 })
 
+# "geom_density2d"
+
+test_that("geom_dotplot", {
+
+    bash(gg(mtcars, x=mpg) + dot)
+    bash(gg(mtcars, x=mpg) + dot(binwdith=1.5))
+    bash(gg(mtcars, x=mpg) + dot(method="histodot", binwdith=1.5))
+    bash(gg(mtcars, x=mpg) + dot(stackdir="center", binwdith=1.5))
+    bash(gg(mtcars, x=mpg) + dot(stackdi="centerwhole", binw=1.5))
+    # y axis isn't really meaningful, so hide it
+#    ggplot(mtcars, aes(x = mpg)) + geom_dotplot(binwidth = 1.5) +
+#        scale_y_continuous(NULL, breaks = NULL)
+    bash(gg(mtcars, x=mpg) + dot(binwdith=1.5, stackratio = .7))
+    bash(gg(mtcars, x=mpg) + dot(binwdith=1.5, dotsize = 1.25))
+    ggbash(gg(mtcars, x=1, y=mpg) + dot(binaxis="y", stackdir="center"))
+    # ggbash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="center"))
+})
+
+
 test_that("geom_point", {
     gbash("gg mtcars wt mpg + point")
     # gbash("gg mtcars wt mpg + point colour=factor(cyl)")

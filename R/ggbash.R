@@ -702,11 +702,15 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
         return(paste0(before_equal, "=", after_equal))
 
     # design decision: column name only by prefix match?
-    if (! after_equal %in% colnamev)
+    if (gsub("[0-9\\.]*", "", after_equal) == "") {
+        # a numeric is supplied like x=1
+        aftr <- after_equal
+    } else if (! after_equal %in% colnamev) {
         aftr <- colnamev[find_first_by_prefix(after_equal,
                                               colnamev, show_warn)]
-    else
+    } else {
         aftr <- after_equal
+    }
 
     if (length(aftr) == 0) {
         if (grepl("\\.\\..*\\.\\.", after_equal))

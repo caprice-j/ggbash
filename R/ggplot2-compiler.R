@@ -336,6 +336,7 @@ Ggplot2Parser <-
             #
             # },
             p_aes_func = function(doc="aes_func : NAME
+                                                | CONSTAES aes_func
                                                 | NAME aes_func", p) {
                 dbgmsg("p_aes_func: ", p$get(2))
 
