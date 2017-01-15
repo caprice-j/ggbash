@@ -507,15 +507,14 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #'
 #'
 ggbash <- function(ggbash_symbols="", clipboard=NULL,
-                   show_warn=TRUE, as_string = FALSE){
-    raw_cmd <- deparse(substitute(ggbash_symbols),
-                       width.cutoff = 500) # arbitrary large
-    quotes <- c("\"", "'")
-    if (substr(raw_cmd, 1, 1) %in% quotes) {
-        # Sometimes people use ggbash instead of ggbash_
-        # So preprocess here to work like correctly specified
-        cmd <- gsub("^\\\"|^'|\\\"$|'$", "", raw_cmd)
+                   show_warn=TRUE, as_string = FALSE) {
+    is_string <- tryCatch(class(ggbash_symbols) == "character",
+                            error = function(err) {FALSE})
+    if (is_string) {
+        cmd <- ggbash_symbols
     } else {
+        raw_cmd <- deparse(substitute(ggbash_symbols),
+                           width.cutoff = 500) # arbitrary large
         cmd <- raw_cmd
     }
     dbgmsg(cmd)

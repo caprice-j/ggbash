@@ -76,13 +76,14 @@ One advantage of ggbash session is that parentheses and commas become optional.
 gg iris + point Sepal.W Sepal.L col=Spec size=7 + theme lgnd.txt size=20 face="bold" | echo
 ```
 
-If you prefer much less typing,
+<!-- If you prefer much less typing, -->
+If you prefer an extreme short code,
 
 ```{r, eval=FALSE}
 g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
 ```
 
-will produce exactly the same plot.
+will produce exactly the same plot, at the sacrifice of readability for beginners.
 
 
 ## Features
@@ -114,7 +115,7 @@ ggbash performs partial matches six times.
   
 * __aesthetics names__
     + `c` matches `colour`, which is the aesthetic of `geom_point`.
-    + `sz` matches `size` by fuzzy match.
+    + `sz` matches `size` by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
     
 <!-- * __theme element name__ -->
 
@@ -146,7 +147,7 @@ The built ggplot2 object is :
 
 ```
 
-ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as misspecification of elements (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
+ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as element misspecifications (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
 
 ```{r, eval=FALSE}
 ggbash(gg(diamonds, x=carat, y=price) + point + smooth) # without typo
@@ -294,9 +295,9 @@ devtools::install_github("caprice-j/ggbash")
 
 + If you get `no appender.console()` error,
 you might need `install.packages('rly')`.
-`PpackageVersion('rly')` should be at least 1.4.2.
+`packageVersion('rly')` should be at least 1.4.2.
 
-+ This package is in its very early stage, and might have a lot of installation bugs.
++ This package is still in its infancy, and might contain several installation bugs.
 
 ## Goals
 
