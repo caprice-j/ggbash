@@ -52,7 +52,9 @@ Ggplot2Lexer <-
                                 t$value)
                 return(t)
             },
-            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+]+", t) {
+            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+]*[0-9]", t) {
+                # last [0-9] is needed to interpret
+                # size=7 + theme as "size=7" and "+ theme"
                 return(t) # integers and floats
             },
             # I believe CONSTAES cannot contain +-*/^, because

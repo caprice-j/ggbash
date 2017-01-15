@@ -7,6 +7,13 @@
 parse_after_equal(after = "1 + Sepal.W^2*3", colnamev = c("Sepal.Width",
   "Sepal.Length", "Species"), show_warn = TRUE)
 }
+\arguments{
+\item{after}{A string after equal sign.}
+
+\item{colnamev}{A character vector representing column names.}
+
+\item{show_warn}{Show warning message. Default is TRUE.}
+}
 \description{
 x=factor(Sepal.W + 1) should be interpreted as x = factor(Sepal.Width + 1).
 }

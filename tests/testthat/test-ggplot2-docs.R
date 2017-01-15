@@ -213,7 +213,7 @@ test_that("geom_point", {
     gbash(g(mtcars, wt, mpg) + p(c=factor(cyl)))
     gbash(g(mtcars, wt, mpg) + p(sh=factor(cyl)))
     gbash(g(mtcars, wt, mpg) + p(sz=qse))
-    gbash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue")
+    ggbash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue")
 
     ggbash(gg(mtcars, wt, mpg) + point(sh=factor(cyl))) + scale_shape(solid = FALSE)
 

@@ -787,6 +787,8 @@ parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
 #' @param after A string after equal sign.
 #' @param colnamev A character vector representing column names.
 #' @param show_warn Show warning message. Default is TRUE.
+#'
+#' @importFrom sourcetools tokenize_string
 parse_after_equal <- function(
     after="1 + Sepal.W^2*3",
     colnamev = c("Sepal.Width", "Sepal.Length", "Species"), show_warn = TRUE

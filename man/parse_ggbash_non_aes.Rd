@@ -12,6 +12,8 @@ parse_ggbash_non_aes(non_aes = "shape=1", all_aesv, colnamev,
 
 \item{all_aesv}{A vector of possible aesthetics.}
 
+\item{colnamev}{A character vector representing column names}
+
 \item{show_warn}{a flag for printing warning when ambiguous match.
                    Default is TRUE.
 

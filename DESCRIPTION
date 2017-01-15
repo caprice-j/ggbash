@@ -10,7 +10,8 @@ Depends: R (>= 3.3.0)
 Imports: 
     tibble (>= 1.0.0),
     ggplot2 (>= 2.2.0),
-    rly (>= 1.3.0)
+    rly (>= 1.3.0),
+    sourcetools (>= 0.1.5)
 Suggests: 
     tidyverse,
     knitr,
