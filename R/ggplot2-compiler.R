@@ -74,7 +74,7 @@ Ggplot2Lexer <-
             t_CHARAES = function(re="[a-z]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
                 return(t)
             },
-            t_NAME      = function(re="(\\\"|')?[a-zA-Z_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?", t) {
+            t_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?", t) {
 
                 if (grepl(ggregex$booleanaes, t$value)){
                     dbgmsg("  t_NAME: BOOLEANAES ", t$value)
@@ -85,6 +85,10 @@ Ggplot2Lexer <-
                 } else if (grepl(ggregex$boolean, t$value)) {
                     dbgmsg("  t_NAME: BOOLEAN ", t$value)
                     t$type <- "BOOLEAN"
+                } else if (grepl(ggregex$unit, t$value)) {
+                    dbgmsg("  t_NAME: UNIT ", t$value)
+                    t$type <- "UNIT"
+                    # ex. LexToken(UNIT,.20 cm,1,50)
                 } else if (grepl(ggregex$quoted, t$value)) {
                     dbgmsg("  t_NAME: QUOTED ", t$value)
                     t$type <- "QUOTED"
@@ -114,10 +118,6 @@ Ggplot2Lexer <-
                                                     ggbashenv$show_amb_warn)]
 
                 t$value <- paste0(" + geom_", geom_sth)
-                return(t)
-            },
-            t_UNIT = function(re="[0-9\\.]+\\s*(cm|inches|inch|in)", t) {
-                # ex. LexToken(UNIT,.20 cm,1,50)
                 return(t)
             },
             t_ignore = " \t",
@@ -342,7 +342,8 @@ Ggplot2Parser <-
                 all_rawv <- unique(all_rawv)
                 colnamev <- colnames(ggbashenv$dataset)
 
-                if (ggbashenv$geom == "jitter") # FIXME adhoc
+                if (ggbashenv$geom %in%
+                    c("jitter", "crossbar")) # FIXME adhoc
                     all_rawv <- c(all_rawv, "width", "height")
 
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv, colnamev,

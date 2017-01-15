@@ -333,7 +333,7 @@ save_ggplot <- function(
 #' @export
 remove_unnecessary_marks <- function(
     # FIXME parentheses for no equal case
-    input = "gg(mtcars, x=factor(cyl), mpg) + text(label=paste0('label:', wt))"
+    input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))"
 ){
     replace_with_space <- function(input, i)
         paste0(substr(input, 1, i - 1), " ",
@@ -430,6 +430,8 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
             # sometimes people input commas
             # due to daily habits
             ggobj <- compile_ggbash(cmd)
+            ggobj_verbose <- ggobj
+            ggobj <- gsub("ggplot2::", "", ggobj)
         } else if (argv[1] == "show") {
             print(tibble::as_data_frame(eval(as.symbol(argv[2]))))
             ggbashenv$colname <- colnames(eval(as.symbol(argv[2])))
@@ -459,16 +461,15 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 
     if (grepl(GGPLOT2INVALIDTOKEN, ggobj)) {
         message("\nThe built ggplot2 object is :\n  ",
-                gsub("\\+ gg", "\\+ \n    gg",
-                     gsub("ggplot2::", "", ggobj)))
+                gsub("\\+ gg", "\\+ \n    gg", ggobj))
         return(FALSE)
     }
 
-    built_ggplot2_obj <- eval(parse(text = ggobj))
+    built_ggplot2_obj <- eval(parse(text = ggobj_verbose))
 
     if (batch_mode) {
         if (as_string)
-            return(gsub("ggplot2::", "", ggobj))
+            return(ggobj)
         else
             return(built_ggplot2_obj)
     } else {

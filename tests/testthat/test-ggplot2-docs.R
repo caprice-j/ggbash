@@ -170,16 +170,56 @@ test_that("geom_crossbar", {
             ),
            envir =.GlobalEnv)
 
-    # ggbash("gg crossbar_df trt resp colour=group + liner ymin=lower ymax=upper")
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + liner(ymin=lower,ymax=upper)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_linerange(aes(ymin=lower, ymax=upper))"
+    )
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + pointr(ymin=lower,ymax=upper)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_pointrange(aes(ymin=lower, ymax=upper))"
+    )
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + cross(ymin=lower,ymax=upper, width=.2)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_crossbar(aes(ymin=lower, ymax=upper), width=0.2)"
+    )
 
-    # ggbash("gg crossbar_df trt resp colour=group + pointr ymin=lower ymax=upper")
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + errorb(ymin=lower,ymax=upper, width=.2)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2)"
+    )
 
-    # ...
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + geom_line(group=group) + errorb(ymin=lower,ymax=upper, width=.2)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_line(aes(group=group)) + geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2)"
+    )
+
+    ee(
+        bash(gg(crossbar_df,trt,resp,colour=group) + geom_line(group=group) + errorb(ymin=lower,ymax=upper, width=.2)),
+        "ggplot(crossbar_df, aes(trt, resp, colour=group)) + geom_line(aes(group=group)) + geom_errorbar(aes(ymin=lower, ymax=upper), width=0.2)"
+    )
+
+    ee(
+        bash(gg(crossbar_df, trt, resp, fill = group)
+             + bar(pos = "dodge", stat = "identity")
+             + errorb(ymi = l, yma = u, pos = "dodge", wid = .25)
+                 ),
+        "ggplot(crossbar_df, aes(trt, resp, fill=group)) + geom_bar(position=\"dodge\", stat=\"identity\") + geom_errorbar(aes(ymin=lower, ymax=upper), position=\"dodge\", width=0.25)"
+    )
+
+    # FIXME position_jitter
+    # bash(gg(crossbar_df, trt, resp, fill = group)
+    #      + bar(pos = position_dodge(width=.9), stat = "identity")
+    #      + errorbar(ymi = l, yma = u, pos = position_dodge(width=0.9), wid = .25))
 })
 
+
+# geom_density 6/8
 test_that("geom_density", {
     gbash("gg diamonds carat + density ")
-    # ggbash("gg diamonds carat + density adjust = 1/5")
+    ee(
+        bash(gg(diamonds,carat) + density(adjust = 1/5)),
+        "ggplot(diamonds, aes(carat)) + geom_density(adjust=1/5)"
+    )
     gbash("gg diamonds carat + density adjust = 5")
 
     # ggplot(diamonds, aes(depth, colour = cut)) +
@@ -190,17 +230,16 @@ test_that("geom_density", {
     #     geom_density(alpha = 0.1) +
     #     xlim(55, 70)
 
-    # ggbash("gg diamonds carat fill=cut + density position='stack'")
+    bash(gg(diamonds,carat,fill=cut) + density(position="stack"))
 
-    #ggplot(diamonds, aes(carat, ..count.., fill = cut)) +
-    #    geom_density(position = "stack")
-    #
-    # ggplot(diamonds, aes(carat, ..count.., fill = cut)) +
-    #     geom_density(position = "fill")
-    #
+    ee(
+        bash(gg(diamonds, carat, ..count.., fill=cut) + density(position="stack")),
+        "ggplot(diamonds, aes(carat, ..count.., fill=cut)) + geom_density(position=\"stack\")"
+        )
+    bash(gg(diamonds, carat, ..count.., fill=cut) + density(position="fill"))
 })
 
-# "geom_density2d"
+# "geom_density2d" xlim
 
 test_that("geom_dotplot", {
 

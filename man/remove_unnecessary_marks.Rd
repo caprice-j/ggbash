@@ -5,7 +5,7 @@
 \title{remove parentheses and marks}
 \usage{
 
-  remove_unnecessary_marks(input = "gg(mtcars, x=factor(cyl), mpg) + text(label=paste0('label:', wt))")
+  remove_unnecessary_marks(input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))")
 }
 \description{
 ggbash have to handle two types of parentheses and tyo types of commas.
