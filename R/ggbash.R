@@ -315,12 +315,54 @@ save_ggplot <- function(
     message("saved: ", attrl$filepath)
 }
 
+remove_unnecessary_parentheses <- function(
+    # FIXME parentheses for no equal case
+    input = "gg(mtcars, x=factor(cyl), mpg) + text(label=paste0('label:', wt))"
+){
+    paren2space <- function(input, i)
+        paste0(substr(input, 1, i - 1), " ",
+               substr(input, i + 1, nchar(input)))
+    n_paren <- 0
+    is_after <- FALSE
+    state <- ""
+    for ( i in 1:nchar(input)) {
+        this <- substr(input, i, i)
+        if (is_after) {
+            if (this == "(")
+                n_paren <- n_paren + 1
+            else if (this == ")")
+                n_paren <- n_paren - 1
+
+            # nested equals are ignored
+
+            if (n_paren < 0) {
+                is_after <- FALSE
+                n_paren <- n_paren + 1
+                input <- paren2space(input, i)
+            }
+        } else {
+            if (this == "(")
+                input <- paren2space(input, i)
+            else if (this == ")")
+                input <- paren2space(input, i)
+            else if (this == "=")
+                is_after <- TRUE
+        }
+        state <- paste0(state, n_paren)
+    }
+    return(input)
+}
+
 coat_adhoc_syntax_sugar <- function(
-    cmd = "gg mtcars mpg,hwy + point size     = gear   shape    = 16"
+    cmd = "gg(mtcars,mpg,hwy) + point(size = xyz(gear) +1, shape = 16 / 3 * 4)"
 ){
     out <- gsub(",", " ", cmd) # no comma
-    out <- gsub("\\(|\\)", " ", out) # no parentheses
     out <- gsub("\\s*=\\s*", "=", out)
+    out <- gsub("\\s*\\+\\s*", "\\+", out)
+    out <- gsub("\\s*\\*\\s*", "\\*", out)
+    out <- gsub("\\s*-\\s*", "-", out)
+    out <- gsub("\\s*/\\s*", "/", out)
+    out <- remove_unnecessary_parentheses(out)
     return(out)
 }
 
@@ -702,22 +744,9 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
         return(paste0(before_equal, "=", after_equal))
 
     # design decision: column name only by prefix match?
-    if (gsub("[0-9\\.]*", "", after_equal) == "") {
-        # a numeric is supplied like x=1
-        aftr <- after_equal
-    } else if (! after_equal %in% colnamev) {
-        aftr <- colnamev[find_first_by_prefix(after_equal,
-                                              colnamev, show_warn)]
-    } else {
-        aftr <- after_equal
-    }
-
-    if (length(aftr) == 0) {
-        if (grepl("\\.\\..*\\.\\.", after_equal))
-            aftr <- after_equal
-        else
-            return(NULL)
-    }
+    aftr <- parse_after_equal(after_equal, colnamev, show_warn)
+    if (is.null(aftr))
+        return(NULL)
 
     return(paste0(before_equal, "=", aftr))
 }
@@ -733,7 +762,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #' \code{\link{parse_ggbash_aes}}
 #'
 parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
-                                 show_warn=TRUE){
+                                 colnamev, show_warn=TRUE){
     before_equal <- gsub("\\s*=.*", "", non_aes)
     after_equal  <- gsub(".*=\\s*", "", non_aes)
 
@@ -743,5 +772,44 @@ parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
     if (length(before_equal) == 0) # no such parameter
         return(NULL)
 
+    after_equal <- parse_after_equal(after_equal, colnamev, show_warn)
+    if (is.null(after_equal))
+        return(NULL)
+
     return(paste0(before_equal, "=", after_equal))
+}
+
+#' parse symbols after equal sign
+#'
+#' x=factor(Sepal.W + 1) should be interpreted as x = factor(Sepal.Width + 1).
+#'
+parse_after_equal <- function(
+    after="1 + Sepal.W^2*3",
+    colnamev = c("Sepal.Width", "Sepal.Length", "Species"), show_warn = TRUE
+){
+    info <- sourcetools::tokenize_string(after)
+    nospace <- info[info$type != "whitespace", ]
+    nospace$after <- c(nospace[-1, ]$value, "end")
+    nospace$bval  <- c("start", nospace[-nrow(nospace), ]$value)# before value
+    # TODO how can I know each symbol is a function?
+    # especially func(first, second) arguments.
+    not_call <- nospace$type == "symbol" & nospace$after != "("
+    not_piped <- nospace$type == "symbol" & ! nospace$bval %in% c("%>%", "%T>%")
+    not_special <- ! grepl("\\.\\..*\\.\\.", nospace$value)
+    candidates <- nospace[not_call & not_piped & not_special, ]
+
+    if (nrow(candidates) == 0)
+        return(after)
+
+    for ( i in 1:nrow(candidates)) {
+        index <- find_first_by_prefix(candidates$value[i],
+                                        colnamev, show_warn)
+        if (is.null(index))
+            return(NULL)
+        candidates$value[i] <- colnamev[index]
+    }
+
+    info[as.numeric(rownames(candidates)), "value"] <- candidates$value
+
+    return(paste0(info$value, collapse=""))
 }

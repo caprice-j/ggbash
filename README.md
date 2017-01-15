@@ -4,7 +4,7 @@ ggbash
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues) [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash is a higher-level language for [ggplot2](https://github.com/tidyverse/ggplot2) and provides a simpler syntax to write ggplot2 objects. ggbash features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
+ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax. ggbash features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user, from beginners to professionals.
 
@@ -41,13 +41,14 @@ One advantage of ggbash session is that parentheses and commas become optional.
 gg iris + point Sepal.W Sepal.L col=Spec size=7 + theme lgnd.txt size=20 face="bold" | echo
 ```
 
-If you prefer much less typing,
+<!-- If you prefer much less typing, -->
+If you prefer an extreme short code,
 
 ``` r
 g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
 ```
 
-will produce exactly the same plot.
+will produce exactly the same plot, at the sacrifice of readability for beginners.
 
 Features
 --------
@@ -72,7 +73,7 @@ For the above ggbash input `gg iris + point Sepal.W Sepal.L c="red" sz=5`, ggbas
 
 -   **aesthetics names**
     -   `c` matches `colour`, which is the aesthetic of `geom_point`.
-    -   `sz` matches `size` by fuzzy match.
+    -   `sz` matches `size` by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
 
 <!-- * __theme element name__ -->
 Any of the following commands return exactly the same plot.
@@ -102,7 +103,7 @@ The built ggplot2 object is :
   ggplot(diamonds, aes( <<INVALID_TOKEN_HERE>> ) + geom_point() + geom_smooth()
 ```
 
-ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as misspecification of elements (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
+ggbash has a compiler (ggbash compiler) which interprets given ggbash "source code" as an "executable" ggplot2 object. During the compiling process, ggbash can detect various human errors such as element misspecifications (column names, aes names, theme element names, ...). Beginners can learn why their codes don't work from the generated diagnostics.
 
 ``` r
 ggbash(gg(diamonds, x=carat, y=price) + point + smooth) # without typo
@@ -224,9 +225,9 @@ Installation
 devtools::install_github("caprice-j/ggbash")
 ```
 
--   If you get `no appender.console()` error, you might need `install.packages('rly')`. `PpackageVersion('rly')` should be at least 1.4.2.
+-   If you get `no appender.console()` error, you might need `install.packages('rly')`. `packageVersion('rly')` should be at least 1.4.2.
 
--   This package is in its very early stage, and might have a lot of installation bugs.
+-   This package is still in its infancy, and might contain several installation bugs.
 
 Goals
 -----

@@ -25,7 +25,7 @@ ggregex <- list(
                         "[a-zA-Z0-9\\._\\+\\-\\*\\/\\^ ]+",
                         "('|\\\")"),                      # end by a quote
     booleanaes = paste0("[a-zA-Z_][a-zA-Z_0-9\\.]\\s*=\\s*",
-                        "(TRUE|FALSE|T|F|t|f|true|false|True|False)"),
+                        "(TRUE|FALSE|true|false|True|False)"),
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
     unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)"
@@ -65,7 +65,7 @@ Ggplot2Lexer <-
             t_CHARAES = function(re="[a-z]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
                 return(t)
             },
-            t_NAME      = function(re="(\\\"|')?[a-zA-Z_][a-zA-Z_0-9\\.=]*(\\\"|')?", t) {
+            t_NAME      = function(re="(\\\"|')?[a-zA-Z_\\(\\)][a-zA-Z_0-9\\.=\\(\\)]*(\\\"|')?", t) {
                 if (grepl(ggregex$booleanaes, t$value)){
                     dbgmsg("  t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
@@ -307,11 +307,12 @@ Ggplot2Parser <-
                 layer_params <- get_layer_params(ggbashenv$geom)
                 all_rawv <- c(all_aesv, layer_params)
                 all_rawv <- unique(all_rawv)
+                colnamev <- colnames(ggbashenv$dataset)
 
                 if (ggbashenv$geom == "jitter") # FIXME adhoc
                     all_rawv <- c(all_rawv, "width", "height")
 
-                raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv,
+                raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv, colnamev,
                                                 ggbashenv$show_amb_warn)
                 ggbashenv$conf$non_aes <- c(ggbashenv$conf$non_aes, raw_aes)
 
@@ -368,7 +369,7 @@ Ggplot2Parser <-
                 }
 
                 # FIXME defaultZproblem - z should not be removed
-                if (! grepl("z=", column_name))
+                if (grepl("(x=|y=)", column_name))
                     column_name <- gsub("[a-z]+=", "", column_name)
 
 

@@ -4,7 +4,8 @@
 \alias{parse_ggbash_non_aes}
 \title{convert given ggbash strings into ggplot2 non-aesthetic (constant) specifications}
 \usage{
-parse_ggbash_non_aes(non_aes = "shape=1", all_aesv, show_warn = TRUE)
+parse_ggbash_non_aes(non_aes = "shape=1", all_aesv, colnamev,
+  show_warn = TRUE)
 }
 \arguments{
 \item{non_aes}{A character of a non-aesthetic key and value pair}

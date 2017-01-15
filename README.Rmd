@@ -24,8 +24,7 @@ knitr::opts_chunk$set(
 [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues)
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash is a higher-level language for [ggplot2](https://github.com/tidyverse/ggplot2)
-and provides a simpler syntax to write ggplot2 objects.
+ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax.
 ggbash features a strong partial match, helpful error messages,
 and handy builtin commands such as `copy` or `png`.
 

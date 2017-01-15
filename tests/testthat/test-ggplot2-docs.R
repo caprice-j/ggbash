@@ -201,6 +201,9 @@ test_that("geom_dotplot", {
     bash(gg(mtcars, x=mpg) + dot(binwdith=1.5, dotsize = 1.25))
     ggbash(gg(mtcars, x=1, y=mpg) + dot(binaxis="y", stackdir="center"))
     # ggbash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="center"))
+    # ggbash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="centerwhole"))
+
+    # ...
 })
 
 
@@ -232,6 +235,8 @@ test_that("geom_point", {
     # p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))
     # p + geom_point(aes(colour = factor(cyl)), size = 4) +
     #     geom_point(colour = "grey90", size = 1.5)
+    ggbash(gg(mtcars, mpg, wt) + point(shape=factor(cyl)))
+    ggbash(gg(mtcars, mpg, wt, shape=factor(cyl)) + point(c=factor(cyl), sz=4))
 
     # p + geom_point(colour = "black", size = 4.5) +
     #     geom_point(colour = "pink", size = 4) +
