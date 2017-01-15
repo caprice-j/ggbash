@@ -220,7 +220,7 @@ Ggplot2Parser <-
                 # FIXME more general
                 dbgmsg("  3rd is : ", p$get(3))
                 raw_is_3rd <-
-                    grepl("=([0-9\\+\\-\\*\\/\\^]+|\\\"|')", p$get(3)) ||
+                    grepl("=([0-9\\.\\+\\-\\*\\/\\^]+|\\\"|')", p$get(3)) ||
                     grepl(ggregex$booleanaes, p$get(3)) ||
                     grepl(ggregex$constaes, p$get(3))
 
