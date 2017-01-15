@@ -143,13 +143,20 @@ test_that("geom_contour", {
 
 })
 
+# GEOM_COUNT COMPLETED
+
 test_that("geom_count", {
     gbash("gg mpg x=cty y=hwy + point")
     gbash("gg mpg x=cty y=hwy + count")
-    # ggbash("gg mpg x=cty, y=hwy + count") # + scale_size_area
+    # works: ggbash("gg mpg x=cty, y=hwy + count")  + scale_size_area()
 
-    #ggbash("gg diamonds x=cut, y=clarity + count size=..prop.. ")
-    #ggbash("gg diamonds x=cut, y=clarity + count size = ..prop.. group=1")
+    ee(bash(gg(diamonds,x=cut,y=clarity) + count(size=..prop..)),
+       "ggplot(diamonds, aes(cut, clarity)) + geom_count(aes(size=..prop..))")
+    ee(bash(gg(diamonds,x=cut,y=clarity) + count(size=..prop.., group=1)),
+       "ggplot(diamonds, aes(cut, clarity)) + geom_count(aes(size=..prop.., group=1))")
+    ee(bash(gg(diamonds,x=cut,y=clarity) + count(size=..prop.., group=cut)),
+       "ggplot(diamonds, aes(cut, clarity)) + geom_count(aes(size=..prop.., group=cut))")
+
 })
 
 test_that("geom_crossbar", {

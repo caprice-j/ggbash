@@ -54,6 +54,12 @@ Ggplot2Lexer <-
                 return(t)
             },
             t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+:]*[0-9]", t) {
+                if (grepl("^group=", t$value)) {
+                    t$type <- "NAME"
+                    # aes(group=1)
+                    return(t)
+                }
+
                 # last [0-9] is needed to interpret
                 # size=7 + theme as "size=7" and "+ theme"
                 return(t) # integers and floats
@@ -69,6 +75,7 @@ Ggplot2Lexer <-
                 return(t)
             },
             t_NAME      = function(re="(\\\"|')?[a-zA-Z_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?", t) {
+
                 if (grepl(ggregex$booleanaes, t$value)){
                     dbgmsg("  t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
@@ -223,6 +230,11 @@ Ggplot2Parser <-
                     grepl("=([0-9\\.\\+\\-\\*\\/\\^]+|\\\"|')", p$get(3)) ||
                     grepl(ggregex$booleanaes, p$get(3)) ||
                     grepl(ggregex$constaes, p$get(3))
+
+                if (grepl("\\.\\.", p$get(3))) {
+                    dbgmsg("hit")       # FIXME ugly ..prop..
+                    raw_is_3rd <- FALSE
+                }
 
                 if (raw_is_3rd) {
                     if (p$length() == 3) {
