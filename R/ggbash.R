@@ -547,7 +547,7 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #'                  Default is FALSE.
 #'
 #'
-#'
+#' @export
 ggbash <- function(ggbash_symbols="", clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE) {
     is_string <- tryCatch(class(ggbash_symbols) == "character",
@@ -693,7 +693,7 @@ get_layer_params <- function(suffix="bin2d") {
     # FIXME should read layer.R
     specials <- get_geom_params(suffix)
     stats <- get_stat_params(suffix)
-    wrappers <- c("stat", "position", "group")
+    wrappers <- c("stat", "position", "group", "show.legend")
     return(unique(c(specials, stats, wrappers)))
 }
 
@@ -755,6 +755,7 @@ parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
 #'
 #' @param non_aes A character of a non-aesthetic key and value pair
 #' @param all_aesv A vector of possible aesthetics.
+#' @param colnamev A character vector representing column names
 #' @param show_warn a flag for printing warning when ambiguous match.
 #'                    Default is TRUE.
 #'
@@ -783,6 +784,9 @@ parse_ggbash_non_aes <- function(non_aes="shape=1", all_aesv,
 #'
 #' x=factor(Sepal.W + 1) should be interpreted as x = factor(Sepal.Width + 1).
 #'
+#' @param after A string after equal sign.
+#' @param colnamev A character vector representing column names.
+#' @param show_warn Show warning message. Default is TRUE.
 parse_after_equal <- function(
     after="1 + Sepal.W^2*3",
     colnamev = c("Sepal.Width", "Sepal.Length", "Species"), show_warn = TRUE
@@ -810,6 +814,11 @@ parse_after_equal <- function(
     }
 
     info[as.numeric(rownames(candidates)), "value"] <- candidates$value
+
+    # handyShortcuts
+    info[info$value == "f", "value"] <- "factor"
+    info[info$value == "n", "value"] <- "as.numeric"
+    # might conflict with dplyr::n()?
 
     return(paste0(info$value, collapse=""))
 }

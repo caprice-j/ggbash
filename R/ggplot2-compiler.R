@@ -52,7 +52,7 @@ Ggplot2Lexer <-
                                 t$value)
                 return(t)
             },
-            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\.]+", t) {
+            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+]+", t) {
                 return(t) # integers and floats
             },
             # I believe CONSTAES cannot contain +-*/^, because
@@ -200,8 +200,8 @@ Ggplot2Parser <-
                 # FIXME more general
                 dbgmsg("  3rd is : ", p$get(3))
                 raw_is_3rd <-
-                    grepl(paste0("=([0-9\\+\\-\\*\\/\\^]+|\\\"|')"),
-                          p$get(3))
+                    grepl("=([0-9\\+\\-\\*\\/\\^]+|\\\"|')", p$get(3)) ||
+                    grepl(ggregex$booleanaes, p$get(3))
 
                 if (raw_is_3rd) {
                     if (p$length() == 3) {

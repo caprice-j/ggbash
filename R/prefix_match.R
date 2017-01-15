@@ -87,9 +87,16 @@ find_first_index <- function(
     table = c("x", "y", "size", "shape", "colour", "fill", "alpha", "stroke"),
     show_warn = TRUE
 ){
+    first_char <- substr(pattern,1,1)
     # defaultZproblem
-    if (substr(pattern,1,1) == "z")
+    if (first_char == "z")
         return(pattern)
+
+    # handyShortcuts
+    if (pattern == "a")
+        # without this if statement,
+        # "a" matches "stat" not "alpha"
+        return(which(table == "alpha"))
 
     matched_df <- get_analogue(pattern, table)
     best_matched <- matched_df[1, ]

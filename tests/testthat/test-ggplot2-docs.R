@@ -210,44 +210,44 @@ test_that("geom_dotplot", {
 test_that("geom_point", {
     gbash("gg mtcars wt mpg + point")
     # gbash("gg mtcars wt mpg + point colour=factor(cyl)")
-    # p + geom_point(aes(shape = factor(cyl)))
+    gbash(g(mtcars, wt, mpg) + p(c=factor(cyl)))
+    gbash(g(mtcars, wt, mpg) + p(sh=factor(cyl)))
+    gbash(g(mtcars, wt, mpg) + p(sz=qse))
+    gbash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue")
 
-    gbash("gg mtcars wt mpg + point size=qsec")
-    # ggbash("gg mtcars wt mpg + point size = qsec")
+    ggbash(gg(mtcars, wt, mpg) + point(sh=factor(cyl))) + scale_shape(solid = FALSE)
 
-    gbash("gg mtcars wt mpg + point colour=cyl")
-
-    # p + geom_point(aes(colour = cyl)) + scale_colour_gradient(low = "blue")
-    # FIXME ggbash(...) + scale_... should work
-
-    # p + geom_point(aes(shape = factor(cyl))) + scale_shape(solid = FALSE)
     gbash("gg mtcars wt mpg + point colour='red' size=3")
 
-    # d <- ggplot(diamonds, aes(carat, price))
-    # d + geom_point(alpha = 1/10)
-    # d + geom_point(alpha = 1/20)
-    # d + geom_point(alpha = 1/100)
+    gbash(gg(diamonds, carat, price) + p(a=1/10))
+    gbash(gg(diamonds, carat, price) + p(a=1/20))
+    gbash(gg(diamonds, carat, price) + p(a=1/100))
 
     gbash("gg mtcars w m + p shape=21 col='black' f='white' siz=5 st=5")
 
-    # You can create interesting shapes by layering multiple points of
-    # # different sizes
-    # p <- ggplot(mtcars, aes(mpg, wt, shape = factor(cyl)))
-    # p + geom_point(aes(colour = factor(cyl)), size = 4) +
-    #     geom_point(colour = "grey90", size = 1.5)
-    ggbash(gg(mtcars, mpg, wt) + point(shape=factor(cyl)))
-    ggbash(gg(mtcars, mpg, wt, shape=factor(cyl)) + point(c=factor(cyl), sz=4))
+    gbash(g(mtcars, mpg, wt, sh=factor(cyl)) + p(c=factor(cyl), sz=4) + p(c="gray90", sz=1.5))
+    # ggplot(mtcars, aes(mpg, wt, shape = factor(cyl))) +
+    #   geom_point(aes(colour = factor(cyl)), size = 4) +
+    #   geom_point(colour = "grey90", size = 1.5)
 
+
+    gbash(gg(mtcars, mpg, wt) + point(shape=factor(cyl)))
+    gbash(gg(mtcars, mpg, wt, sh=factor(cyl)) + p(c=factor(cyl), sz=4) + p(c="gray90", sz=1.5) )
+
+    gbash(gg(mtcars, mpg, wt) + p (sh=factor(cyl)) + p(c="black", sz= 4.5))
     # p + geom_point(colour = "black", size = 4.5) +
     #     geom_point(colour = "pink", size = 4) +
     #     geom_point(aes(shape = factor(cyl)))
 
-    # p + geom_point(colour = "black", size = 4.5, show.legend = TRUE) +
-    #     geom_point(colour = "pink", size = 4, show.legend = TRUE) +
-    #     geom_point(aes(shape = factor(cyl)))
+    gbash(gg(mtcars, mpg, wt)
+           + point(col = "black", sz=4.5, legend=TRUE)
+           + point(col = "pink",  sz=4,   legend=TRUE)
+           + point(shp = factor(cyl)))
 
     ggbash("gg mtcars wt mpg + point")
-    # ggbash("gg mtcars wt mpg + point na.rm =TRUE")
+
+    ggbash(gg(mtcars2, wt, mpg) + p)
+    ggbash(gg(mtcars2, wt, mpg) + p(na.rm=TRUE))
 })
 
 
