@@ -1,3 +1,13 @@
+# ggbash 0.4.1
+
+## Additional Features
++ Non-standard evaluation (NSE) interface
++ handling of x=1 (scalar variable)
++ handling of R functions (turned out to be complicated)
+
+## Bug Fixes
++ remove `:` in theme elements names and `/` in save_ggplot arguments. This is because or R's language restriction for more handy NSE. This supersede grammar rules determined in v0.2 change.
+
 # ggbash 0.4.0.9000
 
 ## Major Updates
@@ -106,7 +116,7 @@
 
 `ggplot2::theme()` is a powerful function that tweaks a lot of plot elements.
 
-In this v0.1.2 release, most of the functions of `theme` are implemented.
+In this v0.2 release, most of the functions of `theme` are implemented.
 
 It might need more test cases because of a lot of possibilities (such as a character variable),
 so the next a few weeks will be for fixing various bugs.

@@ -64,7 +64,7 @@ test_that("geom_bar", {
     reorder_size <- function(x) {
        factor(x, levels = names(sort(table(x))))
     }
-    ee(gbash(gg(mpg, x=reorder_size(class)) + bar),
+    ee(bash(gg(mpg, x=reorder_size(class)) + bar),
        "ggplot(mpg, aes(reorder_size(class))) + geom_bar()")
     # FIXME = should be optional
 
