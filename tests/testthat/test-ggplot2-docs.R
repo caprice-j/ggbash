@@ -83,21 +83,21 @@ test_that("geom_bin2d", {
 })
 
 test_that("geom_boxplot", {
-    gbash("gg mpg x=class y=hwy + box")
-    #ggbash("gg mpg x=class,y=hwy + box + jitter width=.2")
+    bash("gg mpg x=class y=hwy + box")
+    bash("gg mpg x=class,y=hwy + box + jitter width=.2")
     # FIXME p + geom_boxplot() + coord_flip()
-    #ggbash("gg mpg x=class,y=hwy + box notch=TRUE") # FIXME non-aes
-    #ggbash("gg mpg x=class,y=hwy + box varwidth=TRUE") # FIXME non-aes
-    gbash("gg mpg x=class y=hwy + box fill='white' color='#3366FF'") # FIXME non-aes
+    bash("gg mpg x=class,y=hwy + box notch=TRUE")
+    bash("gg mpg x=class,y=hwy + box varwidth=TRUE")
+    bash("gg mpg x=class y=hwy + box fill='white' color='#3366FF'")
     #ggbash("gg mpg x=class,y=hwy + box outlier.colour='red'") # FIXME
     #ggbash("gg mpg x=class,y=hwy + box outlier.colour='red' outlier.shape=1") # FIXME
 
-    gbash("gg mpg x=class y=hwy + box colour=drv")
-    #ggbash("gg diamonds carat, price + box")
-    # ggbash("gg diamonds + carat price + box group=")FIXME
-    #gplot(diamonds, aes(carat, price)) +
-    #    geom_boxplot(aes(group = cut_width(carat, 0.25)))
+    bash("gg mpg x=class y=hwy + box colour=drv")
+    bash("gg diamonds carat, price + box")
+    ee(bash(gg(diamonds, carat, price) + box(group=cut_width(carat, 0.25))),
+       "ggplot(diamonds, aes(carat, price)) + geom_boxplot(aes(group=cut_width(carat,0.25)))")
 
+    # MAYBE-LATER special boxplot
     # It's possible to draw a boxplot with your own computations if you
     # use stat = "identity":
     # y <- rnorm(100)

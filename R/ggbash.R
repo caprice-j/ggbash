@@ -626,6 +626,8 @@ get_possible_aes <- function(suffix="point") {
                               geom$non_missing_aes,
                               names(geom$default_aes)))
 
+    possible_aesv <- c(possible_aesv, "group")
+
     if(suffix == "bar") # FIXME adhoc
         possible_aesv <- c(possible_aesv, "weight")
 
