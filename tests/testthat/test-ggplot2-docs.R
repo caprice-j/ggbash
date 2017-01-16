@@ -132,12 +132,12 @@ test_that("geom_contour", {
     # v + geom_contour(aes(colour = ..level..))
     ee(bash(gg(faithfuld, waiting, eruptions, z=density) +
                 contour(colour=..level..)),
-       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %+%
+       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %++%
            "geom_contour(aes(colour=..level..))")
 
     gbash("gg faithfuld waiting eruptions z=density + contour colour = 'red'")
     ee(bash("gg faithfuld w e z=d + rast fill=d + contour c = 'white'"),
-       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %+%
+       "ggplot(faithfuld, aes(waiting, eruptions, z=density)) + " %++%
         "geom_raster(aes(fill=density)) + geom_contour(colour='white')"
        )
 
@@ -295,6 +295,8 @@ test_that("geom_errorbarh", {
            ),
            envir =.GlobalEnv)
 
+    ee(1, 1)
+
     # FIXME
     # ggbash(gg(errorbarh_df, resp, trt, col=group)
     #       + p + errorbarh(xmax=resp+se, xmin=resp-se) )
@@ -309,7 +311,12 @@ test_that("geom_freqpoly", {
     bash(gg(diamonds, carat) + hist(bins=200))
     bash(gg(diamonds, price, fill=cut) + hist(binw=500))
     bash(gg(diamonds, price, col=cut) + freqpoly(binwidth=500))
-    bash(gg(diamonds, price, ..density.., col=cut) + freqpoly(binwidth=500))
+    ee(
+        bash(gg(diamonds, price, ..density.., col=cut)
+             + freqpoly(binwidth=500)),
+        "ggplot(diamonds, aes(price, ..density.., " %++%
+            "colour=cut)) + geom_freqpoly(binwidth=500)"
+        )
     # MAYBE-LATER ..density.. should be partial matched
 })
 
@@ -331,7 +338,9 @@ test_that("geom_hex", {
 test_that("geom_jitter", {
     bash(gg(mpg, cyl, hwy) + point)
     bash(gg(mpg, cyl, hwy) + jitter)
-    bash(gg(mpg, cyl, hwy) + geom_jitter(c=class))
+    ee(bash(gg(mpg, cyl, hwy) + geom_jitter(c=class)),
+        "ggplot(mpg, aes(cyl, hwy)) + geom_jitter(aes(colour=class))"
+    )
     bash(gg(mpg, cyl, hwy) + geom_jitter(wid=0.25))
     bash(gg(mpg, cty, hwy) + geom_jitter())
     bash(gg(mpg, cty, hwy) + geom_jit(wid=.5, height=.5))
@@ -339,6 +348,7 @@ test_that("geom_jitter", {
 
 test_that("geom_label", {
     # ggbash(g(mtcars,wt,mpg,lab=rownames(mtcars))+text) # FIXME
+    ee(1, 1)
 })
 
 test_that("geom_point", {
@@ -359,11 +369,13 @@ test_that("geom_point", {
 
     gbash("gg mtcars w m + p shape=21 col='black' f='white' siz=5 st=5")
 
-    gbash(g(mtcars, mpg, wt, sh=factor(cyl)) + p(c=factor(cyl), sz=4) + p(c="gray90", sz=1.5))
-    # ggplot(mtcars, aes(mpg, wt, shape = factor(cyl))) +
-    #   geom_point(aes(colour = factor(cyl)), size = 4) +
-    #   geom_point(colour = "grey90", size = 1.5)
-
+    ee(bash(g(mtcars, mpg, wt, sh=factor(cyl))
+            + p(c=factor(cyl), sz=4)
+            + p(c="gray90", sz=1.5)),
+       "ggplot(mtcars, aes(mpg, wt, shape=factor(cyl))) + " %++%
+           "geom_point(aes(colour=factor(cyl)), size=4) + " %++%
+           "geom_point(colour=\"gray90\", size=1.5)"
+       )
 
     gbash(gg(mtcars, mpg, wt) + point(shape=factor(cyl)))
     gbash(gg(mtcars, mpg, wt, sh=factor(cyl)) + p(c=factor(cyl), sz=4) + p(c="gray90", sz=1.5) )

@@ -29,7 +29,8 @@ ggregex <- list(
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
     constaes   = "[a-z]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
-    unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)"
+    unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)",
+    data       = "data="
 )
 
 set_ggbashenv_warning <- function(){
@@ -76,7 +77,10 @@ Ggplot2Lexer <-
             },
             t_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?", t) {
 
-                if (grepl(ggregex$booleanaes, t$value)){
+                if (grepl(ggregex$data, t$value)) {
+                    dbgmsg("  t_NAME: DATA ", t$value)
+                    t$type <- "CONSTAES"
+                } else if (grepl(ggregex$booleanaes, t$value)){
                     dbgmsg("  t_NAME: BOOLEANAES ", t$value)
                     t$type <- "BOOLEANAES"
                 } else if (grepl(ggregex$constaes, t$value)) {
@@ -336,6 +340,14 @@ Ggplot2Parser <-
                                    | CONSTAES layer_raw_aes
                                    | BOOLEANAES layer_raw_aes", p) {
                 dbgmsg("p_layer_raw_aes: ", p$get(2))
+
+                if (grepl("data=", p$get(2))) {
+                    if (p$length() == 2)
+                        return(p$set(1, paste0(p$get(2), ")")))
+                    else
+                        return(p$set(1, paste0(p$get(2), ", ", p$get(3))))
+                }
+
                 all_aesv <- get_possible_aes(ggbashenv$geom)
                 layer_params <- get_layer_params(ggbashenv$geom)
                 all_rawv <- c(all_aesv, layer_params)

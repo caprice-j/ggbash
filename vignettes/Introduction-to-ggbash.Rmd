@@ -27,9 +27,43 @@ geom_point(aes(x=Sepal.Width,
 ```
 
 ggbash is a different and faster interface for the ggplot2.
-It provides a bash-like REPL (read-eval-print loop) environment on top of R.
-It also provides a function to compile
-a short ggbash string to a complete ggplot2 command.
+In ggbash, you can plot the same figure by the following command:
+
+```r
+ggbash( ggplot(iris) + point(x=Sepal.W, y=Sepal.L, col=Species, sz=Petal.W) )
+```
+
+The above ggbash source code
+(`ggplot(iris) + point(x=Sepal.W, y=Sepal.L, col=Species, sz=Petal.W)`) displays
+exactly the same plot of the first ggplot2 command.
+
+# faster way
+# how to use in R session
+## principles of ggplot2
++ mapping data elements to aesthetics (`x=mpg`)
++ adding layers (point + smooth, point + geom_text_repel)
+
++ iterative plotting
+
+
+# Why does that command work?
+
+If you are experienced R users, you might have been surprised by the above command.
+Especially if you see the following output:
+
+```r
+point
+Error: no such object 'point'
+```
+
+The `point()` function used above is undefined in R global environment -- 
+
++ Why `Sepal.W`, `Sepal.L` and `Petal.W`
+
+Essentially, ggbash is a higher-level language for ggplot2.
+It compiles a short ggbash "source code" to an "executable" ggplot2 object like this:
+
+
 
 ```{r, eval=FALSE}
 library(ggbash)

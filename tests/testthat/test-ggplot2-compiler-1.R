@@ -41,7 +41,7 @@ test_that("ggplot2 parser", {
     ee(yacc$parse("gg iris Sepal.Width Sepal.Length", lex),
        "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length))")
     ee(yacc$parse("gg iris Sepal.Width Sepal.Length + point", lex),
-       "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + " %+%
+       "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + " %++%
        "ggplot2::geom_point()")
     expect_message(
         yacc$parse("gg iris SepalWidth + point", lex),
@@ -49,51 +49,46 @@ test_that("ggplot2 parser", {
        )
 
     pre <- "ggplot2::ggplot(iris) + ggplot2::geom_"
-    ee(yacc$parse("gg iris + point", lex), pre %+% "point()")
+    ee(yacc$parse("gg iris + point", lex), pre %++% "point()")
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L", lex),
-       pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length))")
+       pre %++% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length))")
     ee(yacc$parse("gg iris + rect Sepal.W Sepal.L Petal.L Petal.W", lex),
-       pre %+% "rect(ggplot2::aes(xmin=Sepal.Width, xmax=Sepal.Length, " %+%
+       pre %++% "rect(ggplot2::aes(xmin=Sepal.Width, xmax=Sepal.Length, " %++%
            "ymin=Petal.Length, ymax=Petal.Width))")
 
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth", lex),
-       pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
+       pre %++% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %++%
            "ggplot2::geom_smooth()")
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth Sepal.W", lex),
-       pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
+       pre %++% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %++%
            "ggplot2::geom_smooth(ggplot2::aes(x=Sepal.Width))")
     ee(yacc$parse("gg iris + point Sepal.W Sepal.L + smooth Sepal.W Sepal.L",
                   lex),
-       pre %+% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %+%
+       pre %++% "point(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)) + " %++%
            "ggplot2::geom_smooth(ggplot2::aes(x=Sepal.Width, y=Sepal.Length))"
     )
 
     yacc_pre <- "gg iris + point Sepal.W Sepal.L colour=\"blue\""
-    pre <- "ggplot2::ggplot(iris) + ggplot2::geom_point" %+%
-        "(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)," %+%
+    pre <- "ggplot2::ggplot(iris) + ggplot2::geom_point" %++%
+        "(ggplot2::aes(x=Sepal.Width, y=Sepal.Length)," %++%
         " colour=\"blue\""
-    ee(yacc$parse(yacc_pre, lex), pre %+% ")")
-    ee(yacc$parse(yacc_pre %+% " size=4", lex), pre %+% ", size=4)")
-    ee(yacc$parse(yacc_pre %+% " size=4 + smooth Sepal.W Sepal.L", lex),
-        pre %+%
-        ", size=4) + ggplot2::geom_smooth(" %+%
+    ee(yacc$parse(yacc_pre, lex), pre %++% ")")
+    ee(yacc$parse(yacc_pre %++% " size=4", lex), pre %++% ", size=4)")
+    ee(yacc$parse(yacc_pre %++% " size=4 + smooth Sepal.W Sepal.L", lex),
+        pre %++%
+        ", size=4) + ggplot2::geom_smooth(" %++%
            "ggplot2::aes(x=Sepal.Width, y=Sepal.Length))")
-    ee(yacc$parse(yacc_pre %+% " size=4 + smooth colour=\"blue\"", lex),
-       pre %+% ", size=4) + ggplot2::geom_smooth(colour=\"blue\")")
-    ee(yacc$parse("gg iris + p Sepal.W Sepal.L c=\"blue\" " %+%
+    ee(yacc$parse(yacc_pre %++% " size=4 + smooth colour=\"blue\"", lex),
+       pre %++% ", size=4) + ggplot2::geom_smooth(colour=\"blue\")")
+    ee(yacc$parse("gg iris + p Sepal.W Sepal.L c=\"blue\" " %++%
         "si=4 + sm c=\"blue\"", lex),
-       pre %+% ", size=4) + ggplot2::geom_smooth(colour=\"blue\")")
+       pre %++% ", size=4) + ggplot2::geom_smooth(colour=\"blue\")")
 
     ee(yacc$parse("gg iris Sepal.W Sepal.L + geom_point + geom_smooth", lex),
-       "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + " %+%
+       "ggplot2::ggplot(iris, ggplot2::aes(Sepal.Width, Sepal.Length)) + " %++%
        "ggplot2::geom_point() + ggplot2::geom_smooth()")
 
     yacc$parse("gg iris  +  point Sepal.W Sepal.L col=Spec siz=Petal.W", lex)
-})
-
-test_that("ggplot2 tokenize theme", {
-    lex$input("gg mtcars + point cyl mpg + theme text colour=\"blue\"")
-    lex$token()
 })
 
 my_pattern <-

@@ -35,6 +35,7 @@ bash <- function(ggbash_symbols) {
 
 
 `%+%` <- function(left, right) paste0(left, right)
+`%++%` <- function(left, right) paste0(left, right)
 
 ee <- testthat::expect_equal
 en <- function(...) testthat::expect_error(..., regexp = NA)

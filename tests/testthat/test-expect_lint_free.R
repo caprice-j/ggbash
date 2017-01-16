@@ -4,6 +4,7 @@ if (requireNamespace("lintr", quietly = TRUE)) {
     test_that("Package Style", {
         # lintr execution is too slow
         # lintr::expect_lint_free()
+        ee(1, 1) # dummy
     })
 }
 # nolint end
