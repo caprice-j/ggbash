@@ -3,8 +3,8 @@ Type: Package
 Title: A Simpler Syntax for ggplot2
 Version: 0.4.2
 Authors@R: c(person('Yasutaka', 'Tanaka', , 'tnk.yasutaka@gmail.com', c('aut', 'cre')))
-Description: ggbash provides a bash-like REPL environment,
-    potentially saving your typing by more than 50%.
+Description: ggbash is a different and faster interface to write ggplot2 objects,
+    potentially saving 50% of your typing.
 License: MIT + file LICENSE
 Depends: R (>= 3.3.0)
 Imports: 
@@ -28,4 +28,4 @@ Collate:
     'ggbash.R'
     'prefix_match.R'
     'approx_match.R'
-    'ggplot2-compiler.R'
+    'compiler.R'
