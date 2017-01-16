@@ -1,3 +1,12 @@
+# ggbash 0.4.2
+
+## Bug Fixes
++ handling of `..density..` or `..prop..` (four dots variables)
++ handling of `binwidth = c(1, 1)`
++ handling of `group=1`
++ handling of internal `stat_bin_hex`
++ add tests for geom_crossbar, geom_freqpoly, etc.
+
 # ggbash 0.4.1
 
 ## Additional Features

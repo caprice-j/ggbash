@@ -313,8 +313,32 @@ test_that("geom_freqpoly", {
     # MAYBE-LATER ..density.. should be partial matched
 })
 
+# geom_hex COMPLETED 5/5
+
 test_that("geom_hex", {
-    # ggbash(gg(diamonds,x=carat,y=price) + hex()) # FIXME
+    bash(gg(diamonds,x=carat,y=price) + hex())
+    bash(gg(diamonds,x=carat,y=price) + hex(bins = 10))
+    bash(gg(diamonds,x=carat,y=price) + hex(bins=30))
+    ee(
+        bash(gg(diamonds,x=carat,y=price) + hex(binw = c(1, 1000))),
+        "ggplot(diamonds, aes(carat, price)) + geom_hex(binwidth=c(1,1000))"
+    )
+    bash(gg(diamonds,x=carat,y=price) + hex(binw = c(.1, 500)))
+})
+
+# geom_jitter COMPLETED 6/6
+
+test_that("geom_jitter", {
+    bash(gg(mpg, cyl, hwy) + point)
+    bash(gg(mpg, cyl, hwy) + jitter)
+    bash(gg(mpg, cyl, hwy) + geom_jitter(c=class))
+    bash(gg(mpg, cyl, hwy) + geom_jitter(wid=0.25))
+    bash(gg(mpg, cty, hwy) + geom_jitter())
+    bash(gg(mpg, cty, hwy) + geom_jit(wid=.5, height=.5))
+})
+
+test_that("geom_label", {
+    # ggbash(g(mtcars,wt,mpg,lab=rownames(mtcars))+text) # FIXME
 })
 
 test_that("geom_point", {

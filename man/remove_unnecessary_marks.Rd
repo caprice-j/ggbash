@@ -4,8 +4,7 @@
 \alias{remove_unnecessary_marks}
 \title{remove parentheses and marks}
 \usage{
-
-  remove_unnecessary_marks(input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))")
+remove_unnecessary_marks(input = "gg(m, x=f(cyl), m) + t(l=p0('l:', w))")
 }
 \arguments{
 \item{input}{A character}

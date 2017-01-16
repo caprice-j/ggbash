@@ -4,7 +4,7 @@ ggbash
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues) [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax. ggbash features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
+ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax. It features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user, from beginners to professionals.
 
@@ -45,7 +45,7 @@ gg iris + point Sepal.W Sepal.L col=Spec size=7 + theme lgnd.txt size=20 face="b
 If you prefer an extremely short code,
 
 ``` r
-g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
+g iris + p Sepal.W Sepal.L c=Sp s=7 + theme l.tx s=20 f="bold"
 ```
 
 will produce exactly the same plot, at the sacrifice of readability for beginners.
@@ -63,9 +63,10 @@ For the above ggbash input `gg iris + point Sepal.W Sepal.L c="red" sz=5`, ggbas
 
 -   **ggplot function**
     -   `gg` matches `ggplot2::ggplot()`.
+        -   You can also write `ggplot` or `g`.
 -   **geom names**
     -   `point` matches `geom_point`.
-        -   Note: you can also write `geom_point` (i.e. write `geom_` prefix explicitly).
+        -   You can also write `geom_point` (i.e. write `geom_` prefix explicitly).
 -   **column names**
     -   `Sepal.W` matches `iris$Sepal.Width`.
 
@@ -73,7 +74,7 @@ For the above ggbash input `gg iris + point Sepal.W Sepal.L c="red" sz=5`, ggbas
 
 -   **aesthetics names**
     -   `c` matches `colour`, which is the aesthetic of `geom_point`.
-    -   `sz` matches `size` by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
+    -   `sz` matches `size` among `size`, `shape`, and `stroke` by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
 
 <!-- * __theme element name__ -->
 Any of the following commands return exactly the same plot.
@@ -142,7 +143,7 @@ ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp, siz=4) | copy)
 #### `png` and `pdf`
 
 ``` r
-ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp) | png my_image)
+ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp) | png(my_image))
     saved in:
     'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
 ```
@@ -152,7 +153,9 @@ If you would like to get a scatterplot matrix,
 ``` r
 for( i in 1:ncol(iris) )
     for ( j in min(i+1, ncol(iris)):ncol(iris) )
-        ggbash(paste("gg iris + point ", colnames(iris)[i], colnames(iris)[j],
+        ggbash(paste("gg iris + point ",
+                     colnames(iris)[i],
+                     colnames(iris)[j],
                      " | png my_image"))
 ```
 
@@ -275,7 +278,7 @@ About a different way to generate scatterplot matrix,
   while `ggbash` uses `| png ` or `| pdf` pipe chains with auto-generated filenames.
 
 -->
-ggbash is influenced by some other higher level programming languages including Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
+`ggbash` draws inspiration from some other higher level programming languages including Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
 Current Implementation Status
 -----------------------------
@@ -288,7 +291,7 @@ ggbash is first released on December 29, 2016.
     -   version 0.3 : (no ggplot2 functions)
     -   version 0.4 : (no ggplot2 functions)
 -   TODO:
-    -   stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_...
+    -   stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_..., xlim, ylim
     -   sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 -   HOW:
     -   auto completion (R's `prompt()` does not have built-in completions)

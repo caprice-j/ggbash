@@ -1,7 +1,7 @@
 Package: ggbash
 Type: Package
 Title: A Simpler Syntax for ggplot2
-Version: 0.4.1
+Version: 0.4.2
 Authors@R: c(person('Yasutaka', 'Tanaka', , 'tnk.yasutaka@gmail.com', c('aut', 'cre')))
 Description: ggbash provides a bash-like REPL environment,
     potentially saving your typing by more than 50%.
@@ -16,7 +16,8 @@ Suggests:
     tidyverse,
     knitr,
     testthat, 
-    futile.logger (>= 1.4.3)
+    futile.logger (>= 1.4.3),
+    hexbin
 URL: https://github.com/caprice-j/ggbash
 BugReports: https://github.com/caprice-j/ggbash/issues
 Encoding: UTF-8

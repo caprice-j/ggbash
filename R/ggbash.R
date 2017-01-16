@@ -332,7 +332,7 @@ save_ggplot <- function(
 #'
 #' @export
 remove_unnecessary_marks <- function(
-    input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))"
+    input = "gg(m, x=f(cyl), m) + t(l=p0('l:', w))"
 ){
     # FIXME parentheses for no equal case
     replace_with_space <- function(input, i)
@@ -713,12 +713,22 @@ get_stat_params <- function(suffix="smooth") {
     return(stat_params)
 }
 
+#'
+#'
+#'
 get_layer_params <- function(suffix="bin2d") {
     # FIXME should read layer.R
     specials <- get_geom_params(suffix)
     stats <- get_stat_params(suffix)
     wrappers <- c("stat", "position", "group", "show.legend")
-    return(unique(c(specials, stats, wrappers)))
+
+    if (suffix == "hex") {
+        others <- names(ggplot2::stat_summary_hex()$stat_params)
+    } else {
+        others <- c()
+    }
+
+    return(unique(c(specials, stats, wrappers, others)))
 }
 
 #' convert given ggbash strings into ggplot2 aesthetic specifications

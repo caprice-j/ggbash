@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
 ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax.
-ggbash features a strong partial match, helpful error messages,
+It features a strong partial match, helpful error messages,
 and handy builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user,
@@ -79,7 +79,7 @@ gg iris + point Sepal.W Sepal.L col=Spec size=7 + theme lgnd.txt size=20 face="b
 If you prefer an extremely short code,
 
 ```{r, eval=FALSE}
-g iris + p Sepal.W Sepal.L c=Sp sz=7 + theme l.txt sz=20 f="bold"
+g iris + p Sepal.W Sepal.L c=Sp s=7 + theme l.tx s=20 f="bold"
 ```
 
 will produce exactly the same plot, at the sacrifice of readability for beginners.
@@ -102,10 +102,11 @@ ggbash performs partial matches six times.
 
 * __ggplot function__
     + `gg` matches `ggplot2::ggplot()`.
+        + You can also write `ggplot` or `g`.
 
 * __geom names__
     + `point` matches `geom_point`.
-        + Note: you can also write `geom_point` (i.e. write `geom_` prefix explicitly).
+        + You can also write `geom_point` (i.e. write `geom_` prefix explicitly).
 
 * __column names__
     + `Sepal.W` matches `iris$Sepal.Width`.
@@ -114,7 +115,8 @@ ggbash performs partial matches six times.
   
 * __aesthetics names__
     + `c` matches `colour`, which is the aesthetic of `geom_point`.
-    + `sz` matches `size` by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
+    + `sz` matches `size` among `size`, `shape`, and `stroke` 
+       by [fuzzy match](https://en.wikipedia.org/wiki/Approximate_string_matching).
     
 <!-- * __theme element name__ -->
 
@@ -193,7 +195,7 @@ ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp, siz=4) | copy)
 
 
 ```{r, eval=FALSE}
-ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp) | png my_image)
+ggbash(gg(iris) + p(Sepal.W, Sepal.L, col=Sp) | png(my_image))
     saved in:
     'currentDir/my_image/iris-150/x-Sepal.Width_y-Sepal.Length-colour-Species.960x960.png'
 ```
@@ -202,7 +204,9 @@ If you would like to get a scatterplot matrix,
 ```{r, eval=FALSE}
 for( i in 1:ncol(iris) )
     for ( j in min(i+1, ncol(iris)):ncol(iris) )
-        ggbash(paste("gg iris + point ", colnames(iris)[i], colnames(iris)[j],
+        ggbash(paste("gg iris + point ",
+                     colnames(iris)[i],
+                     colnames(iris)[j],
                      " | png my_image"))
 ```
 
@@ -353,7 +357,7 @@ About a different way to generate scatterplot matrix,
 
 -->
 
-ggbash is influenced by some other higher level programming
+`ggbash` draws inspiration from some other higher level programming
 languages including Bash, CoffeeScript, Ruby, and Lisp.
 Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
@@ -368,7 +372,7 @@ ggbash is first released on December 29, 2016.
     + version 0.4 : (no ggplot2 functions)
 
 + TODO:
-    + stat_..., scale_..., coord_..., facet_..., labs, position_...
+    + stat_..., scale_..., coord_..., facet_..., labs, position_..., xlim, ylim
     + sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 
 + HOW:
