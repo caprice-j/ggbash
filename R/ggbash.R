@@ -173,6 +173,13 @@ set_ggbash_dataset <- function(dataset_name="iris+point"){
     dataset_name <- gsub("\\+.*", "", dataset_name)
     dataset_name <- gsub(",", "", dataset_name)
 
+    if (dataset_name == ".") {
+        # piping from dplyr/tidyr
+        dataset <- data.frame( dummy = 1 )
+        attr(dataset, "ggbash_datasetname") <- dataset_name
+        return(dataset)
+    }
+
     if (! exists(dataset_name))
         stop("[E001] No such dataset: ", dataset_name)
     rect_data <- eval(as.symbol(dataset_name), envir = .GlobalEnv)
@@ -548,17 +555,26 @@ ggbash_ <- function(batch="", clipboard=NULL,
     )}
 }
 
-#' Tell ggbash to execute a given ggbash command
+#' execute a specified ggbash command
 #'
-#' \code{ggbash()} is used in the following three different ways:
+#' \code{ggbash()} can be used as follows:
 #' 1. ggbash("gg mtcars + point mpg cyl") : with a character argument
-#' 2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a pseudo-ggplot2 command
+#' 2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a short-ggplot2 command
 #' 3. ggbash() : with no argument (enter into an interactive ggbash session)
 #'
-#' While ggbash can interpret "with- and without- parentheses" and
-#' "with- and without- commas" commands in 1 and 3,
-#' 2. can only interpret the with-parentheses and with-commas case
+#' In 1 and 3 cases, parentheses and commas are optional,
+#' whereas 2. can only interpret commands with parentheses and commas
 #' because of R's default token constraints.
+#'
+#' ggbash features partial match for the following elements:
+#' 1. \code{ggplot()} function (any of ggplot(), gg() and g() works)
+#' 2. geom names (geom_point can be specified by \code{point} or even \code{p})
+#' 3. column names (prefix match only, no fuzzy match. When ambiguous,
+#'                  the column with the smallest column index is used)
+#' 4. aesthetics names (\code{size} by \code{sz},
+#'                      \code{color} by \code{col} or \code{c} )
+#' 5. theme element names (\code{legend.text} by \code{l.txt},
+#'                         \code{axis.title.x} by \code{a.ttl.x})
 #'
 #' @param ggbash_symbols Non-evaluated R symbols or
 #'                       a character representing ggbash commands.
@@ -570,14 +586,67 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #' @param as_string Return a string instead of a ggplot2 object.
 #'                  Default is FALSE.
 #'
+#' @examples
+#' \dontrun{
+#'
+#' # Case 1: with a character arugment
+#'
+#' ## parentheses and commas become optional
+#'
+#' ggbash("gg iris  + point Sepal.W  Sepal.L  color=Species ")
+#' ggbash("gg iris  + point Sepal.W, Sepal.L, color=Species ")
+#' ggbash("gg(iris) + point(Sepal.W, Sepal.L, color=Species)")
+#'
+#' ## all of the above work
+#'
+#'
+#' # Case 2: with a short-ggplot2 command
+#'
+#' ## sm: geom_smooth
+#' ggbash(gg(iris, Sepal.W, Sepal.L, c=Sp) + point + sm(method="lm", se=FALSE)
+#'        + theme(a.txt(sz=25, face="bold"), l.pos("bottom")) )
+#'
+#' ## if you prefer more ggplot2-compliant syntax
+#' ggbash(ggplot(iris, Sepal.Width, Sepal.Length, colour = Species) +
+#'        geom_point() + geom_smooth(method = "lm", se = FALSE) +
+#'        theme(axis.text(size=25, face="bold"), legend.position("bottom")) )
+#'
+#' ## or if you prefer an extreme short syntax
+#' ggbash(g(iris, Sepal.W, S, c=Sp) + p + sm(mth="lm", se=FALSE)
+#'        + theme(a.tx(s=25, f="bold"), l.pos("bottom")))
+#'
+#' ## S ambiguously matches to Sepal.Length, Sepal.Width, Species.
+#' ## Since the Sepal.Length has the smallest column index, it's selected
+#'
+#'
+#' # Case 3: ggbash() with no argument
+#'
+#' ggbash() # ggbash() enters into an interactive ggbash session
+#'
+#' }
 #'
 #' @export
 ggbash <- function(ggbash_symbols="", clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE) {
-    is_string <- tryCatch(class(ggbash_symbols) == "character",
-                            error = function(err) {FALSE})
-    if (is_string) {
+    type <- tryCatch(class(ggbash_symbols),
+                     error = function(err) {FALSE})
+    if (type[1] == "character") {
         cmd <- ggbash_symbols
+    } else if (type[1] %in% c("data.frame", "tbl_df", "tibble")) {
+        # piping from dplyr/tidyr
+        type <- tryCatch(class(clipboard),
+                         error = function(err) {FALSE})
+        if (type == "character")
+            cmd <- clipboard
+        else {
+            raw_cmd <- deparse(substitute(clipboard),
+                               width.cutoff = 500) # arbitrary large
+            cmd <- raw_cmd
+        }
+        ggbashenv$dataset <- ggbash_symbols
+        ggbashenv$colv <- colnames(ggbash_symbols)
+        clipboard <- NULL
+        print(cmd)
     } else {
         raw_cmd <- deparse(substitute(ggbash_symbols),
                            width.cutoff = 500) # arbitrary large
@@ -726,9 +795,17 @@ get_layer_params <- function(suffix="bin2d") {
 
     if (suffix == "hex") {
         others <- names(ggplot2::stat_summary_hex()$stat_params)
+    } else if (suffix %in% c("jitter", "crossbar")) {
+        others <- c("width", "height")
+    } else if (suffix == "violin") {
+        # FIXME this is not good ... when violin uses non-ydensity stat
+        others <- names(ggplot2::stat_ydensity()$stat_params)
+    } else if (suffix == "freqpoly") {
+        others <- c("binwidth")
     } else {
         others <- c()
     }
+
 
     return(unique(c(specials, stats, wrappers, others)))
 }

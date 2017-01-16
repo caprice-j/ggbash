@@ -7,6 +7,27 @@ assign("faithfuld", ggplot2::faithfuld, envir = .GlobalEnv)
 assign("mtcars2",
        transform(mtcars, mpg = ifelse(runif(32) < .2, NA, mpg)),
        envir = .GlobalEnv)
+assign("economics", ggplot2::economics, envir = .GlobalEnv)
+assign("economics_long", ggplot2::economics_long, envir = .GlobalEnv)
+
+
+ids <- factor(c("1.1", "2.1", "1.2", "2.2", "1.3", "2.3"))
+
+assign("values",
+        data.frame(id = ids,
+                   value = c(3, 3.1, 3.1, 3.2, 3.15, 3.5)),
+       envir = .GlobalEnv)
+
+assign("positions",
+       data.frame(
+           id = rep(ids, each = 4),
+           x = c(2, 1, 1.1, 2.2, 1, 0, 0.3, 1.1, 2.2, 1.1, 1.2, 2.5, 1.1, 0.3,
+                 0.5, 1.2, 2.5, 1.2, 1.3, 2.7, 1.2, 0.5, 0.6, 1.3),
+           y = c(-0.5, 0, 1, 0.5, 0, 0.5, 1.5, 1, 0.5, 1, 2.1, 1.7, 1, 1.5,
+                 2.2, 2.1, 1.7, 2.1, 3.2, 2.8, 2.1, 2.2, 3.3, 3.2)
+       ),
+       envir = .GlobalEnv
+       )
 
 test_that("geom_abline", {
     gbash("gg mtcars wt mpg + point + vline xintercept = 5")
@@ -351,6 +372,34 @@ test_that("geom_label", {
     ee(1, 1)
 })
 
+test_that("geom_map", {
+    ee(1, 1)
+})
+
+test_that("geom_path", {
+    bash(gg(economics, date, unemploy) + line)
+    bash(gg(economics_long, date, value01, c=variable) + line)
+    assign("recent",
+           economics[economics$date > as.Date("2013-01-01"), ],
+           envir = .GlobalEnv)
+    bash(gg(recent, date, unemploy) + line)
+    ee(bash(gg(recent, date, unemploy) + step),
+       "ggplot(recent, aes(date, unemploy)) + geom_step()"
+       )
+    # ggbash(gg(economics, unemploy/pop, psavert) + path) # FIXME
+    #
+    bash(gg(economics, date, unemploy) + geom_line(c="red"))
+
+    # ggbash(gg(economics, date, pop) + line(arrow=arrow()))
+    #
+    #
+    #
+    #
+
+})
+
+# geom_point COMPLETED
+
 test_that("geom_point", {
     gbash("gg mtcars wt mpg + point")
     bash(gg(mtcars,wt,mpg) + point(colour=factor(cyl)))
@@ -359,7 +408,7 @@ test_that("geom_point", {
     gbash(g(mtcars, wt, mpg) + p(sz=qse))
     #bash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue") # worked
 
-    ggbash(gg(mtcars, wt, mpg) + point(sh=factor(cyl))) + scale_shape(solid = FALSE)
+    # bash(gg(mtcars, wt, mpg) + point(sh=factor(cyl))) + scale_shape(solid = FALSE) # worked
 
     gbash("gg mtcars wt mpg + point colour='red' size=3")
 
@@ -377,24 +426,97 @@ test_that("geom_point", {
            "geom_point(colour=\"gray90\", size=1.5)"
        )
 
-    gbash(gg(mtcars, mpg, wt) + point(shape=factor(cyl)))
-    gbash(gg(mtcars, mpg, wt, sh=factor(cyl)) + p(c=factor(cyl), sz=4) + p(c="gray90", sz=1.5) )
-
-    gbash(gg(mtcars, mpg, wt) + p (sh=factor(cyl)) + p(c="black", sz= 4.5))
-    # p + geom_point(colour = "black", size = 4.5) +
-    #     geom_point(colour = "pink", size = 4) +
-    #     geom_point(aes(shape = factor(cyl)))
-
     gbash(gg(mtcars, mpg, wt)
            + point(col = "black", sz=4.5, legend=TRUE)
            + point(col = "pink",  sz=4,   legend=TRUE)
            + point(shp = factor(cyl)))
 
-    ggbash("gg mtcars wt mpg + point")
+    bash("gg mtcars wt mpg + point")
 
-    ggbash(gg(mtcars2, wt, mpg) + p)
-    ggbash(gg(mtcars2, wt, mpg) + p(na.rm=TRUE))
+    bash(gg(mtcars2, wt, mpg) + p)
+    bash(gg(mtcars2, wt, mpg) + p(na.rm=TRUE))
 })
 
 
+# GEOM_POLYGON COMPLETED 2/2
+test_that("geom_polygon", {
+    assign("datapoly",
+           merge(values, positions, by=c("id")),
+           envir = .GlobalEnv)
+    ee(bash(gg(datapoly, x, y) + polygon(fill=value, group=id)),
+       "ggplot(datapoly, aes(x, y)) + geom_polygon(aes(fill=value, group=id))")
+
+    assign("stream",
+           data.frame(
+               x = cumsum(runif(50, max = 0.1)),
+               y = cumsum(runif(50,max = 0.1))
+           ),
+           envir = .GlobalEnv)
+    ee(bash(gg(datapoly, x, y) + polygon(fill=value, group=id)
+            + geom_line(data=stream, c="grey30", sz=5)),
+        "ggplot(datapoly, aes(x, y)) + geom_polygon(aes(fill=value, group=id)) + geom_line(data=stream, colour=\"grey30\", size=5)"
+    )
+})
+
+test_that("geom_quantile", {ee(1, 1)})
+test_that("geom_raster", {ee(1, 1)})
+test_that("geom_ribbon", {ee(1, 1)})
+test_that("geom_rug", {ee(1, 1)})
+test_that("geom_segment", {ee(1, 1)})
+test_that("geom_smooth", {
+    bash(gg(mpg, displ, hwy) + point + smooth)
+    bash(gg(mpg, displ, hwy) + point + geom_smooth(span=.3))
+    bash(gg(mpg, displ, hwy) + point
+           + geom_smooth(method="lm", se=FALSE))
+
+    # ggplot(mpg, aes(displ, hwy)) +
+    #     geom_point() +
+    #     geom_smooth(method = "lm", formula = y ~ splines::bs(x, 3), se = FALSE)
+    #
+
+    ee(
+        bash(gg(mpg, displ, hwy, c=class) + point
+             + geom_smooth(se = FALSE, method = "lm")),
+        "ggplot(mpg, aes(displ, hwy, colour=class)) + geom_point() + geom_smooth(se=FALSE, method=\"lm\")"
+    )
+
+    # facet
+
+    # binomial smooth
+})
+
+test_that("geom_violin", {
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin) # need x=
+
+    ee(
+        bash(gg(mtcars, x=factor(cyl), mpg)
+             + violin + geom_jitter(height=0)),
+        "ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin() + geom_jitter(height=0)"
+    )
+
+    # coord flip
+
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(scale="count"))
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(scale="width"))
+    # bash(gg(mtcars, x=factor(cyl), mpg) + violin(trim=FALSE))
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(adjust = .5))
+
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(fill=cyl))
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(fill=factor(cyl)))
+
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(fill=factor(vs)))
+    bash(gg(mtcars, x=factor(cyl), mpg) + violin(fill=factor(am)))
+
+    ee(
+        bash(gg(mtcars, x=factor(cyl), mpg) + violin(fill="grey80", colour="#3366FF")),
+        "ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin(fill=\"grey80\", colour=\"#3366FF\")"
+    )
+
+    ee(
+        bash(gg(mtcars, x=factor(cyl), mpg) + violin(draw_quantiles = c(.25, .5, .75))),
+        "ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin(draw_quantiles=c(0.25,0.5,0.75))"
+    )
+
+    # complex one here
+})
 # nolint end

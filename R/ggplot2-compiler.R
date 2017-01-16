@@ -47,7 +47,7 @@ Ggplot2Lexer <-
             #states = list(c('ggplot')),
             # Note: t_(function) defines precedences implicitly
             t_GGPLOT = function(
-            re = "^(g|gg|ggp|ggpl|ggplo|ggplot)\\s+[a-zA-Z_][a-zA-Z_0-9\\.]*",
+            re = "^(g|gg|ggp|ggpl|ggplo|ggplot)\\s+[a-zA-Z_\\.][a-zA-Z_0-9\\.]*",
             t) {
                 t$value <- gsub("^g(g|gp|gpl|gplo|gplot)?\\s*",
                                 "ggplot2::ggplot(",
@@ -160,9 +160,11 @@ Ggplot2Parser <-
 
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
-                ggbashenv$dataset <-
-                    eval(as.symbol(ggbashenv$dataset_name),
-                         envir = .GlobalEnv)
+
+                if (ggbashenv$dataset_name != ".")
+                    ggbashenv$dataset <-
+                        eval(as.symbol(ggbashenv$dataset_name),
+                             envir = .GlobalEnv)
                 ggbashenv$geom <- ""
 
                 if (p$length() == 2) {
@@ -183,11 +185,17 @@ Ggplot2Parser <-
                 dbgmsg("p_gg_init: ", p$get(2))
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
-                ggbashenv$dataset <- tryCatch( {
+                if (ggbashenv$dataset_name == ".") {
+                    # ggbashenv$dataset is already set
+                } else {
+                    ggbashenv$dataset <- tryCatch( {
 
                         eval(as.symbol(ggbashenv$dataset_name),
                              envir = .GlobalEnv)
-                }, error = function(err) {"error"} )
+                    }, error = function(err) {"error"} )
+                    ggbashenv$colv <- colnames(ggbashenv$dataset)
+                }
+
 
                 if (class(ggbashenv$dataset)[1] == "character") {
                     errinfo <-
@@ -299,7 +307,7 @@ Ggplot2Parser <-
                 single_quote <- "'"
                 double_quote <- '"'
 
-                colnamev <- colnames(ggbashenv$dataset)
+                colnamev <- ggbashenv$colv
 
                 must_aesv <- get_required_aes(ggbashenv$geom)
                 all_aesv <- get_possible_aes(ggbashenv$geom)
@@ -352,16 +360,7 @@ Ggplot2Parser <-
                 layer_params <- get_layer_params(ggbashenv$geom)
                 all_rawv <- c(all_aesv, layer_params)
                 all_rawv <- unique(all_rawv)
-                colnamev <- colnames(ggbashenv$dataset)
-
-                # FIXME adhoc
-                if (ggbashenv$geom %in%
-                    c("jitter", "crossbar"))
-                    all_rawv <- c(all_rawv, "width", "height")
-
-                if (ggbashenv$geom == "freqpoly") {
-                    all_rawv <- c(all_rawv, "binwidth")
-                }
+                colnamev <- ggbashenv$colv
 
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv, colnamev,
                                                 ggbashenv$show_amb_warn)
@@ -392,7 +391,7 @@ Ggplot2Parser <-
                                                 | NAME aes_func", p) {
                 dbgmsg("p_aes_func: ", p$get(2))
 
-                colnamev <- colnames(ggbashenv$dataset)
+                colnamev <- ggbashenv$colv
 
                 geom_tmp <- "point" # FIXME more general
                 # FIXME defaultZproblem - z should not be removed
@@ -632,7 +631,7 @@ show_fixit_diagnostics <- function(
         m2("The supplied string is \"", err$raw, "\", but")
         m3("maybe: ", paste0(similarv, collapse = ", "))
     } else if (err$id == "p_layer_aes:column_prefix") {
-        colv <- colnames(ggbashenv$dataset)
+        colv <- ggbashenv$colv
         similarv <- get_analogue(err$input, colv)$name
 
         m1("The column name \"", err$input, "\" does not exist.")

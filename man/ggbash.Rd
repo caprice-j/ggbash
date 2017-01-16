@@ -2,7 +2,7 @@
 % Please edit documentation in R/ggbash.R
 \name{ggbash}
 \alias{ggbash}
-\title{Tell ggbash to execute a given ggbash command}
+\title{execute a specified ggbash command}
 \usage{
 ggbash(ggbash_symbols = "", clipboard = NULL, show_warn = TRUE,
   as_string = FALSE)
@@ -22,15 +22,64 @@ If non-null, copy the resulted string to clipboard.}
 Default is FALSE.}
 }
 \description{
-\code{ggbash()} is used in the following three different ways:
+\code{ggbash()} can be used as follows:
 1. ggbash("gg mtcars + point mpg cyl") : with a character argument
-2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a pseudo-ggplot2 command
+2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a short-ggplot2 command
 3. ggbash() : with no argument (enter into an interactive ggbash session)
 }
 \details{
-While ggbash can interpret "with- and without- parentheses" and
-"with- and without- commas" commands in 1 and 3,
-2. can only interpret the with-parentheses and with-commas case
+In 1 and 3 cases, parentheses and commas are optional,
+whereas 2. can only interpret commands with parentheses and commas
 because of R's default token constraints.
+
+ggbash features partial match for the following elements:
+1. \code{ggplot()} function (any of ggplot(), gg() and g() works)
+2. geom names (geom_point can be specified by \code{point} or even \code{p})
+3. column names (prefix match only, no fuzzy match. When ambiguous,
+                 the column with the smallest column index is used)
+4. aesthetics names (\code{size} by \code{sz},
+                     \code{color} by \code{col} or \code{c} )
+5. theme element names (\code{legend.text} by \code{l.txt},
+                        \code{axis.title.x} by \code{a.ttl.x})
+}
+\examples{
+\dontrun{
+
+# Case 1: with a character arugment
+
+## parentheses and commas become optional
+
+ggbash("gg iris  + point Sepal.W  Sepal.L  color=Species ")
+ggbash("gg iris  + point Sepal.W, Sepal.L, color=Species ")
+ggbash("gg(iris) + point(Sepal.W, Sepal.L, color=Species)")
+
+## all of the above work
+
+
+# Case 2: with a short-ggplot2 command
+
+## sm: geom_smooth
+ggbash(gg(iris, Sepal.W, Sepal.L, c=Sp) + point + sm(method="lm", se=FALSE)
+       + theme(a.txt(sz=25, face="bold"), l.pos("bottom")) )
+
+## if you prefer more ggplot2-compliant syntax
+ggbash(ggplot(iris, Sepal.Width, Sepal.Length, colour = Species) +
+       geom_point() + geom_smooth(method = "lm", se = FALSE) +
+       theme(axis.text(size=25, face="bold"), legend.position("bottom")) )
+
+## or if you prefer an extreme short syntax
+ggbash(g(iris, Sepal.W, S, c=Sp) + p + sm(mth="lm", se=FALSE)
+       + theme(a.tx(s=25, f="bold"), l.pos("bottom")))
+
+## S ambiguously matches to Sepal.Length, Sepal.Width, Species.
+## Since the Sepal.Length has the smallest column index, it's selected
+
+
+# Case 3: ggbash() with no argument
+
+ggbash() # ggbash() enters into an interactive ggbash session
+
+}
+
 }
 
