@@ -7,6 +7,9 @@
 
   remove_unnecessary_marks(input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))")
 }
+\arguments{
+\item{input}{A character}
+}
 \description{
 ggbash have to handle two types of parentheses and tyo types of commas.
 One is unnecessary and the other is necessary for correct parsing.

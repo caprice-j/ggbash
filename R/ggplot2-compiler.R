@@ -342,9 +342,14 @@ Ggplot2Parser <-
                 all_rawv <- unique(all_rawv)
                 colnamev <- colnames(ggbashenv$dataset)
 
+                # FIXME adhoc
                 if (ggbashenv$geom %in%
-                    c("jitter", "crossbar")) # FIXME adhoc
+                    c("jitter", "crossbar"))
                     all_rawv <- c(all_rawv, "width", "height")
+
+                if (ggbashenv$geom == "freqpoly") {
+                    all_rawv <- c(all_rawv, "binwidth")
+                }
 
                 raw_aes <- parse_ggbash_non_aes(p$get(2), all_rawv, colnamev,
                                                 ggbashenv$show_amb_warn)

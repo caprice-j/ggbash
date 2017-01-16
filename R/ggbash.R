@@ -328,13 +328,13 @@ save_ggplot <- function(
 #' This is because while ggbash does not rely on commas and parens for
 #' parsing, R relies on them.
 #'
-#' @input A character
+#' @param input A character
 #'
 #' @export
 remove_unnecessary_marks <- function(
-    # FIXME parentheses for no equal case
     input = "gg(m, x=factor(cyl), mpg) + t(l=paste0('label:', wt))"
 ){
+    # FIXME parentheses for no equal case
     replace_with_space <- function(input, i)
         paste0(substr(input, 1, i - 1), " ",
                substr(input, i + 1, nchar(input)))

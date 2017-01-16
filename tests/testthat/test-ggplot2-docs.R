@@ -241,6 +241,8 @@ test_that("geom_density", {
 
 # "geom_density2d" xlim
 
+# GEOM_DOTPLOT COMPLETED
+
 test_that("geom_dotplot", {
 
     bash(gg(mtcars, x=mpg) + dot)
@@ -249,25 +251,79 @@ test_that("geom_dotplot", {
     bash(gg(mtcars, x=mpg) + dot(stackdir="center", binwdith=1.5))
     bash(gg(mtcars, x=mpg) + dot(stackdi="centerwhole", binw=1.5))
     # y axis isn't really meaningful, so hide it
-#    ggplot(mtcars, aes(x = mpg)) + geom_dotplot(binwidth = 1.5) +
-#        scale_y_continuous(NULL, breaks = NULL)
+    #ggbash(gg(mtcars, x = mpg) + dot(binwidth=1.5)) +
+    #    scale_y_continuous(NULL, breaks = NULL)
+    # worked
     bash(gg(mtcars, x=mpg) + dot(binwdith=1.5, stackratio = .7))
     bash(gg(mtcars, x=mpg) + dot(binwdith=1.5, dotsize = 1.25))
-    ggbash(gg(mtcars, x=1, y=mpg) + dot(binaxis="y", stackdir="center"))
-    # ggbash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="center"))
-    # ggbash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="centerwhole"))
+    bash(gg(mtcars, x=1, y=mpg) + dot(binaxis="y", stackdir="center"))
+    bash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="center"))
+    bash(gg(mtcars, x=factor(cyl), y=mpg) + dot(binaxis="y", stackdir="centerwhole"))
 
-    # ...
+ee(
+    bash(gg(mtcars,x=factor(vs),fill=factor(cyl),y=mpg)
+         + dot(binax="y", stackdir = "center", pos = "dodge")),
+    "ggplot(mtcars, aes(factor(vs), fill=factor(cyl), mpg)) + geom_dotplot(binaxis=\"y\", stackdir=\"center\", position=\"dodge\")"
+)
+
+    bash(gg(mtcars, x=f(am), y=mpg) + dot(binaxis="y", stackdir="center", binpositions="all"))
+
+    ee(
+        bash(gg(mtcars, x=mpg, fill=factor(cyl))
+             + dot(stackgroups = TRUE, binwidth = 1,
+                   inpositions = "all")),
+        "ggplot(mtcars, aes(mpg, fill=factor(cyl))) + geom_dotplot(stackgroups=TRUE, binwidth=1, binpositions=\"all\")"
+    )
+
+    ee(
+        bash(gg(mtcars, x=mpg, fill=factor(cyl))
+             + dot(stackg=TRUE, binw=1, method="histodot")),
+        "ggplot(mtcars, aes(mpg, fill=factor(cyl))) + geom_dotplot(stackgroups=TRUE, binwidth=1, method=\"histodot\")"
+    )
+
+    bash(gg(mtcars,x=1,y=mpg,fill=factor(cyl))
+         + dotplot(binax="y", stackg=TRUE, binw=1, method="histodot"))
 })
 
+test_that("geom_errorbarh", {
+    assign("errorbarh_df",
+           data.frame(
+               trt = factor(c(1, 1, 2, 2)),
+               resp = c(1, 5, 3, 4),
+               group = factor(c(1, 2, 1, 2)),
+               se = c(0.1, 0.3, 0.3, 0.2)
+           ),
+           envir =.GlobalEnv)
+
+    # FIXME
+    # ggbash(gg(errorbarh_df, resp, trt, col=group)
+    #       + p + errorbarh(xmax=resp+se, xmin=resp-se) )
+
+})
+
+# GEOM_FREQPOLY COMPLETED 6/6
+
+test_that("geom_freqpoly", {
+    bash(gg(diamonds, carat) + hist)
+    bash(gg(diamonds, carat) + hist(binw=.01))
+    bash(gg(diamonds, carat) + hist(bins=200))
+    bash(gg(diamonds, price, fill=cut) + hist(binw=500))
+    bash(gg(diamonds, price, col=cut) + freqpoly(binwidth=500))
+    bash(gg(diamonds, price, ..density.., col=cut) + freqpoly(binwidth=500))
+    # MAYBE-LATER ..density.. should be partial matched
+})
+
+test_that("geom_hex", {
+    # ggbash(gg(diamonds,x=carat,y=price) + hex()) # FIXME
+})
 
 test_that("geom_point", {
     gbash("gg mtcars wt mpg + point")
-    # gbash("gg mtcars wt mpg + point colour=factor(cyl)")
+    bash(gg(mtcars,wt,mpg) + point(colour=factor(cyl)))
     gbash(g(mtcars, wt, mpg) + p(c=factor(cyl)))
     gbash(g(mtcars, wt, mpg) + p(sh=factor(cyl)))
     gbash(g(mtcars, wt, mpg) + p(sz=qse))
-    ggbash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue")
+    #bash(gg(mtcars, wt, mpg) + point(colour=cyl)) + scale_color_gradient(low = "blue") # worked
 
     ggbash(gg(mtcars, wt, mpg) + point(sh=factor(cyl))) + scale_shape(solid = FALSE)
 
