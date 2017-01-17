@@ -239,9 +239,9 @@ The goal of ggbash is to make ggplot2 more comfortable to write. It can be categ
 
 1.  **Better EDA experience.** Provide blazingly fast way to do exploratory data anslysis.
 
-    -   less typing by Prefix Match and Precedence.
+    -   less typing by Partial Match.
 
-    -   casualy save plots with Pipe Operators and Auto-generated Filenames.
+    -   casually save plots with Pipe Operators and Auto-generated Filenames.
 
 2.  **Intuitive finalization (to be implemented).** Make it more intuitive to finalize your plots.
 
@@ -251,14 +251,13 @@ The goal of ggbash is to make ggplot2 more comfortable to write. It can be categ
 
     -   decide tick label intervals and limits
 
-    -   generate line-wrapped titles or legends
-
+<!--    + generate line-wrapped titles or legends -->
 Learning ggbash
 ---------------
 
-`ggbash` follows ggplot2 notations as much as possible for reducing learning costs of current ggplot2 users.
+`ggbash` follows original ggplot2 syntax as much as possible for reducing learning costs of current ggplot2 users.
 
-Learning ggplot2 might be the best way to understand ggbash notations. The [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) of ggplot2 would be helpful.
+Learning ggplot2 might be the best way to understand ggbash syntax. The [document](http://docs.ggplot2.org/current/) and [book](https://github.com/hadley/ggplot2-book) of ggplot2 would be helpful.
 
 The [vignette](https://github.com/caprice-j/ggbash/blob/master/vignettes/Introduction-to-ggbash.Rmd) of ggbash is still in a draft.
 
@@ -295,7 +294,7 @@ ggbash is first released on December 29, 2016.
     -   sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 -   HOW:
     -   auto completion (R's `prompt()` does not have built-in completions)
-    -   interfaces to dplyr/tidyr
+    -   interfaces to dplyr/tidyr (how to handle dot operator `.`)
 
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 <!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/README-with-rstudio.gif) -->

@@ -310,9 +310,9 @@ It can be categorized into two subgoals:
 1. **Better EDA experience.**
 Provide blazingly fast way to do exploratory data anslysis.
 
-    + less typing by Prefix Match and Precedence.
+    + less typing by Partial Match.
 
-    + casualy save plots with Pipe Operators and Auto-generated Filenames.
+    + casually save plots with Pipe Operators and Auto-generated Filenames.
 
 2. **Intuitive finalization (to be implemented).**
 Make it more intuitive to finalize your plots.
@@ -323,14 +323,14 @@ Make it more intuitive to finalize your plots.
 
     + decide tick label intervals and limits
 
-    + generate line-wrapped titles or legends
+<!--    + generate line-wrapped titles or legends -->
 
 ## Learning ggbash
 
-`ggbash` follows ggplot2 notations
+`ggbash` follows original ggplot2 syntax
 as much as possible for reducing learning costs of current ggplot2 users.
 
-Learning ggplot2 might be the best way to understand ggbash notations.
+Learning ggplot2 might be the best way to understand ggbash syntax.
 The [document](http://docs.ggplot2.org/current/) and
 [book](https://github.com/hadley/ggplot2-book) of ggplot2 
 would be helpful.
@@ -377,7 +377,7 @@ ggbash is first released on December 29, 2016.
 
 + HOW:
     + auto completion (R's `prompt()` does not have built-in completions)
-    + interfaces to dplyr/tidyr
+    + interfaces to dplyr/tidyr (how to handle dot operator `.`)
 
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 
