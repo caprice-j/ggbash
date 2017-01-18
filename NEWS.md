@@ -1,3 +1,13 @@
+# ggbash 0.4.3
+
+## Enhancements
+
++ handling of magritrr `%>%` operator
+    - turned out to be harder than expected.
+      ggplot2-compiler cannot recognize what `.` operator means,
+      so the contents of `.` have to be properly set in temporary
+      variable (`ggbash_piped`) in ggbash() and exec_ggbash().
+
 # ggbash 0.4.2
 
 ## Bug Fixes
