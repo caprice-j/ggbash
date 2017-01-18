@@ -339,6 +339,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
     const <- define_ggbash_constants()
     commandv <- split_by_pipe(raw_input)
     ggobj <- ""
+
     for (cmd in commandv) {
         argv <- split_by_space(cmd)
         if (grepl(paste0("^", argv[1]), "ggplot2")) {
@@ -361,13 +362,13 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
             if (ggobj != "")
                 print(eval(parse(text = ggobj_verbose)))
             message(ifelse(ggobj != "",
-                           gsub("\\) \\+", "\\)\n +", ggobj),
+                           rm_piped_dataset(gsub("\\) \\+", "\\)\n +", ggobj)),
                            argv[2]))
             return(FALSE)
         } else if (argv[1] %in% const$builtinv) {
             execute_ggbash_builtins(raw_input, argv, const)
         } else if (argv[1] %in% c("copy", "cp")) {
-            copy_to_clipboard(ggobj)
+            copy_to_clipboard(rm_piped_dataset(ggobj))
         } else if (argv[1] %in% const$savev) {
             dataset_str <- paste0(attr(dataset, "ggbash_datasetname"),
                                   "-", nrow(dataset))
@@ -389,6 +390,12 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
     }
 
     built_ggplot2_obj <- eval(parse(text = ggobj_verbose))
+
+    if (exists("ggbash_piped")) {
+        # ggbash_piped should be internal state (not exposed to users)
+        ggobj <- rm_piped_dataset(ggobj)
+        rm(ggbash_piped, envir = .GlobalEnv)
+    }
 
     if (batch_mode) {
         if (as_string)
@@ -469,24 +476,30 @@ ggbash_ <- function(batch="", clipboard=NULL,
     )}
 }
 
+rm_piped_dataset <- function(str) gsub("^\\s*ggplot\\((.*?)\\)", "ggplot()", str)
+add_piped_dataset <- function(str)
+    gsub("^\\s*(g|gg|ggp|ggpl|ggplo|ggplot)\\((.*?)\\)",
+         "ggplot(ggbash_piped)", str)
+
 #' execute a specified ggbash command
 #'
 #' \code{ggbash()} can be used as follows:
-#' 1. ggbash("gg mtcars + point mpg cyl") : with a character argument
-#' 2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a short-ggplot2 command
-#' 3. ggbash() : with no argument (enter into an interactive ggbash session)
+#' 1. ggbash() : with no argument (enter into an interactive ggbash session)
+#' 2. ggbash("gg mtcars +  point mpg cyl") : with a character argument
+#' 3. ggbash( gg(mtcars) + point(mpg,cyl)) : with ggbash commands and a dataset
+#' 4. mtcars %>% ggbash(gg() + point(mpg,cyl)) : dataset piped from dplyr/tidyr
 #'
-#' In 1 and 3 cases, parentheses and commas are optional,
-#' whereas 2. can only interpret commands with parentheses and commas
+#' In 1 and 2 cases, parentheses and commas are optional in ggbash commands,
+#' whereas 3 and 4 can only interpret commands with parentheses and commas
 #' because of R's default token constraints.
 #'
 #' ggbash features partial match for the following elements:
 #' 1. \code{ggplot()} function (any of ggplot(), gg() and g() works)
 #' 2. geom names (geom_point can be specified by \code{point} or even \code{p})
-#' 3. column names (prefix match only, no fuzzy match. When ambiguous,
-#'                  the column with the smallest column index is used)
-#' 4. aesthetics names (\code{size} by \code{sz},
+#' 3. aesthetics names (\code{size} by \code{sz},
 #'                      \code{color} by \code{col} or \code{c} )
+#' 4. column names (prefix match only, no fuzzy match. When ambiguous,
+#'                  the column with the smallest column index is used)
 #' 5. theme element names (\code{legend.text} by \code{l.txt},
 #'                         \code{axis.title.x} by \code{a.ttl.x})
 #'
@@ -503,7 +516,11 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #' @examples
 #' \dontrun{
 #'
-#' # Case 1: with a character arugment
+#' # Case 1: ggbash() with no argument
+#'
+#' ggbash() # ggbash() enters into an interactive ggbash session
+#'
+#' # Case 2: with a character arugment
 #'
 #' ## parentheses and commas become optional
 #'
@@ -514,7 +531,7 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #' ## all of the above work
 #'
 #'
-#' # Case 2: with a short-ggplot2 command
+#' # Case 3: with a short-ggplot2 command
 #'
 #' ## sm: geom_smooth
 #' ggbash(gg(iris, Sepal.W, Sepal.L, c=Sp) + point + sm(method="lm", se=FALSE)
@@ -533,9 +550,12 @@ ggbash_ <- function(batch="", clipboard=NULL,
 #' ## Since the Sepal.Length has the smallest column index, it's selected
 #'
 #'
-#' # Case 3: ggbash() with no argument
+#' # Case 4: dataset piped from dplyr/tidyr
 #'
-#' ggbash() # ggbash() enters into an interactive ggbash session
+#' iris %>%
+#'     mutate(my_long_descriptive_column_name = Sepal.Width,
+#'            other_useful_informative_name = Sepal.Length) %>%
+#'     ggbash(gg() + point(my, other))
 #'
 #' }
 #'
@@ -557,11 +577,12 @@ ggbash <- function(ggbash_symbols="", clipboard=NULL,
                                width.cutoff = 500) # arbitrary large
             cmd <- raw_cmd
         }
-        ggbashenv$dataset <- ggbash_symbols
-        ggbashenv$colv <- colnames(ggbash_symbols)
+        ggbashenv$dataset_name <- "ggbash_piped"
+        assign("ggbash_piped", ggbash_symbols, envir = .GlobalEnv)
         clipboard <- NULL
-        print(cmd)
+        cmd <- add_piped_dataset(cmd)
     } else {
+        # Non-Standard Evaluation
         raw_cmd <- deparse(substitute(ggbash_symbols),
                            width.cutoff = 500) # arbitrary large
         cmd <- raw_cmd

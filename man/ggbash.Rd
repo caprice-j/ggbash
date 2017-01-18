@@ -23,29 +23,34 @@ Default is FALSE.}
 }
 \description{
 \code{ggbash()} can be used as follows:
-1. ggbash("gg mtcars + point mpg cyl") : with a character argument
-2. ggbash(gg(mtcars) + point(mpg,cyl)) : with a short-ggplot2 command
-3. ggbash() : with no argument (enter into an interactive ggbash session)
+1. ggbash() : with no argument (enter into an interactive ggbash session)
+2. ggbash("gg mtcars +  point mpg cyl") : with a character argument
+3. ggbash( gg(mtcars) + point(mpg,cyl)) : with ggbash commands and a dataset
+4. mtcars %>% ggbash(gg() + point(mpg,cyl)) : dataset piped from dplyr/tidyr
 }
 \details{
-In 1 and 3 cases, parentheses and commas are optional,
-whereas 2. can only interpret commands with parentheses and commas
+In 1 and 2 cases, parentheses and commas are optional in ggbash commands,
+whereas 3 and 4 can only interpret commands with parentheses and commas
 because of R's default token constraints.
 
 ggbash features partial match for the following elements:
 1. \code{ggplot()} function (any of ggplot(), gg() and g() works)
 2. geom names (geom_point can be specified by \code{point} or even \code{p})
-3. column names (prefix match only, no fuzzy match. When ambiguous,
-                 the column with the smallest column index is used)
-4. aesthetics names (\code{size} by \code{sz},
+3. aesthetics names (\code{size} by \code{sz},
                      \code{color} by \code{col} or \code{c} )
+4. column names (prefix match only, no fuzzy match. When ambiguous,
+                 the column with the smallest column index is used)
 5. theme element names (\code{legend.text} by \code{l.txt},
                         \code{axis.title.x} by \code{a.ttl.x})
 }
 \examples{
 \dontrun{
 
-# Case 1: with a character arugment
+# Case 1: ggbash() with no argument
+
+ggbash() # ggbash() enters into an interactive ggbash session
+
+# Case 2: with a character arugment
 
 ## parentheses and commas become optional
 
@@ -56,7 +61,7 @@ ggbash("gg(iris) + point(Sepal.W, Sepal.L, color=Species)")
 ## all of the above work
 
 
-# Case 2: with a short-ggplot2 command
+# Case 3: with a short-ggplot2 command
 
 ## sm: geom_smooth
 ggbash(gg(iris, Sepal.W, Sepal.L, c=Sp) + point + sm(method="lm", se=FALSE)
@@ -75,9 +80,12 @@ ggbash(g(iris, Sepal.W, S, c=Sp) + p + sm(mth="lm", se=FALSE)
 ## Since the Sepal.Length has the smallest column index, it's selected
 
 
-# Case 3: ggbash() with no argument
+# Case 4: dataset piped from dplyr/tidyr
 
-ggbash() # ggbash() enters into an interactive ggbash session
+iris \%>\%
+    mutate(my_long_descriptive_column_name = Sepal.Width,
+           other_useful_informative_name = Sepal.Length) \%>\%
+    ggbash(gg() + point(my, other))
 
 }
 

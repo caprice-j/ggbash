@@ -17,7 +17,8 @@ Suggests:
     knitr,
     testthat, 
     futile.logger (>= 1.4.3),
-    hexbin
+    hexbin,
+    dplyr
 URL: https://github.com/caprice-j/ggbash
 BugReports: https://github.com/caprice-j/ggbash/issues
 Encoding: UTF-8

@@ -161,10 +161,9 @@ Ggplot2Parser <-
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
 
-                if (ggbashenv$dataset_name != ".")
-                    ggbashenv$dataset <-
-                        eval(as.symbol(ggbashenv$dataset_name),
-                             envir = .GlobalEnv)
+                ggbashenv$dataset <-
+                    eval(as.symbol(ggbashenv$dataset_name),
+                         envir = .GlobalEnv)
                 ggbashenv$geom <- ""
 
                 if (p$length() == 2) {
@@ -185,17 +184,11 @@ Ggplot2Parser <-
                 dbgmsg("p_gg_init: ", p$get(2))
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
-                if (ggbashenv$dataset_name == ".") {
-                    # ggbashenv$dataset is already set
-                } else {
-                    ggbashenv$dataset <- tryCatch( {
-
+                ggbashenv$dataset <- tryCatch( {
                         eval(as.symbol(ggbashenv$dataset_name),
                              envir = .GlobalEnv)
                     }, error = function(err) {"error"} )
-                    ggbashenv$colv <- colnames(ggbashenv$dataset)
-                }
-
+                ggbashenv$colv <- colnames(ggbashenv$dataset)
 
                 if (class(ggbashenv$dataset)[1] == "character") {
                     errinfo <-
