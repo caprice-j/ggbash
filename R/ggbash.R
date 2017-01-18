@@ -457,10 +457,13 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 ggbash_ <- function(batch="", clipboard=NULL,
                    show_warn=TRUE, as_string = FALSE) {
     if (batch != "") {
+        dbgmsg("before raw_input")
         raw_input <- batch
-        if (! is.null(clipboard))
+        if (! is.null(clipboard)) {
             raw_input <- ifelse(grepl(raw_input, "|\\s*copy"),
                                 raw_input, paste0(raw_input, " | copy"))
+            dbgmsg("after raw_input")
+        }
         return(exec_ggbash(raw_input,
                            show_warn, batch_mode = TRUE,
                            as_string = as_string))
@@ -566,7 +569,8 @@ ggbash <- function(ggbash_symbols="", clipboard=NULL,
                      error = function(err) {FALSE})
     if (type[1] == "character") {
         cmd <- ggbash_symbols
-    } else if (type[1] %in% c("data.frame", "tbl_df", "tibble")) {
+    } else if (type[1] %in% c("data.frame", "tbl_df",
+                              "tibble", "grouped_df")) {
         # piping from dplyr/tidyr
         type <- tryCatch(class(clipboard),
                          error = function(err) {FALSE})
