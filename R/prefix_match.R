@@ -62,6 +62,11 @@ find_first_by_prefix <-
     function(prefix="si",
              table=c("x", "y", "size", "shape"),
              show_warn=TRUE){
+    if (prefix %in% table)
+        # when exact match, return it
+        # (Among "price" and "p" by pattern "p", return "p")
+        return(which(prefix == table))
+
     indices <- grep(paste0("^", prefix), table)
 
     if (length(indices) < 1 && show_warn) {

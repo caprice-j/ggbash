@@ -9,4 +9,6 @@ test_that("NSE", {
         "ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length)) +" %++%
             " geom_point(aes(x=Sepal.Width, y=Sepal.Length), data=iris2)"
     )
+
+    ee(find_first_by_prefix("p", c("price", "p")), 2)
 })
