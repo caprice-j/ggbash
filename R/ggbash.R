@@ -391,10 +391,10 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 
     built_ggplot2_obj <- eval(parse(text = ggobj_verbose))
 
-    if (exists("ggbash_piped")) {
+    if (grepl("ggbash_piped", ggobj)) {
         # ggbash_piped should be internal state (not exposed to users)
+        # but removing ggbash_piped causes NOTE in R CMD check...
         ggobj <- rm_piped_dataset(ggobj)
-        rm(ggbash_piped, envir = .GlobalEnv)
     }
 
     if (batch_mode) {
