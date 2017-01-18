@@ -479,10 +479,11 @@ ggbash_ <- function(batch="", clipboard=NULL,
     )}
 }
 
-rm_piped_dataset <- function(str) gsub("^\\s*ggplot\\((.*?)\\)", "ggplot()", str)
+rm_piped_dataset <- function(str)
+    gsub("^\\s*ggplot\\(ggbash_piped, (.*?)\\)", "ggplot(\\1)", str)
 add_piped_dataset <- function(str)
     gsub("^\\s*(g|gg|ggp|ggpl|ggplo|ggplot)\\((.*?)\\)",
-         "ggplot(ggbash_piped)", str)
+         "ggplot(ggbash_piped, \\2)", str)
 
 #' execute a specified ggbash command
 #'
