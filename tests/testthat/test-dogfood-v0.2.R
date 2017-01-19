@@ -12,6 +12,9 @@ function() {
 
 ee <- testthat::expect_equal
 
+ggbashenv$layer_coll <- list("NA", "NA", "NA", "NA", "NA")
+
+
 test_that("cases", {
     char <-
         "gg iris + point Sepal.W Sepal.L col=Species " %+%

@@ -29,6 +29,17 @@ assign("positions",
        envir = .GlobalEnv
        )
 
+assign("datapoly",
+       merge(values, positions, by=c("id")),
+       envir = .GlobalEnv)
+
+assign("stream",
+       data.frame(
+           x = cumsum(runif(50, max = 0.1)),
+           y = cumsum(runif(50,max = 0.1))
+       ),
+       envir = .GlobalEnv)
+
 test_that("geom_abline", {
     gbash("gg mtcars wt mpg + point + vline xintercept = 5")
 
@@ -440,18 +451,9 @@ test_that("geom_point", {
 
 # GEOM_POLYGON COMPLETED 2/2
 test_that("geom_polygon", {
-    assign("datapoly",
-           merge(values, positions, by=c("id")),
-           envir = .GlobalEnv)
     ee(bash(gg(datapoly, x, y) + polygon(fill=value, group=id)),
        "ggplot(datapoly, aes(x, y)) + geom_polygon(aes(fill=value, group=id))")
 
-    assign("stream",
-           data.frame(
-               x = cumsum(runif(50, max = 0.1)),
-               y = cumsum(runif(50,max = 0.1))
-           ),
-           envir = .GlobalEnv)
     ee(bash(gg(datapoly, x, y) + polygon(fill=value, group=id)
             + geom_line(data=stream, c="grey30", sz=5)),
         "ggplot(datapoly, aes(x, y)) + geom_polygon(aes(fill=value, group=id)) + geom_line(data=stream, colour=\"grey30\", size=5)"

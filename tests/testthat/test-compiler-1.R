@@ -1,6 +1,8 @@
 library(ggbash)
 library(futile.logger)
-context("ggbash-compiler")
+context("compiler-1")
+
+ggbashenv$layer_coll <- list("NA", "NA", "NA", "NA", "NA")
 
 test_that("ggplot2 lexer", {
 

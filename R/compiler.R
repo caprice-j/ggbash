@@ -190,6 +190,9 @@ Ggplot2Parser <-
                     }, error = function(err) {"error"} )
                 ggbashenv$colv <- colnames(ggbashenv$dataset)
 
+                for ( i in seq_along(ggbashenv$layer_coll))
+                    dbgmsg("layer[", i, "]: ", ggbashenv$layer_coll[[i]])
+
                 if (class(ggbashenv$dataset)[1] == "character") {
                     errinfo <-
                         list(id = "p_gg_init:dataset",
@@ -280,6 +283,10 @@ Ggplot2Parser <-
                 ggbashenv$conf$geom_list <-
                     c(ggbashenv$conf$geom_list, ggbashenv$geom)
                 ggbashenv$aes_i <- 1
+
+                # for column name search
+                ggbashenv$i_layer <- ggbashenv$i_layer + 1
+
                 p$set(1, paste0(" + ggplot2::geom_", prev))
             },
             p_layer_aes_list = function(
@@ -300,7 +307,16 @@ Ggplot2Parser <-
                 single_quote <- "'"
                 double_quote <- '"'
 
-                colnamev <- ggbashenv$colv
+                # if data= supplied, use the column name space
+                i <- ggbashenv$i_layer
+                if (length(i) == 0 || length(ggbashenv$layer_coll) < i){ # invoke from testthat
+                    i <- 1
+                    ggbashenv$layer_coll <- list("NA", "NA", "NA", "NA", "NA", "NA", "NA")
+                }
+                if (ggbashenv$layer_coll[[i]][1] == "NA")
+                    colnamev <- ggbashenv$colv # not supplied
+                else
+                    colnamev <- ggbashenv$layer_coll[[i]]
 
                 must_aesv <- get_required_aes(ggbashenv$geom)
                 all_aesv <- get_possible_aes(ggbashenv$geom)
@@ -438,6 +454,10 @@ Ggplot2Parser <-
                 dbgmsg("p_theme_init: ", p$get(2), " -- add (")
                 # theme, theme_bw, theme_linedraw, ...
                 theme_str <- gsub("\\s|\\+", "", p$get(2))
+
+                # for column name search
+                ggbashenv$i_layer <- ggbashenv$i_layer + 1
+
                 p$set(1, paste0(" + ggplot2::", theme_str, "("))
             },
             p_theme_elem_list = function(
@@ -649,6 +669,96 @@ show_fixit_diagnostics <- function(
     }
 }
 
+# FIXME parentheses for no equal case
+replace_with_space <- function(input, i)
+    paste0(substr(input, 1, i - 1), " ",
+           substr(input, i + 1, nchar(input)))
+
+
+#' set layer-specific column names
+#'
+#' this functio nset ggbashenv$layer_coll (column name list),
+#' which is used for layer-specific column name partial match.
+#'
+#' @param input A ggbash string
+#'
+#'
+set_layer_colnames <- function(
+    input = "gg(a) + p(x=x, color='red', y=y, data=iris)"
+) {
+    n_layer <- 0
+    n_paren <- 0
+    i <- 1
+    invalid <- FALSE
+    while ( i <= nchar(input)) {
+        this <- substr(input, i, i)
+
+        if (n_paren == 0) {
+            if (this == "+") {
+                n_layer <- n_layer + 1
+                ggbashenv$layer_coll[[n_layer]] <- "NA"
+            }
+        } else if (n_paren == 1) {
+            if (grepl("data", substr(input, i, i + 3))) {
+
+                i <- i + 4
+                while (substr(input, i, i) != "=") {
+                    if (grepl("[^= ]", substr(input, i, i))) {
+                        # invalid
+                        invalid <- TRUE
+                        break
+                    }
+                    i <- i + 1
+                }
+                if (invalid) {
+                    if (substr(input, i, i) == "(")
+                        n_paren <- n_paren + 1
+                    else if (substr(input, i, i) == ")")
+                        n_paren <- n_paren - 1
+
+                    i <- i + 1
+                    invalid <- FALSE
+                    next
+                }
+                i <- i + 1
+                data_start <- i
+
+                message("data_start: ", i)
+                while (TRUE) {
+                    this <- substr(input, i, i)
+
+                    if (n_paren == 1 && this %in% c(")", ",")) {
+                        data_end <- i - 1
+                        datastr <- substr(input, data_start, data_end)
+                        ggbashenv$layer_coll[[n_layer]] <-
+                            colnames(eval(parse(text = datastr),
+                                          envir = .GlobalEnv))
+
+                        break
+                    }
+
+                    if (this == "(")
+                        n_paren <- n_paren + 1
+                    else if (this == ")")
+                        n_paren <- n_paren - 1
+
+                    i <- i + 1
+                }
+
+                message("layer_coll[", n_layer, "]: ",
+                        ggbashenv$layer_coll[[n_layer]])
+            }
+        }
+
+        if (this == "(")
+            n_paren <- n_paren + 1
+        else if (this == ")")
+            n_paren <- n_paren - 1
+
+        i <- i + 1
+    }
+}
+
 #' remove parentheses and marks
 #'
 #' ggbash have to handle two types of parentheses and tyo types of commas.
@@ -668,10 +778,7 @@ show_fixit_diagnostics <- function(
 remove_unnecessary_marks <- function(
     input = "gg(m, x=f(cyl), m) + t(l=p0('l:', w))"
 ){
-    # FIXME parentheses for no equal case
-    replace_with_space <- function(input, i)
-        paste0(substr(input, 1, i - 1), " ",
-               substr(input, i + 1, nchar(input)))
+
     n_paren <- 0
     is_after <- FALSE
     state <- ""
@@ -717,6 +824,9 @@ coat_adhoc_syntax_sugar <- function(
     out <- gsub("\\s*/\\s*", "/", out)
     out <- gsub("\\s*\\+\\s*", "\\+", out)
     out <- gsub("\\s*\\*\\s*", "\\*", out)
+    ggbashenv$layer_coll <- list()
+    ggbashenv$i_layer <- 0
+    set_layer_colnames(out)
     out <- remove_unnecessary_marks(out)
     return(out)
 }
