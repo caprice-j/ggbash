@@ -6,13 +6,12 @@ cache: packages
 sudo: false
 addons:
   apt:
-    packages:
-      - xclip
     sources:
       - ubuntu-toolchain-r-test
     packages:
       - gcc-4.9
       - g++-4.9
+      - xclip
 
 before_install: |
   mkdir ~/.R
