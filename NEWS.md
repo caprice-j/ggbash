@@ -1,3 +1,14 @@
+# ggbash 0.4.4
+
+## Bug fixes
++ handle grouped_df case NSE in ggbash()
++ add partial match preference when exact match
+  (`p` should return `p` instead of `price`,
+    even if the latter comes first)
++ fix `%>%` and aes() case
++ layer-specific data specification
++ add `.` (dot) in parsing rules of variable names
+
 # ggbash 0.4.3
 
 ## Enhancements
