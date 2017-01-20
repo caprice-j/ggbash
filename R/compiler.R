@@ -28,7 +28,8 @@ ggregex <- list(
                         "(TRUE|FALSE|true|false|True|False)"),
     boolean    = "^(TRUE|FALSE|T|F|t|f|true|false|True|False)$",
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
-    constaes   = "[a-z]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
+    constaes   = "[a-z\\.]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
+    # Note: ggregex$constaes and t_CONSTAES rules are duplicated
     unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)",
     data       = "data="
 )
@@ -54,7 +55,7 @@ Ggplot2Lexer <-
                                 t$value)
                 return(t)
             },
-            t_CONSTAES = function(re="[a-z]+\\s*=\\s*-*[0-9\\./\\*-\\+:]*[0-9]", t) {
+            t_CONSTAES = function(re="[a-z\\.]+\\s*=\\s*-*[0-9\\./\\*-\\+:]*[0-9]", t) {
                 if (grepl("^group=", t$value)) {
                     t$type <- "NAME"
                     # aes(group=1)
@@ -72,7 +73,7 @@ Ggplot2Lexer <-
             # MAYBE LATER default arguments of functions cannot accept
             # global variables as defaults?
             # ggregex$charaes is falsely evaluated as empty string
-            t_CHARAES = function(re="[a-z]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
+            t_CHARAES = function(re="[a-z\\.]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
                 return(t)
             },
             t_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?", t) {

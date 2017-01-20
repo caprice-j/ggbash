@@ -121,8 +121,13 @@ test_that("geom_boxplot", {
     bash("gg mpg x=class,y=hwy + box notch=TRUE")
     bash("gg mpg x=class,y=hwy + box varwidth=TRUE")
     bash("gg mpg x=class y=hwy + box fill='white' color='#3366FF'")
-    #ggbash("gg mpg x=class,y=hwy + box outlier.colour='red'") # FIXME
-    #ggbash("gg mpg x=class,y=hwy + box outlier.colour='red' outlier.shape=1") # FIXME
+    bash("gg mpg x=class,y=hwy + box outlier.colour='red'")
+    ee(bash("gg mpg x=class,y=hwy + box outlier.colour='red' outlier.shape=1"),
+       "ggplot(mpg, aes(class, hwy)) + " %++%
+        "geom_boxplot(outlier.colour='red', outlier.shape=1)"
+    )
+    # outlier.colour is the example of a dot in variable name
+    # (affects lexing rules)
 
     bash("gg mpg x=class y=hwy + box colour=drv")
     bash("gg diamonds carat, price + box")
