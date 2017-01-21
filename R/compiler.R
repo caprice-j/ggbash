@@ -816,6 +816,30 @@ remove_unnecessary_marks <- function(
     return(input)
 }
 
+#' remove aes() function call
+#'
+#' ggbash() tries to follow ggplot2 original syntax
+#' as much as possible.
+#' When aes() function calls is specified in a given
+#' ggbash string, those are safely removed by this function.
+#'
+#' @param input A character
+#'
+#'
+#' @importFrom sourcetools tokenize_string
+remove_aes <- function(input = "gg(a) + p(aes(x,y),c) + p(aes(l),d)") {
+
+    df <- sourcetools::tokenize_string(input)
+    df$r <- 1:nrow(df)
+    part <- df[(df$type %in% c("bracket")) |
+             df$value == "aes", ]
+
+    i_aes <- which(part$value == "aes")
+    df[df$r %in% part$r[(i_aes + rep(0:2, length(i_aes)))], "value"] = ""
+
+    return(paste0(df$value, collapse=""))
+}
+
 coat_adhoc_syntax_sugar <- function(
     cmd = "gg(mtcars,mpg,hwy) + point(size = xyz(gear) +1, shape = 16 / 3 * 4)"
 ){
@@ -828,6 +852,7 @@ coat_adhoc_syntax_sugar <- function(
     ggbashenv$layer_coll <- list()
     ggbashenv$i_layer <- 0
     set_layer_colnames(out)
+    out <- remove_aes(out)
     out <- remove_unnecessary_marks(out)
     return(out)
 }
@@ -852,7 +877,7 @@ yacc <- rly::yacc(Ggplot2Parser)
 gbash <- function(ggbash_symbols) {
     is_string <- tryCatch(class(ggbash_symbols) == "character",
                           error = function(err) {FALSE})
-    if (is_string) {
+    if (is_string[1]) {
         cmd <- ggbash_symbols
     } else {
         raw_cmd <- deparse(substitute(ggbash_symbols),
@@ -866,7 +891,7 @@ gbash <- function(ggbash_symbols) {
 bash <- function(ggbash_symbols) {
     is_string <- tryCatch(class(ggbash_symbols) == "character",
                           error = function(err) {FALSE})
-    if (is_string) {
+    if (is_string[1]) {
         cmd <- ggbash_symbols
     } else {
         raw_cmd <- deparse(substitute(ggbash_symbols),

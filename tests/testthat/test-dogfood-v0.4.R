@@ -39,4 +39,14 @@ test_that("NSE", {
         " + geom_point(aes(x=green.width, y=Sepal.Length), " %++%
         "data=bind_cols(iris,iris2), colour=\"blue\")"
     )
+
+
+    ee(bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red")),
+       "ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length), colour=\"red\")")
+    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(text = element_text(size=20)))
+    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(axis.ticks.length = unit(.85, "cm")))
+    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(panel.ontop = TRUE))
+    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(legend.position = ))
+    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length, colour=Species)) + theme(legend.position = "bottom") )
+    # MAYBE-LATER RStudio's auto completion inserts = after conf name
 })
