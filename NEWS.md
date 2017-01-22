@@ -1,4 +1,20 @@
 
+# ggbash 0.4.5
+
+## Bug fixes
++ handle two types of `+` signs in terminal mode
+  - Here I had to make a design choice. Now terminal-mdoe ggbash CANNOT
+    contain whitespaces between aes names and values
+    (i.e. Bad : `size = 3 + .5` and Good: `size=3+.5`)
+    This is because without parentheses and commas, there are almost
+    no clues that differentiate between "ggplot2 plus" (connecting
+    layers) and "R's plus" (an operator for addition).
+    The hope is that in NSE mode ggbash can still include whitespaces
+    between aes names and values. I hope this would not lead to users'
+    frustration.
++ handle redundant aes() specification (simply remove it)
+
+
 # ggbash 0.4.4
 
 ## Bug fixes
