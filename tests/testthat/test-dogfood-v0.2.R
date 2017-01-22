@@ -136,6 +136,4 @@ test_that("cases 2", {
 
     # fixed non-existing column name
     gbash("gg iris + point Sepal.WWWWWWW Sepal.L")
-
-    # TODO  theme(legend.position = c(.5, .5))
 })

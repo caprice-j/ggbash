@@ -46,7 +46,10 @@ test_that("NSE", {
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(text = element_text(size=20)))
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(axis.ticks.length = unit(.85, "cm")))
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(panel.ontop = TRUE))
-    # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length), colour="red") + theme(legend.position = ))
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length, colour=Species)) + theme(legend.position = "bottom") )
     # MAYBE-LATER RStudio's auto completion inserts = after conf name
+
+    ee(bash(gg(mtcars) + rect(xmin=wt-5, xmax=wt+5, ymin=am-5, ymax=am+5)),
+       "ggplot(mtcars) + geom_rect(aes(xmin=wt-5, xmax=wt+5, " %++%
+                                      "ymin=am-5, ymax=am+5))")
 })

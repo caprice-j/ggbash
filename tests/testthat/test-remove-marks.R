@@ -21,3 +21,13 @@ test_that("remove_aes", {
 
 
 })
+
+test_that("replace_plus", {
+    ee(replace_plus("gg(x)+p(a+b)"), "gg(x)#p(a+b)")
+    ee(replace_plus("gg(x) + p(a+b)"), "gg(x) # p(a+b)")
+    ee(replace_plus("gg(x) + p(a + b)"),  "gg(x) # p(a + b)")
+    ee(replace_plus("gg(x) + p(a+b) + p(a+b) + p(a+b)"),
+       "gg(x) # p(a+b) # p(a+b) # p(a+b)")
+
+    ee(replace_plus("gg x + rect x=a+b y=c+d+e"), "gg x # rect x=a+b y=c+d+e")
+})

@@ -76,7 +76,7 @@ Ggplot2Lexer <-
             t_CHARAES = function(re="[a-z\\.]+\\s*=\\s*('|\\\").*?('|\\\")", t) {
                 return(t)
             },
-            t_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)][a-zA-Z_0-9\\.,=\\(\\)]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?", t) {
+            t_NAME      = function(re="(\\\"|')?[\\.a-zA-Z0-9_\\(\\)\\-][a-zA-Z_0-9\\.,=\\(\\)\\-\\+\\/\\*]*(\\\"|')?(\\s*inches|\\s*inch|\\s*in|\\s*cm)?", t) {
 
                 if (grepl(ggregex$data, t$value)) {
                     dbgmsg("  t_NAME: DATA ", t$value)
@@ -105,11 +105,12 @@ Ggplot2Lexer <-
             #t_LPAREN  = '\\(',
             #t_RPAREN  = '\\)',
             #t_COMMA = ',',
-            t_THEME = "(\\+|\\|)\\s*theme", # t_THEME is preferred to t_LAYER
-            t_LAYER = function(re="(\\+|\\|)\\s*[a-z_2]+", t) {
+            # t_THEME = "(\\+|\\|)\\s*theme", # t_THEME is preferred to t_LAYER
+            t_LAYER = function(re="#\\s*[a-z_2]+", t) {
                 # "2" for bin2d
                 # TODO missing geom handling here
-                if (grepl("(\\+|\\|)\\s*theme", t$value)) {
+                t$value <- gsub("#", "+", t$value)
+                if (grepl("\\+\\s*theme", t$value)) {
                     t$type <- "THEME"
                     return(t)
                 }
@@ -840,6 +841,53 @@ remove_aes <- function(input = "gg(a) + p(aes(x,y),c) + p(aes(l),d)") {
     return(paste0(df$value, collapse=""))
 }
 
+replace_plus <- function(input = "gg(x) + p(a+b, c+d+f) + p(a)\n  + p(c+d)") {
+
+    input <- gsub("\n", "", input)
+    nlen <- nchar(input)
+
+    if (! grepl("\\(", input)) {
+        # terminal mode
+        target <- " \\+ "
+        # in terminal, no parentheses and commas can be used as parsing hints.
+        # instead, here I rely on both-spaced plus sign as "depth-0" plus.
+        # e.g.    gg mtcars + rect xmin=wt-3 xmax=wt+3 ... (no spaces around +)
+        depth0_indices <- 1:nlen
+        end_i <- function(index) index
+        start_i <- function(index) index + 2
+    } else {
+        target <- "\\+"
+
+        df <- sourcetools::tokenize_string(input)
+        df <- df[ df$type == "bracket", ]
+        df$lparen <- ifelse(df$value == "(", 1, 0)
+        df$rparen <- ifelse(df$value == ")", 1, 0)
+        df$depth <- cumsum(df$lparen) - cumsum(df$rparen)
+        df$start <- df$column + 1
+        df$end <- c(df$column[-1], NA) - 1
+        df <- df[-nrow(df), ]
+        # ignore first/last depth==0 interval (there is no plus in there)
+        depth0_indices <-
+            unlist(
+                apply(df[df$depth == 0 , ], 1,
+                      function(row) {seq(as.numeric(row["start"]),
+                                         as.numeric(row["end"]), by=1)}))
+
+        end_i <- function(index) index - 1
+        start_i <- function(index) index + 1
+    }
+
+    candidates <- gregexpr(target, input)[[1]]
+    for (index in candidates) {
+        if (index %in% depth0_indices)
+            input <-
+                paste0( substr(input, 1, end_i(index)),
+                        "#",
+                        substr(input, start_i(index), nlen))
+    }
+    return(input)
+}
+
 coat_adhoc_syntax_sugar <- function(
     cmd = "gg(mtcars,mpg,hwy) + point(size = xyz(gear) +1, shape = 16 / 3 * 4)"
 ){
@@ -847,12 +895,13 @@ coat_adhoc_syntax_sugar <- function(
     out <- gsub("\\s*=\\s*", "=", out)
     out <- gsub("\\s*-\\s*", "-", out)
     out <- gsub("\\s*/\\s*", "/", out)
-    out <- gsub("\\s*\\+\\s*", "\\+", out)
     out <- gsub("\\s*\\*\\s*", "\\*", out)
     ggbashenv$layer_coll <- list()
     ggbashenv$i_layer <- 0
     set_layer_colnames(out)
     out <- remove_aes(out)
+    out <- replace_plus(out)
+    out <- gsub("\\s*\\+\\s*", "\\+", out)
     out <- remove_unnecessary_marks(out)
     return(out)
 }
@@ -865,6 +914,7 @@ coat_adhoc_syntax_sugar <- function(
 #'
 compile_ggbash <- function(cmd){
     cmd <- coat_adhoc_syntax_sugar(cmd)
+    print(cmd)
     ggobj <- rly::yacc(Ggplot2Parser)$parse(
         cmd, rly::lex(Ggplot2Lexer)
     )

@@ -767,7 +767,6 @@ get_layer_params <- function(suffix="bin2d") {
 #' @export
 parse_ggbash_aes <- function(i, aesv, must_aesv, all_aesv,
                              colnamev, show_warn=TRUE){
-    # TODO as.factor as.character cut substr
     if (grepl("=", aesv[i])) {
         before_equal <- gsub("\\s*=.*", "", aesv[i])
     } else {

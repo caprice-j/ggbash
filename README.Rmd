@@ -361,6 +361,15 @@ About a different way to generate scatterplot matrix,
 languages including Bash, CoffeeScript, Ruby, and Lisp.
 Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
+## Limitations
+
+ggbash has some weird specification due to parsing rule constraints:
+
+#### One-liner
+
+#### Interactive
+
+
 ## Current Implementation Status
 
 ggbash is first released on December 29, 2016.
