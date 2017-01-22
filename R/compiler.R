@@ -864,9 +864,10 @@ replace_plus <- function(input = "gg(x) + p(a+b, c+d+f) + p(a)\n  + p(c+d)") {
         df$rparen <- ifelse(df$value == ")", 1, 0)
         df$depth <- cumsum(df$lparen) - cumsum(df$rparen)
         df$start <- df$column + 1
-        df$end <- c(df$column[-1], NA) - 1
-        df <- df[-nrow(df), ]
-        # ignore first/last depth==0 interval (there is no plus in there)
+        df$end <- c(df$column[-1], nlen+2) - 1
+        # ignore first depth==0 interval (there is no plus in there)
+        # but last depth==0 interval matters, like
+        # ggbash(gg(x=Sepal.W, y=Sepal.L) + p() + line)
         depth0_indices <-
             unlist(
                 apply(df[df$depth == 0 , ], 1,
@@ -914,7 +915,7 @@ coat_adhoc_syntax_sugar <- function(
 #'
 compile_ggbash <- function(cmd){
     cmd <- coat_adhoc_syntax_sugar(cmd)
-    print(cmd)
+
     ggobj <- rly::yacc(Ggplot2Parser)$parse(
         cmd, rly::lex(Ggplot2Lexer)
     )
