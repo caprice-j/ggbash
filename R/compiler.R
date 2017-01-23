@@ -46,6 +46,7 @@ Ggplot2Lexer <-
             tokens = GGPLOT2_TOKENS,
             literals = GGPLOT2_LITERALS,
             #states = list(c('ggplot')),
+            info = "not-used-now",
             # Note: t_(function) defines precedences implicitly
             t_GGPLOT = function(
             re = "^(g|gg|ggp|ggpl|ggplo|ggplot)\\s+[a-zA-Z_\\.][a-zA-Z_0-9\\.]*",
@@ -183,6 +184,9 @@ Ggplot2Parser <-
                 }
                 },
             p_gg_init = function(doc="gg_init : GGPLOT", p) {
+
+                p$lexer$instance$info <- "refed-in-gg-init" # FIXME do sth
+
                 dbgmsg("p_gg_init: ", p$get(2))
                 ggbashenv$dataset_name <-
                     gsub("ggplot2::ggplot\\(", "", p$get(2))
@@ -913,12 +917,14 @@ coat_adhoc_syntax_sugar <- function(
 #'
 #' compile_ggbash returns a built ggplot object.
 #'
-compile_ggbash <- function(cmd){
+compile_ggbash <- function(cmd = "gg mtcars + p wt wt"){
     cmd <- coat_adhoc_syntax_sugar(cmd)
 
-    ggobj <- rly::yacc(Ggplot2Parser)$parse(
-        cmd, rly::lex(Ggplot2Lexer)
-    )
+    lexer <- rly::lex(Ggplot2Lexer)
+    parser <- rly::yacc(Ggplot2Parser)
+
+    ggobj <- parser$parse(cmd, lexer)
+    info <- lexer$instance$info # access internal variables
     return(ggobj)
 }
 
