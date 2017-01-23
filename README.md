@@ -4,7 +4,7 @@ ggbash
 
 [![Travis-CI Build Status](https://travis-ci.org/caprice-j/ggbash.svg?branch=master)](https://travis-ci.org/caprice-j/ggbash) [![Build status](https://ci.appveyor.com/api/projects/status/vfia7i1hfowhpqhs?svg=true)](https://ci.appveyor.com/project/caprice-j/ggbash) [![codecov](https://codecov.io/gh/caprice-j/ggbash/branch/master/graph/badge.svg)](https://codecov.io/gh/caprice-j/ggbash) ![](http://www.r-pkg.org/badges/version/ggbash) <!-- [![Coverage Status](https://coveralls.io/repos/github/caprice-j/ggbash/badge.svg)](https://coveralls.io/github/caprice-j/ggbash) --> [![Issue Count](https://codeclimate.com/github/caprice-j/ggbash/badges/issue_count.svg)](https://codeclimate.com/github/caprice-j/ggbash/issues) [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
-ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax. It features a strong partial match, helpful error messages, and handy builtin commands such as `copy` or `png`.
+ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax. It features partial match, error messages,and builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user, from beginners to professionals.
 
@@ -279,6 +279,15 @@ About a different way to generate scatterplot matrix,
 -->
 `ggbash` draws inspiration from some other higher level programming languages including Bash, CoffeeScript, Ruby, and Lisp. Fixit is inspired by [Fix-It Hints](http://clang.llvm.org/docs/InternalsManual.html#fix-it-hints) in clang C++ compiler.
 
+Limitations
+-----------
+
+ggbash has some weird specification due to parsing rule constraints:
+
+#### One-liner
+
+#### Interactive
+
 Current Implementation Status
 -----------------------------
 
@@ -293,8 +302,8 @@ ggbash is first released on December 29, 2016.
     -   stat\_..., scale\_..., coord\_..., facet\_..., labs, position\_..., xlim, ylim
     -   sprintf()-like formatting for filenames (like `png "my-%aes%-%facet%"`)
 -   HOW:
-    -   auto completion (R's `prompt()` does not have built-in completions)
-    -   interfaces to dplyr/tidyr (how to handle dot operator `.`)
+    -   auto completion (R's `prompt()` does not have built-in completions) <!-- DONE + interfaces to dplyr/tidyr (how to handle dot operator `.`) -->
+    -   aes/non-aes sorting
 
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 <!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/README-with-rstudio.gif) -->

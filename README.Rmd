@@ -25,8 +25,7 @@ knitr::opts_chunk$set(
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
 ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax.
-It features a strong partial match, helpful error messages,
-and handy builtin commands such as `copy` or `png`.
+It features partial match, error messages,and builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user,
 from beginners to professionals.
@@ -386,8 +385,9 @@ ggbash is first released on December 29, 2016.
 
 + HOW:
     + auto completion (R's `prompt()` does not have built-in completions)
-    + interfaces to dplyr/tidyr (how to handle dot operator `.`)
-
+    <!-- DONE + interfaces to dplyr/tidyr (how to handle dot operator `.`) -->
+    + aes/non-aes sorting
+    
 <!-- ## Usecase: Plot in Terminal and Copy to RStudio -->
 
 <!-- ![](https://raw.githubusercontent.com/caprice-j/ggbash/master/README-with-rstudio.gif) -->
