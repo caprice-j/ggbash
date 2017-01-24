@@ -625,6 +625,10 @@ get_required_aes <- function(suffix="point") {
     return(eval(expr)$geom$required_aes)
 }
 
+get_required_aes_noeval <- function(suffix="point") {
+    return( geom_point()$geom$required_aes)
+}
+
 #' retrieve all aesthetic names for a given geom
 #'
 #' @param suffix geom suffix

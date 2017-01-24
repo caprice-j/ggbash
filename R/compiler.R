@@ -107,10 +107,10 @@ Ggplot2Lexer <-
             #t_RPAREN  = '\\)',
             #t_COMMA = ',',
             # t_THEME = "(\\+|\\|)\\s*theme", # t_THEME is preferred to t_LAYER
-            t_LAYER = function(re="#\\s*[a-z_2]+", t) {
+            t_LAYER = function(re="##\\s*[a-z_2]+", t) {
                 # "2" for bin2d
                 # TODO missing geom handling here
-                t$value <- gsub("#", "+", t$value)
+                t$value <- gsub("##", "+", t$value)
                 if (grepl("\\+\\s*theme", t$value)) {
                     t$type <- "THEME"
                     return(t)
@@ -890,6 +890,8 @@ replace_plus <- function(input = "gg(x) + p(a+b, c+d+f) + p(a)\n  + p(c+d)") {
                         "#",
                         substr(input, start_i(index), nlen))
     }
+    # prevent colour="#112333" to be replaced
+    input <- gsub("#([^0-9ABCDEFabcdef])", "##\\1", input)
     return(input)
 }
 
