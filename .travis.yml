@@ -3,7 +3,7 @@
 language: r
 warnings_are_errors: true
 cache: packages
-dist: trusty
+#dist: trusty
 sudo: false
 addons:
   apt:
@@ -11,14 +11,14 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - xclip
-#      - gcc-4.9
-#      - g++-4.9
+      - gcc-4.9
+      - g++-4.9
 
-#before_install: |
-#  mkdir ~/.R
-#  cat <<EOF > ~/.R/Makevars
-#  CXX1X=g++-4.9
-#  CXX1XSTD=-std=c++11
+before_install: |
+  mkdir ~/.R
+  cat <<EOF > ~/.R/Makevars
+  CXX1X=g++-4.9
+  CXX1XSTD=-std=c++11
 
 #sudo: required
 #before_install:
@@ -37,7 +37,7 @@ notifications:
 r_github_packages:
   - jimhester/covr
   - jimhester/fstrings
-  - rstudio/rmarkdown
+#  - rstudio/rmarkdown
 
 after_success:
   - Rscript -e 'covr::codecov()'
