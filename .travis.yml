@@ -37,6 +37,7 @@ notifications:
 r_github_packages:
   - jimhester/covr
   - jimhester/fstrings
+  - rstudio/rmarkdown
 
 after_success:
   - Rscript -e 'covr::codecov()'
