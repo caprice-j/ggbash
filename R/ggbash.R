@@ -614,19 +614,64 @@ advice_on_error <- function(err_message,
     }
 }
 
+suffix2geom <- function(suffix="point") {
+    # all geoms listed in ggplot2 2.1.0 docs
+    return(switch(suffix,
+            "abline"     = ggplot2::geom_abline(),
+            "hline"      = ggplot2::geom_hline(),
+            "vline"      = ggplot2::geom_vline(),
+            "bar"        = ggplot2::geom_bar(),
+            "col"        = ggplot2::geom_col(), # not in document but exists
+            "bin2d"      = ggplot2::geom_bin2d(),
+            "blank"      = ggplot2::geom_blank(),
+            "boxplot"    = ggplot2::geom_boxplot(),
+            "contour"    = ggplot2::geom_contour(),
+            "count"      = ggplot2::geom_count(),
+            "crossbar"   = ggplot2::geom_crossbar(),
+            "errorbar"   = ggplot2::geom_errorbar(),
+            "linerange"  = ggplot2::geom_linerange(),
+            "pointrange" = ggplot2::geom_pointrange(),
+            "density"    = ggplot2::geom_density(),
+            "density_2d" = ggplot2::geom_density_2d(),
+            "density2d"  = ggplot2::geom_density2d(),
+            "dotplot"    = ggplot2::geom_dotplot(),
+            "errorbarh"  = ggplot2::geom_errorbarh(),
+            "freqpoly"   = ggplot2::geom_freqpoly(),
+            "histogram"  = ggplot2::geom_histogram(),
+            "hex"        = ggplot2::geom_hex(),
+            "jitter"     = ggplot2::geom_jitter(),
+            "label"      = ggplot2::geom_label(),
+            "text"       = ggplot2::geom_text(),
+            #"map"        = ggplot2::geom_map(), # FIXME handle map
+            "path"       = ggplot2::geom_path(),
+            "line"       = ggplot2::geom_line(),
+            "step"       = ggplot2::geom_step(),
+            "point"      = ggplot2::geom_point(),
+            "polygon"    = ggplot2::geom_polygon(),
+            "qq"         = ggplot2::geom_qq(),
+            "quantile"   = ggplot2::geom_quantile(),
+            "raster"     = ggplot2::geom_raster(),
+            "rect"       = ggplot2::geom_rect(),
+            "tile"       = ggplot2::geom_tile(),
+            "ribbon"     = ggplot2::geom_ribbon(),
+            "area"       = ggplot2::geom_area(),
+            "rug"        = ggplot2::geom_rug(),
+            "segment"    = ggplot2::geom_segment(),
+            "curve"      = ggplot2::geom_curve(),
+            "smooth"     = ggplot2::geom_smooth(),
+            "violin"     = ggplot2::geom_violin(),
+            # other
+            "spoke"      = ggplot2::geom_spoke()
+        ))
+}
+
 #' retrieve required aesthetic names for a given geom
 #'
 #' @param suffix geom suffix
 #'
 #' @export
 get_required_aes <- function(suffix="point") {
-    command <- paste0("ggplot2::geom_", suffix, "()")
-    expr <- parse(text = command)
-    return(eval(expr)$geom$required_aes)
-}
-
-get_required_aes_noeval <- function(suffix="point") {
-    return( geom_point()$geom$required_aes)
+    return(suffix2geom(suffix)$geom$required_aes)
 }
 
 #' retrieve all aesthetic names for a given geom
@@ -635,9 +680,7 @@ get_required_aes_noeval <- function(suffix="point") {
 #'
 #' @export
 get_possible_aes <- function(suffix="point") {
-    command <- paste0("ggplot2::geom_", suffix, "()")
-    expr <- parse(text = command)
-    geom <- eval(expr)$geom
+    geom <- suffix2geom(suffix)$geom
     possible_aesv <- unique(c(geom$required_aes,
                               geom$non_missing_aes,
                               names(geom$default_aes)))
@@ -670,9 +713,7 @@ get_geom_params <- function(suffix="point") {
     if (suffix == "map") # FIXME
         return("")
 
-    command <- paste0("ggplot2::geom_", suffix, "()")
-    expr <- parse(text = command)
-    geom_params <- eval(expr)$geom_params
+    geom_params <- suffix2geom(suffix)$geom_params
     return(names(geom_params))
 }
 
@@ -709,9 +750,7 @@ get_stat_params <- function(suffix="smooth") {
     if (suffix == "map") # FIXME
         return("")
 
-    command <- paste0("ggplot2::geom_", suffix, "()")
-    expr <- parse(text = command)
-    stat_params <- names(eval(expr)$stat_params)
+    stat_params <- names(suffix2geom(suffix)$stat_params)
     # na.rm is duplicated within
     # geom_point()$geom_params and geom_point()$stat_params
 

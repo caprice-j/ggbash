@@ -4,7 +4,7 @@
 \alias{compile_ggbash}
 \title{the core function of ggbash}
 \usage{
-compile_ggbash(cmd)
+compile_ggbash(cmd = "gg mtcars + p wt wt")
 }
 \arguments{
 \item{cmd}{A character
