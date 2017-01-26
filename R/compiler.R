@@ -895,6 +895,12 @@ replace_plus <- function(input = "gg(x) + p(a+b, c+d+f) + p(a)\n  + p(c+d)") {
     return(input)
 }
 
+remove_element_whatever <- function(str = "g(x) + theme(l=element_text(sz=20))") {
+    # assume "=" and "element_text" don't have spaces between them
+    out <- gsub("=element_(text|rect|line|grob|brank)", "", str)
+    return(out)
+}
+
 coat_adhoc_syntax_sugar <- function(
     cmd = "gg(mtcars,mpg,hwy) + point(size = xyz(gear) +1, shape = 16 / 3 * 4)"
 ){
@@ -907,6 +913,7 @@ coat_adhoc_syntax_sugar <- function(
     ggbashenv$i_layer <- 0
     set_layer_colnames(out)
     out <- remove_aes(out)
+    out <- remove_element_whatever(out)
     out <- replace_plus(out)
     out <- gsub("\\s*\\+\\s*", "\\+", out)
     out <- remove_unnecessary_marks(out)
