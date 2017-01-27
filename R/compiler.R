@@ -30,7 +30,7 @@ ggregex <- list(
     charaes    = paste0("[a-z]+=('|\\\").*?('|\\\")"),
     constaes   = "[a-z\\.]+=c\\([0-9\\.,\\)]+", # FIXME adhoc for binw=c(.1, .1)
     # Note: ggregex$constaes and t_CONSTAES rules are duplicated
-    unit       = "[0-9\\.]+\\s*(cm|in|inch|inches)",
+    unit       = "[0-9\\.]+\\s*['\"]?(cm|in|inch|inches)['\"]?",
     data       = "data="
 )
 
@@ -897,7 +897,16 @@ replace_plus <- function(input = "gg(x) + p(a+b, c+d+f) + p(a)\n  + p(c+d)") {
 
 remove_element_whatever <- function(str = "g(x) + theme(l=element_text(sz=20))") {
     # assume "=" and "element_text" don't have spaces between them
-    out <- gsub("=element_(text|rect|line|grob|brank)", "", str)
+    out <- gsub("=element_(text|rect|line|grob|blank)", "", str)
+    return(out)
+}
+
+remove_theme_unit <- function(str = "g(x) + theme(l=unit(.5, 'cm'))") {
+
+    quote_removed <- gsub("\"|'", "", gsub(".*=unit(.*?)\\).*", "\\1\\)", str))
+    out <- gsub("=unit\\([^\\)]*\\)", "%%%%%", str)
+    out <- gsub("%%%%%", quote_removed, out)
+    # quotes should be removed here because in parse I defined "QUOTED" token
     return(out)
 }
 
@@ -914,6 +923,7 @@ coat_adhoc_syntax_sugar <- function(
     set_layer_colnames(out)
     out <- remove_aes(out)
     out <- remove_element_whatever(out)
+    out <- remove_theme_unit(out)
     out <- replace_plus(out)
     out <- gsub("\\s*\\+\\s*", "\\+", out)
     out <- remove_unnecessary_marks(out)

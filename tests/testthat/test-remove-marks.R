@@ -31,3 +31,23 @@ test_that("replace_plus", {
 
     ee(replace_plus("gg x + rect x=a+b y=c+d+e"), "gg x ## rect x=a+b y=c+d+e")
 })
+
+test_that("remove_element_whatever", {
+    ee(remove_element_whatever("theme(l=element_text(size=20, face='bold'))"),
+       "theme(l(size=20, face='bold'))"
+    )
+    ee(remove_element_whatever("theme(l=element_rect(size=20, face='bold'))"),
+       "theme(l(size=20, face='bold'))"
+    )
+    ee(remove_element_whatever("theme(l=element_line(size=20, face='bold'))"),
+       "theme(l(size=20, face='bold'))"
+    )
+    ee(remove_element_whatever("theme(l=element_blank())"),
+       "theme(l())"
+    )
+    # need a test for element_grob()? I haven't used it before
+})
+
+test_that("remove_theme_unit", {
+    ee(remove_theme_unit("theme(a=unit(.5, 'cm'))"), "theme(a(.5, cm))")
+})
