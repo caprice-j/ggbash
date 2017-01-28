@@ -331,11 +331,13 @@ save_ggplot <- function(
 #'                  If TRUE, the resulted ggplot object is returned.
 #' @param as_string Return the resulted ggplot2 object as a string
 #'                  not as a ggplot2 object. Default is FALSE.
+#' @param show_compiled Show the compiled ggplot2 executable command.
+#'                      Default is TRUE.
 #'
 #' @export
 exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
                         show_warn=TRUE, batch_mode=FALSE,
-                        as_string = FALSE){
+                        as_string = FALSE, show_compiled=TRUE){
     const <- define_ggbash_constants()
     commandv <- split_by_pipe(raw_input)
     ggobj <- ""
@@ -397,6 +399,9 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
         ggobj <- rm_piped_dataset(ggobj)
     }
 
+    if (show_compiled)
+        message("  ", ggobj)
+
     if (batch_mode) {
         if (as_string)
             return(ggobj)
@@ -435,6 +440,7 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #' @param as_string Return the resulted ggplot2 object as a string
 #'                  not as a ggplot2 object. Default is FALSE.
 #'                  Ignored when non-batch mode.
+#' @param show_compiled Print the built ggplot2 command. Default is TRUE.
 #'
 #' \describe{
 #'     \item{Geom name:}{the geom most frequently used (based on my experiences)}
@@ -454,8 +460,9 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
 #' }
 #'
 #' @export
-ggbash_ <- function(batch="", clipboard=NULL,
-                   show_warn=TRUE, as_string = FALSE) {
+ggbash_ <- function(batch = "", clipboard = NULL,
+                   show_warn = TRUE, as_string = FALSE,
+                   show_compiled = TRUE) {
     if (batch != "") {
         dbgmsg("before raw_input")
         raw_input <- batch
@@ -466,7 +473,8 @@ ggbash_ <- function(batch="", clipboard=NULL,
         }
         return(exec_ggbash(raw_input,
                            show_warn, batch_mode = TRUE,
-                           as_string = as_string))
+                           as_string = as_string,
+                           show_compiled = show_compiled))
     }
     while (TRUE) {
         tryCatch({
@@ -516,6 +524,7 @@ add_piped_dataset <- function(str)
 #' @param show_warn If ambiguously matched, display warning. Default is TRUE.
 #' @param as_string Return a string instead of a ggplot2 object.
 #'                  Default is FALSE.
+#' @param show_compiled Print the built ggplot2 command. Default is TRUE.
 #'
 #' @examples
 #' \dontrun{
@@ -564,8 +573,9 @@ add_piped_dataset <- function(str)
 #' }
 #'
 #' @export
-ggbash <- function(ggbash_symbols="", clipboard=NULL,
-                   show_warn=TRUE, as_string = FALSE) {
+ggbash <- function(ggbash_symbols = "", clipboard = NULL,
+                   show_warn = TRUE, as_string = FALSE,
+                   show_compiled = TRUE) {
     type <- tryCatch(class(ggbash_symbols),
                      error = function(err) {FALSE})
     if (type[1] == "character") {
@@ -594,7 +604,8 @@ ggbash <- function(ggbash_symbols="", clipboard=NULL,
     }
     dbgmsg(cmd)
     return(ggbash_(cmd, clipboard = clipboard,
-                   show_warn = show_warn, as_string = as_string))
+                   show_warn = show_warn, as_string = as_string,
+                   show_compiled = show_compiled))
 }
 
 #' print useful debug advice according to the given error message
