@@ -61,6 +61,9 @@ test_that("NSE", {
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length, colour=Species)) + theme(legend.position = "bottom") )
     # MAYBE-LATER RStudio's auto completion inserts = after conf name
 
+    # FIXME c matches to face in theme names
+    # ggbash(g(iris) + p(Sepal.W, Sepal.L, c="red", sz=20, sh=5) + theme(a.ttl(sz=20, f="bold"), a.txt(co="blue")))
+
     ee(bash(gg(mtcars) + rect(xmin=wt-5, xmax=wt+5, ymin=am-5, ymax=am+5)),
        "ggplot(mtcars) + geom_rect(aes(xmin=wt-5, xmax=wt+5, " %++%
                                       "ymin=am-5, ymax=am+5))")

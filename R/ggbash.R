@@ -364,9 +364,10 @@ exec_ggbash <- function(raw_input="gg mtcars + point mpg cyl | copy",
             if (ggobj != "")
                 print(eval(parse(text = ggobj_verbose)))
             message(ifelse(ggobj != "",
-                           rm_piped_dataset(gsub("\\) \\+", "\\)\n +", ggobj)),
+                           rm_piped_dataset(gsub("\\) \\+",
+                                                 "\\) + \n ", ggobj)),
                            argv[2]))
-            return(FALSE)
+            return(invisible(FALSE))
         } else if (argv[1] %in% const$builtinv) {
             execute_ggbash_builtins(raw_input, argv, const)
         } else if (argv[1] %in% c("copy", "cp")) {
