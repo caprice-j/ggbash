@@ -5,7 +5,7 @@
 \title{execute a specified ggbash command}
 \usage{
 ggbash(ggbash_symbols = "", clipboard = NULL, show_warn = TRUE,
-  as_string = FALSE)
+  as_string = FALSE, show_compiled = TRUE)
 }
 \arguments{
 \item{ggbash_symbols}{Non-evaluated R symbols or
@@ -20,6 +20,8 @@ If non-null, copy the resulted string to clipboard.}
 
 \item{as_string}{Return a string instead of a ggplot2 object.
 Default is FALSE.}
+
+\item{show_compiled}{Print the built ggplot2 command. Default is TRUE.}
 }
 \description{
 \code{ggbash()} can be used as follows:

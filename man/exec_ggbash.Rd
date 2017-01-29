@@ -5,7 +5,8 @@
 \title{execute raw ggbash commands}
 \usage{
 exec_ggbash(raw_input = "gg mtcars + point mpg cyl | copy",
-  show_warn = TRUE, batch_mode = FALSE, as_string = FALSE)
+  show_warn = TRUE, batch_mode = FALSE, as_string = FALSE,
+  show_compiled = TRUE)
 }
 \arguments{
 \item{raw_input}{A ggbash command chain (might contain pipes)}
@@ -18,6 +19,9 @@ If TRUE, the resulted ggplot object is returned.}
 
 \item{as_string}{Return the resulted ggplot2 object as a string
 not as a ggplot2 object. Default is FALSE.}
+
+\item{show_compiled}{Show the compiled ggplot2 executable command.
+Default is TRUE.}
 }
 \description{
 execute raw ggbash commands

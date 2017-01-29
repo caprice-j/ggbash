@@ -5,7 +5,7 @@
 \title{Enter into a ggbash session.}
 \usage{
 ggbash_(batch = "", clipboard = NULL, show_warn = TRUE,
-  as_string = FALSE)
+  as_string = FALSE, show_compiled = TRUE)
 }
 \arguments{
 \item{batch}{A character. If given, \code{ggbash_()} will exit
@@ -20,8 +20,10 @@ just after executing the given command.}
 when ambiguously matched. Default is TRUE.}
 
 \item{as_string}{Return the resulted ggplot2 object as a string
-                 not as a ggplot2 object. Default is FALSE.
-                 Ignored when non-batch mode.
+not as a ggplot2 object. Default is FALSE.
+Ignored when non-batch mode.}
+
+\item{show_compiled}{Print the built ggplot2 command. Default is TRUE.
 
 \describe{
     \item{Geom name:}{the geom most frequently used (based on my experiences)}

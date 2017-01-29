@@ -63,6 +63,7 @@ test_that("NSE", {
 
     # FIXME c matches to face in theme names
     # ggbash(g(iris) + p(Sepal.W, Sepal.L, c="red", sz=20, sh=5) + theme(a.ttl(sz=20, f="bold"), a.txt(co="blue")))
+    # FIXME mention about aes and element_text removal in documents after written this
 
     ee(bash(gg(mtcars) + rect(xmin=wt-5, xmax=wt+5, ymin=am-5, ymax=am+5)),
        "ggplot(mtcars) + geom_rect(aes(xmin=wt-5, xmax=wt+5, " %++%
