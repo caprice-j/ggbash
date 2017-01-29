@@ -61,8 +61,13 @@ test_that("NSE", {
     # bash(ggplot(iris) + geom_point(aes(Sepal.Width, Sepal.Length, colour=Species)) + theme(legend.position = "bottom") )
     # MAYBE-LATER RStudio's auto completion inserts = after conf name
 
+    ee( bash(g(iris) + p(Sepal.W, Sepal.L) + theme(txt(c="blue"))),
+        "ggplot(iris) + geom_point(aes(x=Sepal.Width, y=Sepal.Length))" %++%
+            " + theme(text = element_text(colour=\"blue\"))"
+    )
+
     # FIXME c matches to face in theme names
-    # ggbash(g(iris) + p(Sepal.W, Sepal.L, c="red", sz=20, sh=5) + theme(a.ttl(sz=20, f="bold"), a.txt(co="blue")))
+    # ggbash(g(iris) + p(Sepal.W, Sepal.L, c="red") + theme(a.txt(c="blue")))
     # FIXME mention about aes and element_text removal in documents after written this
 
     ee(bash(gg(mtcars) + rect(xmin=wt-5, xmax=wt+5, ymin=am-5, ymax=am+5)),

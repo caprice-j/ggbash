@@ -582,6 +582,16 @@ Ggplot2Parser <-
                 before_equal <- gsub("=.*", "", conf)
                 after_equal  <- gsub(".*=", "", conf)
 
+                if (before_equal == "c") {
+                    # element_text has "face" and "color",
+                    # and current edit distance algorithm matches "c"
+                    # to "face" not to "color" (because of the nchar).
+                    # This contradicts to the case when we specify "c"
+                    # in the element_rect or element_line.
+                    # Thus, rewrite here.
+                    before_equal = "colour"
+                }
+
                 # prefix match
                 input <- ggbashenv$elem_class
                 tbl <- get_theme_elem_name_conf(input)

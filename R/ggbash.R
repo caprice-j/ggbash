@@ -609,7 +609,37 @@ ggbash <- function(ggbash_symbols = "", clipboard = NULL,
                    show_compiled = show_compiled))
 }
 
-
+#' an enhanced version of ggplot2::theme()
+#'
+#' theme2() has an enhanced version of ggplot2::theme() in terms of:
+#' 1. no element_(text|line|rect|grob|blank) specification
+#' 2. partial match for each configuration (e.g. size by sz)
+#'
+#' @param as_string return the built theme function call as string.
+#'                  Default is FALSE.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' # all of the following three generate the same plot
+#'
+#' ggplot(mtcars) + geom_point(aes(wt, hp, color=cyl)) +
+#'    theme(text = element_text(size=20, face="bold"),
+#'    axis.line = element_line(size=2),
+#'    legend.key = element_rect(color="black"))
+#'
+#' ggplot(mtcars) + geom_point(aes(wt, hp, color=cyl)) +
+#'    theme2(text(size=20, face="bold"), axis.line(size=2),
+#'           legend.key(color="black"))
+#'
+#' ggplot(mtcars) + geom_point(aes(wt, hp, color=cyl)) +
+#'    theme2(text(sz=20, f="bold"), axis.line(sz=2),
+#'           legend.key(c="black"))
+#'
+#'
+#' }
+#'
+#' @export
 theme2 <- function(..., as_string = FALSE){
 
     elem_list <- as.list(substitute(list(...)))[-1L]
