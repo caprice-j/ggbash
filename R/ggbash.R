@@ -615,6 +615,7 @@ ggbash <- function(ggbash_symbols = "", clipboard = NULL,
 #' 1. no element_(text|line|rect|grob|blank) specification
 #' 2. partial match for each configuration (e.g. size by sz)
 #'
+#' @param ... theme element specification (see examples below)
 #' @param as_string return the built theme function call as string.
 #'                  Default is FALSE.
 #'
