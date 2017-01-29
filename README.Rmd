@@ -25,7 +25,7 @@ knitr::opts_chunk$set(
 [![Project Status: WIP - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](http://www.repostatus.org/badges/latest/wip.svg)](http://www.repostatus.org/#wip)
 
 ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax.
-It features partial match, error messages,and builtin commands such as `copy` or `png`.
+It features partial match, error messages, and builtin commands such as `copy` or `png`.
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user,
 from beginners to professionals.

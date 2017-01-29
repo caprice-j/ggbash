@@ -609,6 +609,29 @@ ggbash <- function(ggbash_symbols = "", clipboard = NULL,
                    show_compiled = show_compiled))
 }
 
+
+theme2 <- function(..., as_string = FALSE){
+
+    elem_list <- as.list(substitute(list(...)))[-1L]
+    # elem_list <- as.list(substitute(match.call()))[-1L]
+    elem_str <- paste0(elem_list, collapse=", ")
+
+    input <- paste0("gg(mtcars) + point(mpg,wt) + theme(", elem_str, ")")
+
+    ggstr <-
+        exec_ggbash(input, show_warn = FALSE,
+                    batch_mode = TRUE, as_string = TRUE,
+                    show_compiled = FALSE)
+    theme_str <-
+    gsub("ggplot\\(mtcars\\) \\+ geom_point\\(aes\\(x=mpg, y=wt\\)\\) \\+ ",
+         "",
+         ggstr)
+    if (as_string)
+        theme_str
+    else
+        eval(parse(text = theme_str))
+}
+
 #' print useful debug advice according to the given error message
 #'
 #' @param err_message A character returned by \code{stop}

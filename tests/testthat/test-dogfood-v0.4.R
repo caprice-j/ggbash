@@ -68,4 +68,8 @@ test_that("NSE", {
     ee(bash(gg(mtcars) + rect(xmin=wt-5, xmax=wt+5, ymin=am-5, ymax=am+5)),
        "ggplot(mtcars) + geom_rect(aes(xmin=wt-5, xmax=wt+5, " %++%
                                       "ymin=am-5, ymax=am+5))")
+
+    # the
+    #ggplot(mtcars) + geom_point(aes(mpg,wt)) + theme2(axis.title(sz=20), txt())
+
 })

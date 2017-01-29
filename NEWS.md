@@ -1,3 +1,14 @@
+# ggbash 0.4.7
+
+## New Feature
++ `ggbash::theme2()` as an enhanced version of `ggplot2::theme()`.
+
+## Bug fixes
++ redundant element_\*() and unit_\*() handling
++ make the return value of echo invisible()
+
+# ggbash 0.4.6
++ several bug fixes
 
 # ggbash 0.4.5
 
