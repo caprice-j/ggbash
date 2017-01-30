@@ -315,7 +315,7 @@ save_ggplot <- function(
     dir.create(dataset_string, showWarnings = FALSE)
     setwd(dataset_string)
     setwd(oldwd)
-
+# FIXME simply create subdir from filenames
     ggplot2::ggsave(attrl$filepath, plot = eval(parse(text = ggstr)),
                     width = attrl$w, height = attrl$h,
                     units = "in", dpi = attrl$dpi)
