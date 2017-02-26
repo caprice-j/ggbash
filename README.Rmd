@@ -30,7 +30,6 @@ It features partial match, error messages, and builtin commands such as `copy` o
 The goal of ggbash is to make ggplot2 more comfortable to write for every user,
 from beginners to professionals.
 
-
 ```{r, echo=FALSE}
 library(ggplot2)
 ```
@@ -321,6 +320,10 @@ you might need `install.packages('rly')`.
 `packageVersion('rly')` should be at least 1.4.2.
 
 + This package is still in its infancy, and might contain several installation bugs.
+
+#### Note
+Currently, I am in my school semester and suspending ggbash development.
+Please wait till May 2017 :)
 
 ## Goals
 

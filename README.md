@@ -252,6 +252,10 @@ devtools::install_github("caprice-j/ggbash")
 
 -   This package is still in its infancy, and might contain several installation bugs.
 
+#### Note
+
+Currently, I am in my school semester and suspending ggbash development. Please wait till May 2017 :)
+
 Goals
 -----
 
