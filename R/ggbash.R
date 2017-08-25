@@ -640,7 +640,6 @@ ggbash <- function(ggbash_symbols = "", clipboard = NULL,
 #'
 #' }
 #'
-#' @export
 theme2 <- function(..., as_string = FALSE){
 
     elem_list <- as.list(substitute(list(...)))[-1L]

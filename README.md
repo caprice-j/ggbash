@@ -50,26 +50,6 @@ g iris + p Sepal.W Sepal.L c=Sp s=7 + theme l.tx s=20 f="bold"
 
 will produce exactly the same plot, at the sacrifice of readability for beginners.
 
-### theme2()
-
-`ggbash::theme2()` provides the same function of `ggplot2::theme()` by a simpler interface.
-
-``` r
-p <- ggplot(mtcars) + geom_point(aes(mpg, wt)) 
-
-p + theme(axis.text = element_text(size=20, face="bold"),
-          axis.line = element_line(color = "black"))
-```
-
-can be written as
-
-``` r
-p + theme2(axis.text(size=20, face="bold"), axis.line(color="black"))
-
-# or much shorter
-p + theme2(a.txt(sz=20, f="bold"), a.line(c="black"))
-```
-
 Features
 --------
 
