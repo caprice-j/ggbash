@@ -8,6 +8,8 @@ ggbash provides a simpler [ggplot2](https://github.com/tidyverse/ggplot2) syntax
 
 The goal of ggbash is to make ggplot2 more comfortable to write for every user, from beginners to professionals.
 
+[Note:] The development of ggbash was abandoned as I started working on other projects. This repository is just for records.
+
 Usage
 -----
 
